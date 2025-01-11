@@ -11,32 +11,35 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class OuttakeSubsystem extends SubsystemBase {
 
-  public final WPI_TalonSRX manipulator;
+  public final WPI_TalonSRX motorController;
 
   public OuttakeSubsystem() {
     
-    manipulator = new WPI_TalonSRX(40);
+    motorController = new WPI_TalonSRX(40);
 
-    manipulator.setNeutralMode(NeutralMode.Brake);
+    motorController.setNeutralMode(NeutralMode.Brake);
 
   }
 
-  public void setSpeed(double speed) {
-    manipulator.set(speed);
+  // Typeset
+
+  private void setSpeed(double speed) {
+    motorController.set(speed);
   }
 
-  public void stop() {
-    manipulator.stopMotor();
+  private void stop() {
+    motorController.stopMotor();
   }
 
-  // Template modes
+  // Templates
 
   public void intake() {
-    setSpeed(0.5);
+    System.out.println("in");
+    setSpeed(0.2);
   }
 
   public void outtake() {
-    setSpeed(-0.5);
+    setSpeed(-0.2);
   }
 
   public void stopIntake() {
