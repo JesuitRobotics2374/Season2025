@@ -11,17 +11,22 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class OuttakeSubsystem extends SubsystemBase {
 
+  private TalonSRXConfiguration config;
+
   public final WPI_TalonSRX motorController;
 
   public OuttakeSubsystem() {
-    
     motorController = new WPI_TalonSRX(40);
-
-    motorController.setNeutralMode(NeutralMode.Brake);
-
+    configure();
   }
 
-  // Typeset
+  public configure() {
+    motorController.setNeutralMode(NeutralMode.Brake);
+  }
+
+  public checkConfiguration() {
+    getAllConfigs(config);
+  }
 
   private void setSpeed(double speed) {
     motorController.set(speed);
