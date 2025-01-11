@@ -19,15 +19,15 @@ public class OuttakeSubsystem extends SubsystemBase {
   public OuttakeSubsystem() {
     motorController = new WPI_TalonSRX(40);
     configure();
-    checkConfiguration(config);
+    checkConfiguration();
   }
 
   public void configure() {
     motorController.setNeutralMode(NeutralMode.Brake);
   }
 
-  public void checkConfiguration(TalonSRXConfiguration config) {
-    // config.getAllConfigs();
+  public void checkConfiguration() {
+    motorController.getAllConfigs(config);
     System.out.println("Configs Checked");
   }
 
