@@ -28,7 +28,7 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   public void checkConfiguration() {
     motorController.getAllConfigs(config);
-    System.out.println("Configs Checked");
+    System.out.println(config);
   }
 
   private void setSpeed(double speed) {
