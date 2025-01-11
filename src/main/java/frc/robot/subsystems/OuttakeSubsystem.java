@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,14 +19,16 @@ public class OuttakeSubsystem extends SubsystemBase {
   public OuttakeSubsystem() {
     motorController = new WPI_TalonSRX(40);
     configure();
+    checkConfiguration(config);
   }
 
-  public configure() {
+  public void configure() {
     motorController.setNeutralMode(NeutralMode.Brake);
   }
 
-  public checkConfiguration() {
-    getAllConfigs(config);
+  public void checkConfiguration(TalonSRXConfiguration config) {
+    // config.getAllConfigs();
+    System.out.println("Configs Checked");
   }
 
   private void setSpeed(double speed) {
