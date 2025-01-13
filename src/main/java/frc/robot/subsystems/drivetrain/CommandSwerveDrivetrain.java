@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.drivetrain.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.utils.LL;
 import frc.robot.utils.LimelightHelpers;
 
 /**
@@ -53,15 +54,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     // CUSTOM DECLARATIONS
 
-    private final SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
-        getKinematics(),
-        getRotation3d().toRotation2d(),
-        new SwerveModulePosition[] {
-            new SwerveModulePosition(),
-        },
-        new Pose2d()
-    );
-
+    private final SwerveModuleConstants frontLeftConstants;
+    private final SwerveModuleConstants frontRightConstants;
+    private final SwerveModuleConstants backLeftConstants;
+    private final SwerveModuleConstants backRightConstants;
+    private final SwerveDrivePoseEstimator estimator;
     Field2d field = new Field2d();
 
     /*
@@ -144,6 +141,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        frontLeftConstants = modules[0];
+        frontRightConstants = modules[1];
+        backLeftConstants = modules[2];
+        backRightConstants = modules[3];
+        estimator = new SwerveDrivePoseEstimator(getKinematics(), getGyroscopeRotation(), getSwerveModulePositions(),
+                new Pose2d());
     }
 
     /**
@@ -161,15 +164,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      *                                CAN FD, and 100 Hz on CAN 2.0.
      * @param modules                 Constants for each specific module
      */
-    public CommandSwerveDrivetrain(
-            SwerveDrivetrainConstants drivetrainConstants,
-            double odometryUpdateFrequency,
-            SwerveModuleConstants<?, ?, ?>... modules) {
-        super(drivetrainConstants, odometryUpdateFrequency, modules);
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
-    }
+    // public CommandSwerveDrivetrain(
+    // SwerveDrivetrainConstants drivetrainConstants,
+    // double odometryUpdateFrequency,
+    // SwerveModuleConstants<?, ?, ?>... modules) {
+    // super(drivetrainConstants, odometryUpdateFrequency, modules);
+    // if (Utils.isSimulation()) {
+    // startSimThread();
+    // }
+    // }
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -198,18 +201,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      *                                  and radians
      * @param modules                   Constants for each specific module
      */
-    public CommandSwerveDrivetrain(
-            SwerveDrivetrainConstants drivetrainConstants,
-            double odometryUpdateFrequency,
-            Matrix<N3, N1> odometryStandardDeviation,
-            Matrix<N3, N1> visionStandardDeviation,
-            SwerveModuleConstants<?, ?, ?>... modules) {
-        super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation,
-                modules);
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
-    }
+    // public CommandSwerveDrivetrain(
+    // SwerveDrivetrainConstants drivetrainConstants,
+    // double odometryUpdateFrequency,
+    // Matrix<N3, N1> odometryStandardDeviation,
+    // Matrix<N3, N1> visionStandardDeviation,
+    // SwerveModuleConstants<?, ?, ?>... modules) {
+    // super(drivetrainConstants, odometryUpdateFrequency,
+    // odometryStandardDeviation, visionStandardDeviation,
+    // modules);
+    // if (Utils.isSimulation()) {
+    // startSimThread();
+    // }
+    // }
 
     /**
      * Returns a command that applies the specified control request to this swerve
@@ -248,7 +252,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public void periodic() {
 
         // In accordance with LL docs (found here: ) call this every frame:
-        LimelightHelpers.SetRobotOrientation("", getRotation3d().getZ(), 0, 0, 0, 0, 0);
+        // LimelightHelpers.SetRobotOrientation("", getRotation3d().getZ(), 0, 0, 0, 0, 0);
 
         /*
          * Periodically try to apply the operator perspective.
@@ -289,22 +293,50 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     // CUSTOM CODE BELOW THIS LINE
 
-    public void alignToVision() {
+    private Rotation2d getGyroscopeRotation() {
+        return Rotation2d.fromDegrees(getState().Pose.getRotation().getDegrees());
+    }
+
+    private SwerveModulePosition getSMP(SwerveModuleConstants module) {
+
+        // Calculate dist meters using module.LocationX and module.LocationY
+        double distMeters = Math.sqrt(Math.pow(module.LocationX, 2) + Math.pow(module.LocationY, 2));
+        // Calculate angle using Math.atan2
+        double angle = Math.atan2(module.LocationY, module.LocationX);
+
+        // Return a new SwerveModulePosition with distMeters and angle
+        return new SwerveModulePosition(distMeters, Rotation2d.fromRadians(angle));
+
+    }
+
+    private SwerveModulePosition[] getSwerveModulePositions() {
+        SwerveModulePosition[] smp = new SwerveModulePosition[] {
+            getSMP(frontLeftConstants),
+            getSMP(frontRightConstants),
+            getSMP(backLeftConstants),
+            getSMP(backRightConstants)
+        };
+        return smp;
+    }
+
+    public void alignToVision(LL side) {
+        String limelight = side == LL.RIGHT ? "limelight-right" : "limelight-left";
         boolean doRejectUpdate = false;
-        LimelightHelpers.SetRobotOrientation("limelight",
-                m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-        // if (Math.abs(m_gyro.getRate()) > 720) // if our angular velocity is greater than 720 degrees per second, ignore
-        //                                       // vision updates
+        LimelightHelpers.SetRobotOrientation(limelight,
+                estimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
+        // if (Math.abs(m_gyro.getRate()) > 720) // if our angular velocity is greater
+        // than 720 degrees per second, ignore
+        // // vision updates
         // {
-        //     doRejectUpdate = true;
+        // doRejectUpdate = true;
         // }
         if (mt2.tagCount == 0) {
             doRejectUpdate = true;
         }
         if (!doRejectUpdate) {
-            m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
-            m_poseEstimator.addVisionMeasurement(
+            estimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+            estimator.addVisionMeasurement(
                     mt2.pose,
                     mt2.timestampSeconds);
         }

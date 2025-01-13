@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
+import frc.robot.utils.LL;
 
 public class Core {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * 0.4; // kSpeedAt12Volts desired top speed
@@ -86,15 +87,17 @@ public class Core {
             )
         );
 
-        driveController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        driveController.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-driveController.getLeftY(), -driveController.getLeftX()))
-        ));
+        // driveController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        // driveController.b().whileTrue(drivetrain.applyRequest(() ->
+        //     point.withModuleDirection(new Rotation2d(-driveController.getLeftY(), -driveController.getLeftX()))
+        // ));
 
         driveController.x().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.outtake()));
         driveController.x().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
         driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
         driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
+
+        driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(LL.RIGHT)));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
