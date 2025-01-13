@@ -9,7 +9,12 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -39,6 +44,34 @@ public class Core {
 
     public Core() {
         configureBindings();
+    }
+
+    public void configureShuffleBoard() {
+
+        ShuffleboardTab tab = Shuffleboard.getTab("Test");
+
+        // Limelight
+        // HttpCamera httpCamera = new HttpCamera("Limelight", "http://limelight.local:5800");
+        // CameraServer.addCamera(httpCamera);
+        // tab.add(httpCamera).withPosition(7, 0).withSize(3, 2);
+
+        // New List Layout
+        ShuffleboardContainer pos = tab.getLayout("Position", "List Layout").withPosition(0, 0).withSize(2, 3);
+
+        // Field
+        tab.add(drivetrain.getField()).withPosition(2, 1).withSize(5, 3);
+
+        // Modes
+        // tab.addBoolean("Slow Mode", () -> isSlow()).withPosition(2, 0).withSize(2, 1);
+        // tab.addBoolean("Roll Mode", () -> isRoll()).withPosition(5, 0).withSize(1, 1);
+
+        // Robot (Reverse order for list layout)
+        pos.addDouble("Robot R", () -> drivetrain.getState().Pose.getRotation().getDegrees())
+                .withWidget("Gyro");
+        ;
+        pos.addDouble("Robot Y", () -> drivetrain.getState().Pose.getY());
+        pos.addDouble("Robot X", () -> drivetrain.getState().Pose.getX());
+
     }
 
     private void configureBindings() {
