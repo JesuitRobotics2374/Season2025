@@ -17,6 +17,7 @@ public class OuttakeSubsystem extends SubsystemBase {
   public final WPI_TalonSRX motorController;
 
   public OuttakeSubsystem() {
+    config = new TalonSRXConfiguration();
     motorController = new WPI_TalonSRX(40);
     configure();
     checkConfiguration();
@@ -28,6 +29,7 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   public void checkConfiguration() {
     motorController.getAllConfigs(config);
+    System.out.println("Intake Configs: ");
     System.out.println(config);
   }
 
