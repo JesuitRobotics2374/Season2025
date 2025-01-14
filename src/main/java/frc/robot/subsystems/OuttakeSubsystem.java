@@ -25,6 +25,11 @@ public class OuttakeSubsystem extends SubsystemBase {
   }
 
   public ErrorCode configAllSettings(TalonSRXConfiguration allConfigs) {
+    allConfigs.continuousCurrentLimit = 1;
+    allConfigs.peakCurrentDuration = 1;
+    allConfigs.peakCurrentLimit = 1;
+    //NeutralMode
+    
     ErrorCode errorCode = motorController.configAllSettings(allConfigs);
     return errorCode;
   } 
