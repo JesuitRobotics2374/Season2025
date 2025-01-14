@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -53,11 +54,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
     // CUSTOM DECLARATIONS
-
-    private final SwerveModuleConstants frontLeftConstants;
-    private final SwerveModuleConstants frontRightConstants;
-    private final SwerveModuleConstants backLeftConstants;
-    private final SwerveModuleConstants backRightConstants;
     private final SwerveDrivePoseEstimator estimator;
     Field2d field = new Field2d();
 
@@ -141,10 +137,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        frontLeftConstants = modules[0];
-        frontRightConstants = modules[1];
-        backLeftConstants = modules[2];
-        backRightConstants = modules[3];
+
         estimator = new SwerveDrivePoseEstimator(getKinematics(), getGyroscopeRotation(), getSwerveModulePositions(),
                 new Pose2d());
     }
@@ -252,7 +245,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public void periodic() {
 
         // In accordance with LL docs (found here: ) call this every frame:
-        // LimelightHelpers.SetRobotOrientation("", getRotation3d().getZ(), 0, 0, 0, 0, 0);
+        // LimelightHelpers.SetRobotOrientation("", getRotation3d().getZ(), 0, 0, 0, 0,
+        // 0);
 
         /*
          * Periodically try to apply the operator perspective.
@@ -274,6 +268,26 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        // CUSTOMS
+
+        // Update graphics
+        field.getObject("Vision1").setPose(
+                LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left").pose);
+        field.getObject("Vision2").setPose(
+                LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
+
+        // Update robot graphic
+        SwerveModulePosition[] smps = getSwerveModulePositions();
+        // System.out.println(smps[0].distanceMeters);
+        field.getObject("Robot").setPose(estimator.update(getGyroscopeRotation(), smps));
+
+        // Align to left limelight
+        alignToVision(LL.LEFT);
+
+        // Align to right limelight
+        alignToVision(LL.RIGHT);
+
     }
 
     private void startSimThread() {
@@ -297,45 +311,38 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return Rotation2d.fromDegrees(getState().Pose.getRotation().getDegrees());
     }
 
-    private SwerveModulePosition getSMP(SwerveModuleConstants module) {
-
-        // Calculate dist meters using module.LocationX and module.LocationY
-        double distMeters = Math.sqrt(Math.pow(module.LocationX, 2) + Math.pow(module.LocationY, 2));
-        // Calculate angle using Math.atan2
-        double angle = Math.atan2(module.LocationY, module.LocationX);
-
-        // Return a new SwerveModulePosition with distMeters and angle
-        return new SwerveModulePosition(distMeters, Rotation2d.fromRadians(angle));
-
-    }
-
     private SwerveModulePosition[] getSwerveModulePositions() {
-        SwerveModulePosition[] smp = new SwerveModulePosition[] {
-            getSMP(frontLeftConstants),
-            getSMP(frontRightConstants),
-            getSMP(backLeftConstants),
-            getSMP(backRightConstants)
-        };
+        SwerveModulePosition[] smp = new SwerveModulePosition[4];
+        SwerveModule[] sms = getModules();
+        for (int i = 0; i < 4; i++) {
+            smp[i] = sms[i].getPosition(false);
+        }
         return smp;
     }
 
     public void alignToVision(LL side) {
         String limelight = side == LL.RIGHT ? "limelight-right" : "limelight-left";
+        double trust = side == LL.RIGHT ? 1 : 0.7;
         boolean doRejectUpdate = false;
         LimelightHelpers.SetRobotOrientation(limelight,
                 estimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
-        // if (Math.abs(m_gyro.getRate()) > 720) // if our angular velocity is greater
-        // than 720 degrees per second, ignore
-        // // vision updates
-        // {
-        // doRejectUpdate = true;
-        // }
+
+        if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2*Math.PI) {
+        doRejectUpdate = true;
+        System.out.println("ESTLOG: " + limelight + " was REJECTED due to high rot of " + getState().Speeds.omegaRadiansPerSecond);
+        }
         if (mt2.tagCount == 0) {
             doRejectUpdate = true;
+            System.out.println("ESTLOG: " + limelight + " was REJECTED due to notags");
         }
+        if (mt2.avgTagDist > 8) {
+            doRejectUpdate = true;
+            System.out.println("ESTLOG: " + limelight + " was REJECTED due to avgtagdist of " + mt2.avgTagDist);
+        }
+
         if (!doRejectUpdate) {
-            estimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+            estimator.setVisionMeasurementStdDevs(VecBuilder.fill(trust, trust, 9999999));
             estimator.addVisionMeasurement(
                     mt2.pose,
                     mt2.timestampSeconds);

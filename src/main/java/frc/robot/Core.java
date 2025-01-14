@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
@@ -15,10 +17,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.commands.auto.Outtake;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
@@ -43,8 +50,17 @@ public class Core {
 
     public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
 
+    private final SendableChooser<Command> autoChooser;
+
     public Core() {
+        autoChooser = AutoBuilder.buildAutoChooser();
         configureBindings();
+        configureShuffleBoard();
+        registerAutoCommands();
+    }
+
+    public void registerAutoCommands() {
+        NamedCommands.registerCommand("Outtake", new Outtake(outtakeSubsystem));
     }
 
     public void configureShuffleBoard() {
@@ -73,6 +89,8 @@ public class Core {
         pos.addDouble("Robot Y", () -> drivetrain.getState().Pose.getY());
         pos.addDouble("Robot X", () -> drivetrain.getState().Pose.getX());
 
+        tab.add("Auto Chooser", autoChooser);
+
     }
 
     private void configureBindings() {
@@ -97,7 +115,7 @@ public class Core {
         driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
         driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
-        driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(LL.RIGHT)));
+        driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(LL.LEFT)));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -113,6 +131,6 @@ public class Core {
     }
 
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+        return autoChooser.getSelected();
     }
 }
