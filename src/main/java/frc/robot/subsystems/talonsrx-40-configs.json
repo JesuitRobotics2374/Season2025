@@ -1,0 +1,227 @@
+{
+  "Configs": [
+    {
+      "Description": "Group of all configs relating to motor output",
+      "Name": "Motor Output",
+      "Ordinal": 0,
+      "Sort": 0,
+      "Type": "MotorOutputGroup",
+      "Values": {
+        "Neutral Deadband": 0.04007820136852395,
+        "Neutral Mode": 0,
+        "Nominal Forward Output": 0.0,
+        "Nominal Reverse Output": 0.0,
+        "Open Loop Ramp": 0.0,
+        "Peak Forward Output": 1.0,
+        "Peak Reverse Output": -1.0
+      }
+    },
+    {
+      "Description": "Group of all configs relating to current limit",
+      "Name": "Current Limit",
+      "Ordinal": 0,
+      "Sort": 1,
+      "Type": "CurrentLimitGroup",
+      "Values": {
+        "Continuous Current Limit": 1.0,
+        "Peak Current Duration": 1.0,
+        "Peak Current Limit": 1.0
+      }
+    },
+    {
+      "Description": "Group of all configs relating to current limit",
+      "Name": "Voltage Comp",
+      "Ordinal": 0,
+      "Sort": 2,
+      "Type": "VoltageCompGroup",
+      "Values": {
+        "Voltage Compensation Saturation": 0.0
+      }
+    },
+    {
+      "Description": "Group of all configs relating to hardware limit switches",
+      "Name": "Hardware Limit Switches",
+      "Ordinal": 0,
+      "Sort": 3,
+      "Type": "HardLimitSwitchGroup",
+      "Values": {
+        "Limit Forward": 0,
+        "Limit Forward Device ID": 0,
+        "Limit Forward Source": 0,
+        "Limit Reverse": 0,
+        "Limit Reverse Device ID": 0,
+        "Limit Reverse Source": 0
+      }
+    },
+    {
+      "Description": "Group of all configs relating to software limit switches",
+      "Name": "Software Limit Switches",
+      "Ordinal": 0,
+      "Sort": 4,
+      "Type": "SoftLimitSwitchGroup",
+      "Values": {
+        "Forward Soft Limit Enable": false,
+        "Reverse Soft Limit Enable": false,
+        "Soft Limit Forward Value": 0.0,
+        "Soft Limit Reverse Value": 0.0
+      }
+    },
+    {
+      "Description": "Group of all configs relating to PID 1",
+      "Name": "Motion Magic",
+      "Ordinal": 0,
+      "Sort": 5,
+      "Type": "MotionMagicGroup",
+      "Values": {
+        "Acceleration": 0.0,
+        "Cruise Velocity": 0.0,
+        "Curve Strength": 0
+      }
+    },
+    {
+      "Description": "Group of all configs relating to software limit switches",
+      "Name": "Motion Profile",
+      "Ordinal": 0,
+      "Sort": 6,
+      "Type": "MotionProfileGroup",
+      "Values": {
+        "Base Trajectory Period Ms": 0,
+        "Trajectory Interpolation Enable": true
+      }
+    },
+    {
+      "Description": "Group of all configs relating to slot 0",
+      "Name": "Closed Loop",
+      "Ordinal": 0,
+      "Sort": 7,
+      "Type": "ClosedLoopGroup",
+      "Values": {
+        "Closed Loop Ramp": 0.0,
+        "PID 0 Primary Feedback Sensor": 0,
+        "PID 0 Primary Sensor Coefficient": 1.0,
+        "PID 1 Aux Feedback Sensor": 0,
+        "PID 1 Aux Sensor Coefficient": 1.0,
+        "PID 1 Polarity": false
+      }
+    },
+    {
+      "Description": "Group of all configs relating to slot 0",
+      "Name": "Slot 0",
+      "Ordinal": 0,
+      "Sort": 8,
+      "Type": "SlotGroup",
+      "Values": {
+        "Allowable Error": 0.0,
+        "I Zone": 0.0,
+        "Loop Period Ms": 1,
+        "Max Integral Accum": 0.0,
+        "Peak Output": 1.0,
+        "kD": 0.0,
+        "kF": 0.0,
+        "kI": 0.0,
+        "kP": 0.0
+      }
+    },
+    {
+      "Description": "Group of all configs relating to slot 1",
+      "Name": "Slot 1",
+      "Ordinal": 1,
+      "Sort": 9,
+      "Type": "SlotGroup",
+      "Values": {
+        "Allowable Error": 0.0,
+        "I Zone": 0.0,
+        "Loop Period Ms": 1,
+        "Max Integral Accum": 0.0,
+        "Peak Output": 1.0,
+        "kD": 0.0,
+        "kF": 0.0,
+        "kI": 0.0,
+        "kP": 0.0
+      }
+    },
+    {
+      "Description": "Group of all configs relating to slot 2",
+      "Name": "Slot 2",
+      "Ordinal": 2,
+      "Sort": 10,
+      "Type": "SlotGroup",
+      "Values": {
+        "Allowable Error": 0.0,
+        "I Zone": 0.0,
+        "Loop Period Ms": 1,
+        "Max Integral Accum": 0.0,
+        "Peak Output": 1.0,
+        "kD": 0.0,
+        "kF": 0.0,
+        "kI": 0.0,
+        "kP": 0.0
+      }
+    },
+    {
+      "Description": "Group of all configs relating to slot 3",
+      "Name": "Slot 3",
+      "Ordinal": 3,
+      "Sort": 11,
+      "Type": "SlotGroup",
+      "Values": {
+        "Allowable Error": 0.0,
+        "I Zone": 0.0,
+        "Loop Period Ms": 1,
+        "Max Integral Accum": 0.0,
+        "Peak Output": 1.0,
+        "kD": 0.0,
+        "kF": 0.0,
+        "kI": 0.0,
+        "kP": 0.0
+      }
+    },
+    {
+      "Description": "Remote Filters",
+      "Name": "Remote Sensor",
+      "Ordinal": 0,
+      "Sort": 12,
+      "Type": "RemoteSensorGroup",
+      "Values": {
+        "Diff Term 0": 0,
+        "Diff Term 1": 0,
+        "Filter 0 Device ID": 0,
+        "Filter 0 Source": 0,
+        "Filter 1 Device ID": 0,
+        "Filter 1 Source": 0,
+        "Neutral If Missing Remote Limit Switch": true,
+        "Neutral If Missing Remote Sensor Dur Closed Loop": true,
+        "Neutral If Missing Remote Soft Limit": true,
+        "Sum Term 0": 0,
+        "Sum Term 1": 0
+      }
+    },
+    {
+      "Description": "Group of all configs relating to software limit switches",
+      "Name": "Home Sensor",
+      "Ordinal": 0,
+      "Sort": 13,
+      "Type": "HomeSensorGroup",
+      "Values": {
+        "Clear Pos On Forward Limit": false,
+        "Clear Pos On Quad Index": false,
+        "Clear Pos On Reverse Limit": false
+      }
+    },
+    {
+      "Description": "Group of configs relating to advanced sensor features and filters",
+      "Name": "Advanced Sensor and Meas",
+      "Ordinal": 0,
+      "Sort": 14,
+      "Type": "AdvancedSensorMeas",
+      "Values": {
+        "Feedback Not Continuous": false,
+        "Pulse Width Edges Per Rotation": 1,
+        "Pulse Width Filter Window": 1,
+        "Velocity Period": 100,
+        "Velocity Window": 64,
+        "Voltage Meas Filter": 32
+      }
+    }
+  ]
+}
