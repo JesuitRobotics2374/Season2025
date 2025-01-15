@@ -8,6 +8,7 @@ import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+//update com.ctre to phoenix 6
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
