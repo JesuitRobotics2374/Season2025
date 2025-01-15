@@ -10,6 +10,10 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -17,6 +21,7 @@ import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -28,9 +33,11 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.subsystems.drivetrain.TunerConstants.TunerSwerveDrivetrain;
-import frc.robot.utils.LL;
+import frc.robot.utils.LimelightObject.LLType;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.LimelightObject;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -56,6 +63,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     // CUSTOM DECLARATIONS
     private final SwerveDrivePoseEstimator estimator;
     Field2d field = new Field2d();
+
+    private final SwerveRequest.ApplyRobotSpeeds autoRequest = new SwerveRequest.ApplyRobotSpeeds();
 
     /*
      * SysId routine for characterizing translation. This is used to find PID gains
@@ -140,6 +149,43 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         estimator = new SwerveDrivePoseEstimator(getKinematics(), getGyroscopeRotation(), getSwerveModulePositions(),
                 new Pose2d());
+
+        RobotConfig ppConfig = null;
+        try {
+            ppConfig = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            // Handle exception as needed
+            e.printStackTrace();
+        }
+
+        // Configure AutoBuilder last
+        AutoBuilder.configure(
+                () -> this.getState().Pose, // Robot pose supplier
+                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+                this::getCurrentRobotChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                (speeds) -> this.setControl(autoRequest.withSpeeds(speeds)), // Method that will drive the robot given ROBOT
+                                                                      // RELATIVE ChassisSpeeds. Also optionally outputs
+                                                                      // individual module feedforwards
+                new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
+                                                // holonomic drive trains
+                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                ),
+                ppConfig, // The robot configuration
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red
+                    // alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );
     }
 
     /**
@@ -271,22 +317,26 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         // CUSTOMS
 
-        // Update graphics
-        field.getObject("Vision1").setPose(
-                LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left").pose);
-        field.getObject("Vision2").setPose(
-                LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
-
         // Update robot graphic
         SwerveModulePosition[] smps = getSwerveModulePositions();
         // System.out.println(smps[0].distanceMeters);
         field.getObject("Robot").setPose(estimator.update(getGyroscopeRotation(), smps));
 
-        // Align to left limelight
-        alignToVision(LL.LEFT);
+        // Limelight not available in sim env
+        if (!Utils.isSimulation()) {
 
-        // Align to right limelight
-        alignToVision(LL.RIGHT);
+            // Update graphics
+            field.getObject("Vision1").setPose(
+                    LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left").pose);
+            field.getObject("Vision2").setPose(
+                    LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
+
+            // Align to all limelights
+            for (LimelightObject ll : Constants.LIMELIGHTS_ON_BOARD) {
+                alignToVision(ll, false);
+            }
+
+        }
 
     }
 
@@ -307,42 +357,50 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     // CUSTOM CODE BELOW THIS LINE
 
+    public ChassisSpeeds getCurrentRobotChassisSpeeds() {
+        return getKinematics().toChassisSpeeds(getState().ModuleStates);
+    }
+
     private Rotation2d getGyroscopeRotation() {
         return Rotation2d.fromDegrees(getState().Pose.getRotation().getDegrees());
     }
 
     private SwerveModulePosition[] getSwerveModulePositions() {
         SwerveModulePosition[] smp = new SwerveModulePosition[4];
-        SwerveModule[] sms = getModules();
+        @SuppressWarnings("rawtypes")
+		SwerveModule[] sms = getModules();
         for (int i = 0; i < 4; i++) {
             smp[i] = sms[i].getPosition(false);
         }
         return smp;
     }
 
-    public void alignToVision(LL side) {
-        String limelight = side == LL.RIGHT ? "limelight-right" : "limelight-left";
-        double trust = side == LL.RIGHT ? 1 : 0.7;
+    public void alignToVision(LimelightObject ll, boolean snap) {
         boolean doRejectUpdate = false;
-        LimelightHelpers.SetRobotOrientation(limelight,
+        LimelightHelpers.SetRobotOrientation(ll.name,
                 estimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ll.name);
 
-        if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2*Math.PI) {
-        doRejectUpdate = true;
-        System.out.println("ESTLOG: " + limelight + " was REJECTED due to high rot of " + getState().Speeds.omegaRadiansPerSecond);
+        if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2 * Math.PI) {
+            doRejectUpdate = true;
+            System.out.println("ESTLOG: " + ll.name + " was REJECTED due to high rot of "
+                    + getState().Speeds.omegaRadiansPerSecond);
         }
         if (mt2.tagCount == 0) {
             doRejectUpdate = true;
-            System.out.println("ESTLOG: " + limelight + " was REJECTED due to notags");
+            System.out.println("ESTLOG: " + ll.name + " was REJECTED due to notags");
         }
         if (mt2.avgTagDist > 8) {
             doRejectUpdate = true;
-            System.out.println("ESTLOG: " + limelight + " was REJECTED due to avgtagdist of " + mt2.avgTagDist);
+            System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of " + mt2.avgTagDist);
         }
 
         if (!doRejectUpdate) {
-            estimator.setVisionMeasurementStdDevs(VecBuilder.fill(trust, trust, 9999999));
+            if (snap) {
+                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.001, 0.001, 9999999));
+            } else {
+                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(ll.trust, ll.trust, 9999999));
+            }
             estimator.addVisionMeasurement(
                     mt2.pose,
                     mt2.timestampSeconds);
