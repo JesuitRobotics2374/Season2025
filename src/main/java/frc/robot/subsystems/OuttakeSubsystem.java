@@ -8,33 +8,34 @@ import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.config.BaseConfig;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class OuttakeSubsystem extends SubsystemBase {
 
-  private TalonSRXConfiguration config;
-
-  private final WPI_TalonSRX motorController;
-
+  private SparkBaseConfig config;
+  private final SparkMax motorController;
+  private final MotorType kBrushless;
+  
   public OuttakeSubsystem() {
-    config = new TalonSRXConfiguration();
-    motorController = new WPI_TalonSRX(40);
+    config = new SparkBaseConfig();
+    motorController = new SparkMax(40, kBrushless);
     configure();
     checkConfiguration();
   }
 
-  public ErrorCode configAllSettings(TalonSRXConfiguration allConfigs) {
-    allConfigs.continuousCurrentLimit = 1;
-    allConfigs.peakCurrentDuration = 1;
-    allConfigs.peakCurrentLimit = 1;
+  public ErrorCode configAllSettings(SparkBaseConfig allConfigs) {
     //NeutralMode
-    
+
     ErrorCode errorCode = motorController.configAllSettings(allConfigs);
     return errorCode;
   } 
-
-  public void configure() {
+  
+  public void configure(SparkBaseConfig config, SparkBase.) {
     motorController.setNeutralMode(NeutralMode.Brake);
     configAllSettings(config);
   }
