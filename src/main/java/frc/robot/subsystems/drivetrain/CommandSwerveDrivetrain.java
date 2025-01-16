@@ -388,16 +388,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2 * Math.PI) {
             doRejectUpdate = true;
-            System.out.println("ESTLOG: " + ll.name + " was REJECTED due to high rot of "
-                    + getState().Speeds.omegaRadiansPerSecond);
+            // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to high rot of "
+            //         + getState().Speeds.omegaRadiansPerSecond);
         }
         if (mt2.tagCount == 0) {
             doRejectUpdate = true;
-            System.out.println("ESTLOG: " + ll.name + " was REJECTED due to notags");
+            // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to notags");
         }
         if (mt2.avgTagDist > 8) {
             doRejectUpdate = true;
-            System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of " + mt2.avgTagDist);
+            // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of " + mt2.avgTagDist);
         }
 
         if (!doRejectUpdate) {
