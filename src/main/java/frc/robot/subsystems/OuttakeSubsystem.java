@@ -4,44 +4,41 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.ErrorCode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.config.BaseConfig;
-
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.revrobotics.spark.config.SparkMaxConfigAccessor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class OuttakeSubsystem extends SubsystemBase {
 
-  private SparkBaseConfig config;
-  private final SparkMax motorController;
-  private final MotorType kBrushless;
+  private SparkMaxConfig config;
+  private SparkMax motorController;
+  private MotorType kBrushless;
+  private SparkMaxConfigAccessor configAccessor;
   
   public OuttakeSubsystem() {
-    config = new SparkBaseConfig();
+    config = new SparkMaxConfig();
     motorController = new SparkMax(40, kBrushless);
-    configure();
+    configure(config);
     checkConfiguration();
   }
 
-  public ErrorCode configAllSettings(SparkBaseConfig allConfigs) {
-    //NeutralMode
-
-    ErrorCode errorCode = motorController.configAllSettings(allConfigs);
-    return errorCode;
+  public void configAllSettings(SparkMaxConfig config) {
+    config.idleMode(IdleMode.kBrake);
+    config.smartCurrentLimit(1);
   } 
   
-  public void configure(SparkBaseConfig config, SparkBase.) {
-    motorController.setNeutralMode(NeutralMode.Brake);
+  public void configure(SparkMaxConfig config) {
     configAllSettings(config);
   }
 
   public void checkConfiguration() {
-    motorController.getAllConfigs(config);
+    configAccessor.getSmartCurrentLimit();
+    configAccessor.getIdleMode();
+    
     System.out.println("Intake Configs: ");
     System.out.println(config);
   }
