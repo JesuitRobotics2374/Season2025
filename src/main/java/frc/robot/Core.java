@@ -65,7 +65,7 @@ public class Core {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+    // public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
 
     private final SendableChooser<Command> autoChooser;
 
@@ -79,7 +79,7 @@ public class Core {
     }
 
     public void registerAutoCommands() {
-        NamedCommands.registerCommand("Outtake", new Outtake(outtakeSubsystem));
+        // NamedCommands.registerCommand("Outtake", new Outtake(outtakeSubsystem));
         // NamedCommands.registerCommand("Test Pathfind", new PathfindBasic(drivetrain,
         // Constants.TEST_PATHFIND_TARGET));
         NamedCommands.registerCommand("Test Pathfind", new InstantCommand(() -> {
@@ -162,13 +162,13 @@ public class Core {
         // -driveController.getLeftX()))
         // ));
 
-        driveController.x().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.outtake()));
-        driveController.x().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
-        driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
-        driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
+        // driveController.x().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.outtake()));
+        // driveController.x().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
+        // driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
+        // driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
-        driveController.a()
-                .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
+        // driveController.a()
+        //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.

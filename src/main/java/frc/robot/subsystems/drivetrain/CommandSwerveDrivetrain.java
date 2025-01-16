@@ -325,21 +325,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // System.out.println(smps[0].distanceMeters);
         field.getObject("Robot").setPose(estimator.update(getGyroscopeRotation(), smps));
 
-        // Limelight not available in sim env
-        if (!Utils.isSimulation()) {
+        // // Limelight not available in sim env
+        // if (!Utils.isSimulation()) {
 
-            // Update graphics
-            field.getObject("Vision1").setPose(
-                    LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left").pose);
-            field.getObject("Vision2").setPose(
-                    LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
+        //     // Update graphics
+        //     field.getObject("Vision1").setPose(
+        //             LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left").pose);
+        //     field.getObject("Vision2").setPose(
+        //             LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
 
-            // Align to all limelights
-            for (LimelightObject ll : Constants.LIMELIGHTS_ON_BOARD) {
-                alignToVision(ll, false);
-            }
+        //     // Align to all limelights
+        //     for (LimelightObject ll : Constants.LIMELIGHTS_ON_BOARD) {
+        //         alignToVision(ll, false);
+        //     }
 
-        }
+        // }
 
         
 
@@ -380,37 +380,37 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return smp;
     }
 
-    public void alignToVision(LimelightObject ll, boolean snap) {
-        boolean doRejectUpdate = false;
-        LimelightHelpers.SetRobotOrientation(ll.name,
-                estimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ll.name);
+    // public void alignToVision(LimelightObject ll, boolean snap) {
+    //     boolean doRejectUpdate = false;
+    //     LimelightHelpers.SetRobotOrientation(ll.name,
+    //             estimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    //     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ll.name);
 
-        if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2 * Math.PI) {
-            doRejectUpdate = true;
-            System.out.println("ESTLOG: " + ll.name + " was REJECTED due to high rot of "
-                    + getState().Speeds.omegaRadiansPerSecond);
-        }
-        if (mt2.tagCount == 0) {
-            doRejectUpdate = true;
-            System.out.println("ESTLOG: " + ll.name + " was REJECTED due to notags");
-        }
-        if (mt2.avgTagDist > 8) {
-            doRejectUpdate = true;
-            System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of " + mt2.avgTagDist);
-        }
+    //     if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2 * Math.PI) {
+    //         doRejectUpdate = true;
+    //         System.out.println("ESTLOG: " + ll.name + " was REJECTED due to high rot of "
+    //                 + getState().Speeds.omegaRadiansPerSecond);
+    //     }
+    //     if (mt2.tagCount == 0) {
+    //         doRejectUpdate = true;
+    //         System.out.println("ESTLOG: " + ll.name + " was REJECTED due to notags");
+    //     }
+    //     if (mt2.avgTagDist > 8) {
+    //         doRejectUpdate = true;
+    //         System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of " + mt2.avgTagDist);
+    //     }
 
-        if (!doRejectUpdate) {
-            if (snap) {
-                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.001, 0.001, 9999999));
-            } else {
-                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(ll.trust, ll.trust, 9999999));
-            }
-            estimator.addVisionMeasurement(
-                    mt2.pose,
-                    mt2.timestampSeconds);
-        }
-    }
+    //     if (!doRejectUpdate) {
+    //         if (snap) {
+    //             estimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.001, 0.001, 9999999));
+    //         } else {
+    //             estimator.setVisionMeasurementStdDevs(VecBuilder.fill(ll.trust, ll.trust, 9999999));
+    //         }
+    //         estimator.addVisionMeasurement(
+    //                 mt2.pose,
+    //                 mt2.timestampSeconds);
+    //     }
+    // }
 
     public void setRobotPose(Pose2d pose) {
         estimator.resetPose(pose);

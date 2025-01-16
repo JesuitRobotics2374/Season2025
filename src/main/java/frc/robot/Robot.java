@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-  private Command pathfindingCommand;
 
   private final Core m_robotContainer;
 
@@ -25,27 +24,6 @@ public class Robot extends TimedRobot {
     m_robotContainer = new Core();
 
     // PathfindingCommand.warmupCommand().schedule();
-  }
-
-  private void doPathfind(Pose2d target) {
-    PathConstraints constraints = new PathConstraints(
-        3, 4,
-        Units.degreesToRadians(540),
-        Units.degreesToRadians(720)
-    );
-
-    System.out.println(target);
-
-    // Since AutoBuilder is configured, we can use it to build pathfinding commands
-    pathfindingCommand = AutoBuilder.pathfindToPose(
-        target,
-        constraints,
-        0
-    );
-
-    pathfindingCommand.schedule();
-
-    System.out.println("PATHFIND TO " + target.toString() + " STARTED");
   }
 
   @Override
@@ -67,13 +45,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    // if (m_autonomousCommand != null) {
-    // m_autonomousCommand.schedule();
-    // }
-
-    doPathfind(Constants.TEST_PATHFIND_TARGET);
 
   }
 
