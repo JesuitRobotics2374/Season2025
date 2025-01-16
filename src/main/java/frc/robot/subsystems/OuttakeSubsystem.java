@@ -6,9 +6,10 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-//update com.ctre to phoenix 6
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -21,27 +22,27 @@ public class OuttakeSubsystem extends SubsystemBase {
   public OuttakeSubsystem() {
     config = new TalonFXConfiguration();
     motorController = new TalonFX(19);
-    configure();
-    checkConfiguration();
+    //configure();
+    //checkConfiguration();
   }
 
-  public ErrorCode configAllSettings(TalonFXConfiguration allConfigs) {
+  //public ErrorCode configAllSettings(TalonFXConfiguration allConfigs) {
     //allConfigs.continuousCurrentLimit = 1;
     //allConfigs.peakCurrentDuration = 1;
     //allConfigs.peakCurrentLimit = 1;
     //NeutralMode
     
-    ErrorCode errorCode = motorController.configAllSettings(allConfigs);
-    return errorCode;
-  } 
+    //ErrorCode errorCode = motorController.configAllSettings(allConfigs);
+    //return errorCode;
+  //} 
 
   public void configure() {
-    motorController.setNeutralMode(NeutralMode.Brake);
-    configAllSettings(config);
+    motorController.setNeutralMode(NeutralModeValue.Brake);
+    //configAllSettings(config);
   }
 
   public void checkConfiguration() {
-    motorController.getAllConfigs(config);
+    //motorController.getAllConfigs(config);
     System.out.println("Intake Configs: ");
     System.out.println(config);
   }
