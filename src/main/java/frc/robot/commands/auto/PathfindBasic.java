@@ -8,13 +8,15 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
-public class Pathfind extends Command {
+// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
+// information, see:
+// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+public class PathfindBasic extends InstantCommand {
 
   CommandSwerveDrivetrain drivetrain;
 
@@ -29,8 +31,7 @@ public class Pathfind extends Command {
 
   Command pathfindingCommand;
 
-  /** Creates a new Pathfind. */
-  public Pathfind(CommandSwerveDrivetrain drivetrain, Pose2d target) {
+  public PathfindBasic(CommandSwerveDrivetrain drivetrain, Pose2d target) {
 
     System.out.println("init target: " + target);
 
@@ -45,12 +46,12 @@ public class Pathfind extends Command {
     }
 
     addRequirements(drivetrain);
+    
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
     // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
         maxVelocity, maxAcceleration,
@@ -69,22 +70,5 @@ public class Pathfind extends Command {
     pathfindingCommand.schedule();
 
     System.out.println("PATHFIND TO " + target.toString() + " STARTED");
-  }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-  }
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    System.out.println("PATHFIND TO " + target.toString() + " ENDED");
-  }
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return pathfindingCommand.isFinished();
   }
 }

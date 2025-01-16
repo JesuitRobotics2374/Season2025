@@ -160,7 +160,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         // Configure AutoBuilder last
         AutoBuilder.configure(
-                () -> this.getState().Pose, // Robot pose supplier
+                () -> this.estimator.getEstimatedPosition(), // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getCurrentRobotChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 (speeds) -> this.setControl(autoRequest.withSpeeds(speeds)), // Method that will drive the robot given ROBOT
@@ -290,6 +290,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     @Override
     public void periodic() {
 
+        // System.out.println(AutoBuilder.getCurrentPose());
+        // System.out.println(this.getState().Pose);
+
         // In accordance with LL docs (found here: ) call this every frame:
         // LimelightHelpers.SetRobotOrientation("", getRotation3d().getZ(), 0, 0, 0, 0,
         // 0);
@@ -337,6 +340,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             }
 
         }
+
+        
 
     }
 
@@ -407,8 +412,24 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
     }
 
+    public void setRobotPose(Pose2d pose) {
+        estimator.resetPose(pose);
+    }
+
     public Field2d getField() {
         return field;
+    }
+
+    public double getRobotX() {
+        return estimator.getEstimatedPosition().getX();
+    }
+
+    public double getRobotY() {
+        return estimator.getEstimatedPosition().getY();
+    }
+
+    public double getRobotR() {
+        return estimator.getEstimatedPosition().getRotation().getDegrees();
     }
 
 }
