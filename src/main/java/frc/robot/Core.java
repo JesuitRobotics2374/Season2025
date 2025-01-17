@@ -12,12 +12,14 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -69,40 +71,21 @@ public class Core {
 
     private final SendableChooser<Command> autoChooser;
 
+    private Command pathfindingCommand;
+
     public Core() {
         autoChooser = AutoBuilder.buildAutoChooser();
         configureBindings();
         configureShuffleBoard();
         registerAutoCommands();
 
-        drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(0)));
+        drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
     }
 
     public void registerAutoCommands() {
         NamedCommands.registerCommand("Outtake", new Outtake(outtakeSubsystem));
         // NamedCommands.registerCommand("Test Pathfind", new PathfindBasic(drivetrain,
         // Constants.TEST_PATHFIND_TARGET));
-        NamedCommands.registerCommand("Test Pathfind", new InstantCommand(() -> {
-            // Create the constraints to use while pathfinding
-            PathConstraints constraints = new PathConstraints(
-                    3, 4,
-                    Units.degreesToRadians(540),
-                    Units.degreesToRadians(720));
-
-            Pose2d target = new Pose2d(2.45, 6.57, new Rotation2d(90));
-
-            System.out.println(target);
-
-            // Since AutoBuilder is configured, we can use it to build pathfinding commands
-            Command pathfindingCommand = AutoBuilder.pathfindToPose(
-                    target,
-                    constraints,
-                    0);
-
-            pathfindingCommand.schedule();
-
-            System.out.println("PATHFIND TO " + target.toString() + " STARTED");
-        }));
 
         // PathfindingCommand.warmupCommand().schedule();
     }
@@ -118,7 +101,8 @@ public class Core {
         // tab.add(httpCamera).withPosition(7, 0).withSize(3, 2);
 
         // New List Layout
-        //ShuffleboardContainer pos = tab.getLayout("Position", "List Layout").withPosition(0, 0).withSize(2, 3);
+        // ShuffleboardContainer pos = tab.getLayout("Position", "List
+        // Layout").withPosition(0, 0).withSize(2, 3);
 
         // Field
         tab.add(drivetrain.getField()).withPosition(2, 1).withSize(5, 3);
@@ -131,10 +115,10 @@ public class Core {
 
         // Robot (Reverse order for list layout)
         // pos.addDouble("Robot R", () -> drivetrain.getRobotR())
-        //         .withWidget("Gyro");
+        // .withWidget("Gyro");
         // ;
         // pos.addDouble("Robot Y", () -> drivetrain.getRobotY())
-        //         .withWidget("Number Bar");
+        // .withWidget("Number Bar");
         // pos.addDouble("Robot X", () -> drivetrain.getRobotX());
 
         // tab.add("Auto Chooser", autoChooser);
@@ -185,5 +169,63 @@ public class Core {
 
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
+    }
+
+    public void doPathfind(Pose2d target) {
+        PathConstraints constraints = new PathConstraints(
+                3, 4, // 3 - 4
+                Units.degreesToRadians(540),
+                Units.degreesToRadians(720));
+
+        System.out.println(target);
+
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        pathfindingCommand = AutoBuilder.pathfindToPose(
+                target,
+                constraints,
+                0);
+
+        pathfindingCommand.schedule();
+
+        System.out.println("PATHFIND TO " + target.toString() + " STARTED");
+    }
+
+    public void doPathfindToPath(String path) {
+        try {
+
+            PathPlannerPath pathData = PathPlannerPath.fromPathFile(path);
+
+            PathConstraints constraints = new PathConstraints(
+                    3, 4, // 3 - 4
+                    Units.degreesToRadians(540),
+                    Units.degreesToRadians(720));
+
+            // Since AutoBuilder is configured, we can use it to build pathfinding commands
+            pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
+                    pathData,
+                    constraints);
+
+            pathfindingCommand.schedule();
+
+            System.out.println("PATHFIND TO " + path + " STARTED");
+
+        } catch (Exception e) {
+            DriverStation.reportError("Pathing failed: " + e.getMessage(), e.getStackTrace());
+        }
+    }
+
+    public Command getPath(String id) {
+        try {
+            // Load the path you want to follow using its name in the GUI
+            PathPlannerPath path = PathPlannerPath.fromPathFile(id);
+
+            // Create a path following command using AutoBuilder. This will also trigger
+            // event markers.
+            return AutoBuilder.followPath(path);
+
+        } catch (Exception e) {
+            DriverStation.reportError("Pathing failed: " + e.getMessage(), e.getStackTrace());
+            return Commands.none();
+        }
     }
 }
