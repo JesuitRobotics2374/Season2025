@@ -53,7 +53,7 @@ public class OuttakeSubsystem extends SubsystemBase {
   //Make sure to test this!!!
   public void createConfigFile( TalonFXConfiguration config){
     try{
-      File configFile = new File("C:\\Users\\robotics.Y-ROBOTICS01\\Documents\\GitHub\\Season2025\\src\\main\\java\\frc\\robot\\subsystems\\talonfx-19-configs.txt");
+      File configFile = new File("/home/lvuser/talonfx-19-configs.txt");
       FileWriter writer = new FileWriter(configFile);
       writer.write("hello");
       writer.close();
