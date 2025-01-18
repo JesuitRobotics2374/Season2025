@@ -77,6 +77,7 @@ public class OuttakeSubsystem extends SubsystemBase {
       }
       String value = sb.toString();
       config.deserialize(value);
+      System.out.println(config.deserialize(value));
       scanner.close();
     }catch(IOException e){
       System.out.println("File was not able to be read");
