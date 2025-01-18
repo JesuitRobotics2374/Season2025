@@ -4,8 +4,10 @@
 
 package frc.robot.subsystems;
 
-import java.io.IOException;
 import java.io.*;
+import java.util.*;
+
+import org.json.simple.JSONObject;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -30,6 +32,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     configure();
     checkConfiguration();
     createConfigFile(config);
+    //readConfigFile(config, new File("/home/lvuser/deploy/talonfx-19-configs.txt"));
   }
 
   public void configAllSettings(TalonFXConfiguration allConfigs) {
@@ -37,6 +40,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     configurator.refresh(allConfigs);
   // ErrorCode errorCode = TalonFXConfiguration.configAllSettings(allConfigs);
   //  return errorCode;
+  
   }
 
   public void configure() {
@@ -55,12 +59,29 @@ public class OuttakeSubsystem extends SubsystemBase {
     try{
       File configFile = new File("/home/lvuser/talonfx-19-configs.txt");
       FileWriter writer = new FileWriter(configFile);
-      writer.write("hello");
+      writer.write(config.serialize());
       writer.close();
     }
     catch (IOException e){
       System.out.println("File not created");
     }
+  }
+
+  public void readConfigFile(TalonFXConfiguration config, File file){
+    try{
+      Scanner scanner = new Scanner(file);
+      StringBuilder sb = new StringBuilder();
+      while (scanner.hasNextLine()) {
+        String data = scanner.nextLine();
+        sb.append(data);
+      }
+      String value = sb.toString();
+      config.deserialize(value);
+      scanner.close();
+    }catch(IOException e){
+      System.out.println("File was not able to be read");
+    }
+    
   }
 
   private void setSpeed(double speed) {
