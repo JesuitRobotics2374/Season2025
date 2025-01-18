@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.auto.Outtake;
 import frc.robot.commands.auto.Pathfind;
 import frc.robot.commands.auto.PathfindBasic;
+import frc.robot.commandsTeleop.ForwardAlign;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
@@ -154,6 +155,8 @@ public class Core {
         driveController.a()
                 .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
 
+        driveController.b().onTrue(new ForwardAlign(drivetrain));
+        
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         // driveController.back().and(driveController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
@@ -165,6 +168,10 @@ public class Core {
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+    }
+
+    public void forwardAlign() {
+        
     }
 
     public Command getAutonomousCommand() {
