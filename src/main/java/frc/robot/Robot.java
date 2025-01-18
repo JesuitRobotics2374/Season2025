@@ -45,17 +45,17 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    // if (m_autonomousCommand != null) {
-    // m_autonomousCommand.schedule();
-    // }
+    if (m_autonomousCommand != null) {
+    m_autonomousCommand.schedule();
+    }
 
     // m_robotContainer.doPathfind(Constants.TEST_PATHFIND_TARGET);
 
     // m_robotContainer.getPath("Prec-BLUE-TOP").schedule();
 
-    m_robotContainer.doPathfindToPath("Prec-BLUE-TOP");
+    // m_robotContainer.doPathfindToPath("Prec-BLUE-TOP");
 
   }
 

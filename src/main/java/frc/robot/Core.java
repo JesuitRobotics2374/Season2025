@@ -41,10 +41,10 @@ import frc.robot.utils.LimelightObject;
 import frc.robot.utils.LimelightObject.LLType;
 
 public class Core {
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED; // kSpeedAt12Volts
+    public double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED; // kSpeedAt12Volts
                                                                                                         // desired top
                                                                                                         // speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE; // 3/4
+    public double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE; // 3/4
                                                                                                                    // of
                                                                                                                    // a
                                                                                                                    // rotation
@@ -74,16 +74,16 @@ public class Core {
     private Command pathfindingCommand;
 
     public Core() {
+        registerAutoCommands();
         autoChooser = AutoBuilder.buildAutoChooser();
         configureBindings();
         configureShuffleBoard();
-        registerAutoCommands();
 
         drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
     }
 
     public void registerAutoCommands() {
-        NamedCommands.registerCommand("Outtake", new Outtake(outtakeSubsystem));
+        NamedCommands.registerCommand("OuttakeCommand", new Outtake(outtakeSubsystem));
         // NamedCommands.registerCommand("Test Pathfind", new PathfindBasic(drivetrain,
         // Constants.TEST_PATHFIND_TARGET));
 
@@ -121,7 +121,7 @@ public class Core {
         // .withWidget("Number Bar");
         // pos.addDouble("Robot X", () -> drivetrain.getRobotX());
 
-        // tab.add("Auto Chooser", autoChooser);
+        tab.add("Auto Chooser", autoChooser);
 
     }
 
@@ -153,6 +153,8 @@ public class Core {
 
         driveController.a()
                 .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
+
+        driveController.b().onTrue(new Outtake(outtakeSubsystem));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.

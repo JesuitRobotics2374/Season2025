@@ -7,19 +7,43 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Example Path"
+            "pathName": "TA 1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Outtake"
+            "name": "OuttakeCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TA 2"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TA 3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OuttakeCommand"
           }
         }
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }
