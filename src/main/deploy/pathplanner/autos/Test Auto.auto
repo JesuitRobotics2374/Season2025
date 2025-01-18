@@ -25,7 +25,55 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TA 3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OuttakeCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Inverse TA 3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TA 3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OuttakeCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Inverse TA 3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
           }
         },
         {
