@@ -28,7 +28,7 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   public void configAllSettings(SparkMaxConfig config) {
     config.idleMode(IdleMode.kBrake);
-    config.smartCurrentLimit(1);
+    config.smartCurrentLimit(40);
   } 
   
   public void configure(SparkMaxConfig config) {
