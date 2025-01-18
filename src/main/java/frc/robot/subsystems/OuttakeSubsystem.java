@@ -31,16 +31,12 @@ public class OuttakeSubsystem extends SubsystemBase {
     motorController = new TalonFX(19);
     configure();
     checkConfiguration();
-    createConfigFile(config);
-    //readConfigFile(config, new File("/home/lvuser/deploy/talonfx-19-configs.txt"));
+    readConfigFile(config, new File("/home/lvuser/deploy/talonfx-19-configs.txt"));
   }
 
   public void configAllSettings(TalonFXConfiguration allConfigs) {
     configurator = motorController.getConfigurator();
     configurator.refresh(allConfigs);
-  // ErrorCode errorCode = TalonFXConfiguration.configAllSettings(allConfigs);
-  //  return errorCode;
-  
   }
 
   public void configure() {
@@ -79,6 +75,7 @@ public class OuttakeSubsystem extends SubsystemBase {
       config.deserialize(value);
       System.out.println(config.deserialize(value));
       scanner.close();
+
     }catch(IOException e){
       System.out.println("File was not able to be read");
     }
