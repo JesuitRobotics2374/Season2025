@@ -16,7 +16,7 @@ public class Constants {
 
     public static final LimelightObject[] LIMELIGHTS_ON_BOARD = {
         new LimelightObject("limelight-left", 1.4, LLType.kLeft),
-        new LimelightObject("limelight-right", 1.1, LLType.kRight),
+        // new LimelightObject("limelight-right", 1.1, LLType.kRight),
         // new LimelightObject("limelight-back", 1.4, LLType.kBack)
     };
     public static final Pose2d TEST_PATHFIND_TARGET = new Pose2d(1.199, 7.028, new Rotation2d(128.581 * (Math.PI / 180)));

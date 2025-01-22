@@ -163,9 +163,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 () -> this.estimator.getEstimatedPosition(), // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getCurrentRobotChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                (speeds) -> this.setControl(autoRequest.withSpeeds(speeds)), // Method that will drive the robot given ROBOT
-                                                                      // RELATIVE ChassisSpeeds. Also optionally outputs
-                                                                      // individual module feedforwards
+                (speeds) -> this.setControl(autoRequest.withSpeeds(speeds)), // Method that will drive the robot given
+                                                                             // ROBOT
+                // RELATIVE ChassisSpeeds. Also optionally outputs
+                // individual module feedforwards
                 new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
                                                 // holonomic drive trains
                         new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
@@ -329,10 +330,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (!Utils.isSimulation()) {
 
             // Update graphics
-            field.getObject("Vision1").setPose(
-                    LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left").pose);
-            field.getObject("Vision2").setPose(
-                    LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
+            // field.getObject("Vision1").setPose(
+            // LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left").pose);
+            // field.getObject("Vision2").setPose(
+            // LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
+
+            var displayCounter = 1;
+            for (LimelightObject llo : Constants.LIMELIGHTS_ON_BOARD) {
+                field.getObject("Vision" + displayCounter).setPose(
+                        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(llo.name).pose);
+            }
 
             // Align to all limelights
             for (LimelightObject ll : Constants.LIMELIGHTS_ON_BOARD) {
@@ -340,8 +347,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             }
 
         }
-
-        
 
     }
 
@@ -373,7 +378,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private SwerveModulePosition[] getSwerveModulePositions() {
         SwerveModulePosition[] smp = new SwerveModulePosition[4];
         @SuppressWarnings("rawtypes")
-		SwerveModule[] sms = getModules();
+        SwerveModule[] sms = getModules();
         for (int i = 0; i < 4; i++) {
             smp[i] = sms[i].getPosition(false);
         }
@@ -389,7 +394,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2 * Math.PI) {
             doRejectUpdate = true;
             // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to high rot of "
-            //         + getState().Speeds.omegaRadiansPerSecond);
+            // + getState().Speeds.omegaRadiansPerSecond);
         }
         if (mt2.tagCount == 0) {
             doRejectUpdate = true;
@@ -397,7 +402,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
         if (mt2.avgTagDist > 8) {
             doRejectUpdate = true;
-            // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of " + mt2.avgTagDist);
+            // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of
+            // " + mt2.avgTagDist);
         }
 
         if (!doRejectUpdate) {

@@ -6,6 +6,8 @@ public class LimelightObject {
     public double trust;
     public LLType type;
 
+    private boolean available = true;
+
     public enum LLType {
         kLeft,
         kRight,
@@ -16,6 +18,15 @@ public class LimelightObject {
         this.name = name;
         this.trust = 1 / trust;
         this.type = type;
+        try {
+            LimelightHelpers.getBotPose(name);
+        } catch (Exception e) {
+            available = false;
+        }
+    }
+
+    public boolean isAvailable() {
+        return available;
     }
     
 }
