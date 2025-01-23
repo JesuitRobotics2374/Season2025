@@ -9,7 +9,7 @@ public class Constants {
 
     // Critical Generic Constants
 
-    public static final double MAX_SPEED = 0.4; // kSpeedAt12Volts desired top speed
+    public static final double MAX_SPEED = 0.3; // kSpeedAt12Volts desired top speed
     public static final double MAX_ANGULAR_RATE = 0.3; // 3/4 of a rotation per second max angular velocity
 
     // Limelight
