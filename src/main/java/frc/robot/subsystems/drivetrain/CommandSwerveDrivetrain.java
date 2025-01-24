@@ -327,13 +327,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         // Limelight not available in sim env
         if (!Utils.isSimulation()) {
-
-            // Update graphics
-            field.getObject("Vision1").setPose(
-                    LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left").pose);
-            field.getObject("Vision2").setPose(
-                    LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
-
             // Align to all limelights
             for (LimelightObject ll : Constants.LIMELIGHTS_ON_BOARD) {
                 alignToVision(ll, false);
