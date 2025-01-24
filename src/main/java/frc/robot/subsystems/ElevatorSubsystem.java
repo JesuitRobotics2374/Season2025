@@ -8,12 +8,22 @@ import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ConnectedMotorValue;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.Constants;
+
 public class ElevatorSubsystem {
 
     public static TalonFX elevatorMotor1;
     public static TalonFX elevatorMotor2;
     public static CANrange range;
-    public static CANcoder beltPosition;
+    CANcoder beltPosition = new CANcoder(Constants.beltPosition_ID);
+
+    DigitalInput L1Bottom = new DigitalInput(0);
+    DigitalInput L1Top = new DigitalInput(1);
+    DigitalInput L2Bottom = new DigitalInput(2);
+    DigitalInput L2Top = new DigitalInput(3);
+    DigitalInput L3Bottom = new DigitalInput(4);
+    DigitalInput L3Top = new DigitalInput(5);
 
     //private final double elevatorSpeed = 0.250;  -> find appropriate value
 
