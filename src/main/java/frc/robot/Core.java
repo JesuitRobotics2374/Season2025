@@ -34,10 +34,14 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.auto.Outtake;
 import frc.robot.commands.auto.Pathfind;
 import frc.robot.commands.auto.PathfindBasic;
-import frc.robot.commandsTeleop.ForwardAlign;
+import frc.robot.commands.teleop.ExecuteDynamic;
+import frc.robot.commands.teleop.OrganizePathfind;
+import frc.robot.commands.teleop.xme;
 import frc.robot.subsystems.OuttakeSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
+import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.LimelightObject;
 import frc.robot.utils.LimelightObject.LLType;
 
@@ -69,6 +73,8 @@ public class Core {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+
+    public final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
     private final SendableChooser<Command> autoChooser;
 
@@ -153,9 +159,9 @@ public class Core {
         driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
         driveController.a()
-                .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
+                .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], null, true)));
 
-        driveController.b().onTrue(new ForwardAlign(drivetrain));
+        driveController.b().onTrue(new OrganizePathfind(drivetrain)); 
         
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -166,7 +172,7 @@ public class Core {
 
         // reset the field-centric heading on left bumper press
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
+Pose2d cameraPose3d = LimelightHelpers.getCameraPose3d_TargetSpace("limelight-left").toPose2d();
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 

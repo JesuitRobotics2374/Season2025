@@ -38,6 +38,7 @@ import frc.robot.subsystems.drivetrain.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.utils.LimelightObject.LLType;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.LimelightObject;
+import frc.robot.utils.LimelightHelpers.PoseEstimate;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -337,13 +338,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
             var displayCounter = 1;
             for (LimelightObject llo : Constants.LIMELIGHTS_ON_BOARD) {
-                field.getObject("Vision" + displayCounter).setPose(
-                        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(llo.name).pose);
-            }
-
-            // Align to all limelights
-            for (LimelightObject ll : Constants.LIMELIGHTS_ON_BOARD) {
-                alignToVision(ll, false);
+                PoseEstimate fp = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(llo.name);
+                if (fp != null) {
+                    field.getObject("Vision" + displayCounter).setPose(fp.pose);
+                    alignToVision(llo, fp.pose, false);
+                }
             }
 
         }
@@ -385,7 +384,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return smp;
     }
 
-    public void alignToVision(LimelightObject ll, boolean snap) {
+    private int counter = 0;
+
+    public void alignToVision(LimelightObject ll, Pose2d detPose, boolean snap) {
         boolean doRejectUpdate = false;
         LimelightHelpers.SetRobotOrientation(ll.name,
                 estimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
@@ -405,10 +406,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of
             // " + mt2.avgTagDist);
         }
+        if (detPose != null && detPose.getX() == 8.77 && detPose.getY() == 4.03) {
+            doRejectUpdate = true; // at center of field
+        } else if (detPose.getX() == 0 && detPose.getY() == 0) {
+            doRejectUpdate = true; // at null zone
+        }
+        counter++;
+        if (counter > 50) {
+            System.out.println(detPose);
+            counter = 0;
+        }
 
         if (!doRejectUpdate) {
             if (snap) {
-                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.001, 0.001, 9999999));
+                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.00001, 0.00001, 0.00001));
             } else {
                 estimator.setVisionMeasurementStdDevs(VecBuilder.fill(ll.trust, ll.trust, 9999999));
             }
