@@ -45,8 +45,7 @@ public class Core {
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE; // 3/4
                                                                                                                    // of
                                                                                                                    // a
-                                                                                                                   // rotation
-                                                                                                                   // per
+                                                                                                                   // rotation                                                                                            // per
                                                                                                                    // second
                                                                                                                    // max
                                                                                                                    // angular
@@ -65,7 +64,7 @@ public class Core {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    // public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+    public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
 
     private final SendableChooser<Command> autoChooser;
 
@@ -176,6 +175,7 @@ public class Core {
         driveController.back().and(driveController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         driveController.start().and(driveController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         driveController.start().and(driveController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        driveController.a().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.getDistance()));
 
         // reset the field-centric heading on left bumper press
         driveController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
