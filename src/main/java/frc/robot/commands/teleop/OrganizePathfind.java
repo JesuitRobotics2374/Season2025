@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.auto.DriveDynamicX;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.utils.FMapConstant;
 import frc.robot.utils.LimelightHelpers;
@@ -55,9 +56,11 @@ public class OrganizePathfind extends SequentialCommandGroup {
 
     // pathfindingCommand.schedule();
 
+    Command driveDynamic = new DriveDynamicX(drivetrain, 0.08, 0.2);
+
     System.out.println("PATHFIND TO " + target.toString() + " STARTED");
 
-    addCommands(new WaitCommand(2), pathfindingCommand);
+    addCommands(new WaitCommand(1), pathfindingCommand, driveDynamic);
 
     addRequirements(drivetrain);
   }

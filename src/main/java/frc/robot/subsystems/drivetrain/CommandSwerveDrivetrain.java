@@ -5,7 +5,9 @@ import static edu.wpi.first.units.Units.*;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.hardware.core.CoreCANrange;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -25,6 +27,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -64,6 +67,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     // CUSTOM DECLARATIONS
     private final SwerveDrivePoseEstimator estimator;
     Field2d field = new Field2d();
+
+    public CoreCANrange robotRange = new CoreCANrange(19);
 
     private final SwerveRequest.ApplyRobotSpeeds autoRequest = new SwerveRequest.ApplyRobotSpeeds();
 
@@ -447,6 +452,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getRobotR() {
         return estimator.getEstimatedPosition().getRotation().getDegrees();
+    }
+
+    public double getForwardRange() {
+        StatusSignal<Distance> d = robotRange.getDistance();
+        return d.getValueAsDouble();
     }
 
 }

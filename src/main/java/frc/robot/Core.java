@@ -34,11 +34,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.auto.Outtake;
 import frc.robot.commands.auto.Pathfind;
 import frc.robot.commands.auto.PathfindBasic;
-import frc.robot.commands.teleop.ExecuteDynamic;
 import frc.robot.commands.teleop.OrganizePathfind;
 import frc.robot.commands.teleop.xme;
 import frc.robot.subsystems.OuttakeSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.utils.LimelightHelpers;
@@ -73,8 +71,6 @@ public class Core {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
-
-    public final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
     private final SendableChooser<Command> autoChooser;
 
