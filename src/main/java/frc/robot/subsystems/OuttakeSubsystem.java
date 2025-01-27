@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.hardware.core.CoreCANrange;
@@ -22,7 +21,6 @@ import frc.robot.Constants;
 public class OuttakeSubsystem extends SubsystemBase {
 
   public final WPI_TalonSRX motorController;
-  public static CANrange range = new CANrange(19);
   public CANrangeConfiguration rangeConfig = new CANrangeConfiguration();
   public CoreCANrange cCANrange = new CoreCANrange(19);
   ShuffleboardTab tab = Shuffleboard.getTab(Constants.DRIVER_READOUT_TAB_NAME);
