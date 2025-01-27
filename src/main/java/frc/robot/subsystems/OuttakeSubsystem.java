@@ -10,9 +10,14 @@ import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.hardware.core.CoreCANrange;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import com.playingwithfusion.TimeOfFlight;
+import com.revrobotics.TimeOfFlight;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class OuttakeSubsystem extends SubsystemBase {
 
@@ -20,12 +25,19 @@ public class OuttakeSubsystem extends SubsystemBase {
   public static CANrange range = new CANrange(19);
   public CANrangeConfiguration rangeConfig = new CANrangeConfiguration();
   public CoreCANrange cCANrange = new CoreCANrange(19);
+  ShuffleboardTab tab = Shuffleboard.getTab(Constants.DRIVER_READOUT_TAB_NAME);
+  public final TimeOfFlight noteSensor;
 
   public OuttakeSubsystem() {
     
     motorController = new WPI_TalonSRX(40);
 
     motorController.setNeutralMode(NeutralMode.Brake);
+
+    noteSensor = new TimeOfFlight(Constants.SENSOR_PORT);
+    tab.addDouble("TOF range", () -> noteSensor.getRange());
+    noteSensor.setRangingMode(RangingMode.Short, 24);
+    noteSensor.setRangeOfInterest(9, 9, 11, 11);
 
   }
 
@@ -50,6 +62,13 @@ public class OuttakeSubsystem extends SubsystemBase {
     System.out.println("in");
     setSpeed(0.2);
   }
+
+  public void autoIntake() {
+    if (noteSensor.getRange() > 150) {
+        intake = true;
+    }
+    startIntake();
+}
 
   public void outtake() {
     setSpeed(-0.2);

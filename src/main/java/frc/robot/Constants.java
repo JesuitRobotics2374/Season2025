@@ -21,4 +21,7 @@ public class Constants {
     };
     public static final Pose2d TEST_PATHFIND_TARGET = new Pose2d(2.45, 6.57, new Rotation2d(90 * (Math.PI / 180)));
     
+    public static final int SENSOR_PORT = 18;
+    public static final String DRIVER_READOUT_TAB_NAME = "Driver Readout";
+
 }
