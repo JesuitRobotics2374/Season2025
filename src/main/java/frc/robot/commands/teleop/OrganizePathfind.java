@@ -56,7 +56,7 @@ public class OrganizePathfind extends SequentialCommandGroup {
 
     // pathfindingCommand.schedule();
 
-    Command driveDynamic = new DriveDynamicX(drivetrain, 0.08, 0.2);
+    Command driveDynamic = new DriveDynamicX(drivetrain, 0.167, 0.2);
 
     System.out.println("PATHFIND TO " + target.toString() + " STARTED");
 
