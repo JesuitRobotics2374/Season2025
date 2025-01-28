@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.auto.Outtake;
 import frc.robot.commands.auto.Pathfind;
 import frc.robot.commands.auto.PathfindBasic;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
@@ -68,6 +69,8 @@ public class Core {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+
+    public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 
     private final SendableChooser<Command> autoChooser;
 
@@ -151,8 +154,10 @@ public class Core {
         driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
         driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
-        driveController.a()
-                .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
+        driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM()));
+
+        // driveController.a()
+        //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
 
         driveController.b().onTrue(new Outtake(outtakeSubsystem));
 
