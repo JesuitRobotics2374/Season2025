@@ -19,7 +19,7 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class OuttakeSubsystem extends SubsystemBase {
+public class OuttakeSubsystem extends SubsystemBase{
 
   private TalonFXConfiguration config;
   private TalonFXConfigurator configurator;
@@ -31,7 +31,8 @@ public class OuttakeSubsystem extends SubsystemBase {
     motorController = new TalonFX(19);
     configure();
     checkConfiguration();
-    readConfigFile(config, new File("/home/lvuser/deploy/talonfx-19-configs.txt"));
+    createConfigFile(config);
+    //readConfigFile(config, new File("/home/lvuser/deploy/talonfx-19-configs.txt"));
   }
 
   public void configAllSettings(TalonFXConfiguration allConfigs) {
@@ -50,15 +51,26 @@ public class OuttakeSubsystem extends SubsystemBase {
     System.out.println(config);
   }
 
-  //Make sure to test this!!!
   public void createConfigFile( TalonFXConfiguration config){
     try{
-      File configFile = new File("/home/lvuser/talonfx-19-configs.txt");
-      FileWriter writer = new FileWriter(configFile);
-      writer.write(config.serialize());
-      writer.close();
+      File configFile = new File("/home/lvuser/talonfx-19-configs.json");
+      // FileWriter writer = new FileWriter(configFile);
+      // writer.write(config.serialize());
+      // writer.close();
+      JSONObject jsonObject = new JSONObject();
+      for(int i = 0; i<108;i++){
+        StringTokenizer st = new StringTokenizer(config.toString(), ":");
+        jsonObject.put(st.nextToken(), convertString(st.nextToken()));
+        System.out.println("goofy");
+      }
+
+      FileWriter fileWriter = new FileWriter(configFile);
+      fileWriter.write(jsonObject.toString());
+      fileWriter.close();
+
+      
     }
-    catch (IOException e){
+    catch (Exception e){
       System.out.println("File not created");
     }
   }
@@ -66,21 +78,51 @@ public class OuttakeSubsystem extends SubsystemBase {
   public void readConfigFile(TalonFXConfiguration config, File file){
     try{
       Scanner scanner = new Scanner(file);
-      StringBuilder sb = new StringBuilder();
+      Map<String, Object> values = new HashMap<>();
       while (scanner.hasNextLine()) {
         String data = scanner.nextLine();
-        sb.append(data);
+        StringTokenizer st = new StringTokenizer(data, ": ");
+        values.put(st.nextToken(), st.nextToken());
       }
-      String value = sb.toString();
+      String value = scanner.toString();
+
+
       config.deserialize(value);
       System.out.println(config.deserialize(value));
       scanner.close();
-
     }catch(IOException e){
       System.out.println("File was not able to be read");
     }
+
+    
     
   }
+
+  public Object convertString(String value){
+    try{
+        return Integer.parseInt(value);
+    }catch(NumberFormatException e){
+
+    }
+
+    try{
+        return Double.parseDouble(value);
+    }catch(NumberFormatException e){
+
+    }
+
+    try{
+        return Boolean.parseBoolean(value);
+    }catch(NumberFormatException e){
+
+    }
+
+
+    return value;
+
+}
+
+  
 
   private void setSpeed(double speed) {
     motorController.set(speed);
