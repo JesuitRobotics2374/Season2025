@@ -48,7 +48,7 @@
   "folder": "TA",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": 120.82766229986797
   },
   "useDefaultConstraints": true
 }
