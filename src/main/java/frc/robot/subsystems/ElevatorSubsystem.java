@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.io.ObjectInputFilter.Config;
+import java.security.InvalidParameterException;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -27,27 +28,15 @@ public class ElevatorSubsystem extends SubsystemBase {
     public CANcoderConfiguration coderConfig = new CANcoderConfiguration();
     private CANrangeConfiguration rangeConfig = new CANrangeConfiguration();
 
-    private int heightPos;
-    // PID and Motion Magic Constants - GET PROPER VALUES GET PROPER VALUES OFSIEJFSOIEJFOISEJFOISJFOISEJFOISJFEOISEJFOIJakapofewwajfoaiwejfo
-    //aoiewfjawoifejaoifjaoifjawoijawoifjwaeoifjwaef/
-    //aowifejawoifejawoijafewoijaoifeoiajfewhaoiugewhapougewposehgi
-    private static final double kP = 0.1;  // Proportional gain
-    private static final double kI = 0.0;  // Integral gain
-    private static final double kD = 0.0;  // Derivative gain
-    private static final double kF = 0.05; // Feedforward gain
-    private static final int cruiseVelocity = 15000; // Encoder ticks per 100ms
-    private static final int acceleration = 6000;    // Encoder ticks per 100ms^2
+    private int currentPos; //Height of the current elevator position, perhaps removable with absolute encoder positions
 
-    // Elevator Positions (Encoder Ticks) - GET PROPER VALUES GET PROPER VALUES OFSIEJFSOIEJFOISEJFOISJFOISEJFOISJFEOISEJFOIJakapofewwajfoaiwejfo
-    //aoiewfjawoifejaoifjaoifjawoijawoifjwaeoifjwaef/
-    //aowifejawoifejawoijafewoijaoifeoiajfewhaoiugewhapougewposehgi
-    private static final int POSITION_0 = 0;
-    private static final int POSITION_1 = 25000;
-    private static final int POSITION_2 = 50000;
-    private static final int POSITION_3 = 75000;
-    private static final int POSITION_4 = 100000;
+    private static final int POSITION_0 = 0; //Resting Height
+    private static final int POSITION_2 = 0; //Position of lowest branch
+    private static final int POSITION_3 = 0; //Position of middle branch
+    private static final int POSITION_4 = 0; //Position of highest branch
+    private static final int IH = 0; //Position of intake (also number 1)
 
-    final MotionMagicVoltage m_request;
+    private MotionMagicVoltage m_request; //The magic motion request, will change
 
     // CANcoder beltPosition = new CANcoder(Constants.beltPosition_ID);
 
@@ -70,41 +59,42 @@ public class ElevatorSubsystem extends SubsystemBase {
         coderConfig = new CANcoderConfiguration();
 
 
-        heightPos = 0;
+        currentPos = 0;
         
         var talonFXConfigs = new TalonFXConfiguration();
         var slot0Configs = talonFXConfigs.Slot0;
 
-        slot0Configs.kG = 0.25; //output to overcome gravity TODO
-        slot0Configs.kV = 0.12; //output per unit target velocity TODO
-        slot0Configs.kA = 0.01; //output per unit target acceleration TODO
-        slot0Configs.kP = 3; //output per unit of error in position TODO
-        slot0Configs.kI = 0; //output per unit of integrated error in position TODO
-        slot0Configs.kD = 0.1; //output per unit of error in velocity TODO
+        //NEED CONFIGURING (ONCE ELEVATOR IS COMPLETE):
+        slot0Configs.kG = 0.00; //Output of voltage to overcome gravity
+        slot0Configs.kV = 0.12; //output per unit target velocity, perhaps not needed
+        slot0Configs.kA = 0.01; //output per unit target acceleration, perhaps not needed
+        slot0Configs.kP = 0.1; //Controls the response to position error—how much the motor reacts to the difference between the current position and the target position.
+        slot0Configs.kI = 0.00; //Addresses steady-state error, which occurs when the motor doesn’t quite reach the target position due to forces like gravity or friction.
+        slot0Configs.kD = 0.00; //Responds to the rate of change of the error, damping the motion as the motor approaches the target. This reduces overshooting and oscillations.
 
         var motionMagicConfigs = talonFXConfigs.MotionMagic;
 
         motionMagicConfigs.MotionMagicCruiseVelocity = 2; // Target velocity in rps TODO
-        motionMagicConfigs.MotionMagicAcceleration = 4; // Target acceleration in rps/s TODO
-        motionMagicConfigs.MotionMagicJerk = 40; // Target jerk in rps/s/s TODO
+        motionMagicConfigs.MotionMagicAcceleration = 2; // Target acceleration in rps/s TODO
+        motionMagicConfigs.MotionMagicJerk = 20; // Target jerk in rps/s/s TODO
         
         elevatorMotor1.getConfigurator().apply(talonFXConfigs);
         elevatorMotor2.getConfigurator().apply(talonFXConfigs);
 
-        m_request = new MotionMagicVoltage(1);
+       m_request = new MotionMagicVoltage(0);
     }
 
-    public void startElevatorUp() {
-        //elevatorMotor1.set(elevatorSpeed);
-        //elevatorMotor2.set(-1 * elevatorSpeed);
+    // public void startElevatorUp() {
+    //     //elevatorMotor1.set(elevatorSpeed);
+    //     //elevatorMotor2.set(-1 * elevatorSpeed);
 
-        //where elevatorMotor1 and elevatorMotor2 have inversed directions
-    }
+    //     //where elevatorMotor1 and elevatorMotor2 have inversed directions
+    // }
 
-    public void startElevatorDown() {
-        //elevatorMotor1.set(-1 * elevatorSpeed);
-        //elevatorMotor2.set(elevatorSpeed);
-    }
+    // public void startElevatorDown() {
+    //     //elevatorMotor1.set(-1 * elevatorSpeed);
+    //     //elevatorMotor2.set(elevatorSpeed);
+    // }
 
     public void stopElevator() {
         elevatorMotor1.stopMotor();
@@ -112,33 +102,48 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void testMM() {
-        elevatorMotor1.setControl(m_request.withPosition(4));
+        elevatorMotor1.setControl(m_request.withPosition(10));
+        System.out.println("What is the next step of the operation?");
+        // elevatorMotor1.setControl(m_request.withPosition(0));
+        // System.out.println("Insert locked in alien here");
+        // elevatorMotor1.setControl(m_request.withPosition(5));
+        // System.out.println("Insert explosion");
     }
 
-    public void elevatorGoTo(int pos) { //pos defines which height to go to. 0 is resting, 4 is max
-        if (heightPos != pos) {
-
-
+    public void elevatorGoTo(int newPos) { //pos defines which height to go to. 0 is resting, 4 is max
+        if (newPos < 0 || newPos < 4) {
+            throw new InvalidParameterException("Number is not in accepted height range");
         }
+
+        int levDiff = currentPos - convertPos(newPos);
+
+        elevatorMotor1.setControl(m_request.withPosition(levDiff));
+        elevatorMotor2.setControl(m_request.withPosition(levDiff));
+        //FIGURE OUT IF WITHPOS IS A RELATIVE CHANGE OR AN ABSOLUTE CHANGE OIESFJOIESJFOISEJFOISEJFOISJFEOISJFEOISJFEOIJ
+        //OIFESJOIESFOIESF:OIFESJO:IFESJ:OIFESJ:OSIEJF
+        //OSIFEJOIESFJOIESFJOIESFOIESFJOSIEJFOISEJF
+
+        currentPos = convertPos(newPos);
     }
 
-    // private int convertPos(int height) { //GET VALUES FOR THISISISISISISISI
-    //     if (height == 0) {
-
-    //     }
-    //     else if (height == 1) {
-
-    //     }
-    //     else if (height == 2) {
-
-    //     }
-    //     else if (height == 3) {
-
-    //     }
-    //     else if (height == 4) {
-
-    //     }
-    // }
+    private int convertPos(int heightLevel) { //Get values once elevator is finished
+        if (heightLevel == 0) {
+            return POSITION_0;
+        }
+        else if (heightLevel == 1) {
+            return IH;
+        }
+        else if (heightLevel == 2) {
+            return POSITION_2;
+        }
+        else if (heightLevel == 3) {
+            return POSITION_3;
+        }
+        else if (heightLevel == 4) {
+            return POSITION_4;
+        }
+        else throw new InvalidParameterException("Number is not in accepted height range");
+    }
 
 }
   
