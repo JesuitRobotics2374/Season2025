@@ -40,8 +40,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     private static final int IH = 0; //Position of intake (also number 1)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     private MotionMagicVoltage m_request; //The magic motion request, will change
+=======
+    private final MotionMagicVoltage m_request; //The magic motion request, will change
+>>>>>>> a292d46df1b85b15ce5064529c6ee43eff95bdfa
 =======
     private final MotionMagicVoltage m_request; //The magic motion request, will change
 >>>>>>> a292d46df1b85b15ce5064529c6ee43eff95bdfa
