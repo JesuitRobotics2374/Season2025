@@ -15,7 +15,7 @@ public class Constants {
     // Limelight
 
     public static final LimelightObject[] LIMELIGHTS_ON_BOARD = {
-        new LimelightObject("limelight-left", 1.4, LLType.kLeft),
+        // new LimelightObject("limelight-left", 1.4, LLType.kLeft),
         // new LimelightObject("limelight-right", 1.1, LLType.kRight),
         // new LimelightObject("limelight-back", 1.4, LLType.kBack)
     };
