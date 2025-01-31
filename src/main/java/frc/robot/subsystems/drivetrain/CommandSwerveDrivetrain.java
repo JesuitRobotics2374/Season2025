@@ -418,7 +418,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
         counter++;
         if (counter > 50) {
-            System.out.println(detPose);
+            //System.out.println(detPose);
             counter = 0;
         }
 

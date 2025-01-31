@@ -22,10 +22,10 @@ import frc.robot.utils.LimelightHelpers;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class OrganizePathfind extends SequentialCommandGroup {
   /** Creates a new OrganizePathfind. */
-  public OrganizePathfind(CommandSwerveDrivetrain drivetrain) {
+  public OrganizePathfind(CommandSwerveDrivetrain drivetrain, int tagId) {
 
     // int tagId = (int) LimelightHelpers.getFiducialID("limelight-left");
-    int tagId = 18;
+    // int tagId = 18;
 
     System.out.println(tagId);
 

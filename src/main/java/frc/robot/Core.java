@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.auto.Outtake;
 import frc.robot.commands.teleop.OrganizePathfind;
 import frc.robot.subsystems.OuttakeSubsystem;
+import frc.robot.subsystems.digital.NavInterfaceSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.utils.LimelightHelpers;
@@ -58,6 +59,8 @@ public class Core {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+
+    public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem(drivetrain);
 
     private final SendableChooser<Command> autoChooser;
 
@@ -144,7 +147,7 @@ public class Core {
         driveController.a()
                 .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], null, true)));
 
-        driveController.b().onTrue(new OrganizePathfind(drivetrain)); 
+        driveController.b().onTrue(new OrganizePathfind(drivetrain, 18)); 
         
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
