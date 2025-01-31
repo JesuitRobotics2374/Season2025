@@ -10,12 +10,19 @@ import java.util.*;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+
 public class ConfigReader {
 
     File file;
+    TalonFXConfiguration config;
+    Map<String, Object> map;
 
-    public ConfigReader(File file){
+    public ConfigReader(File file, TalonFXConfiguration config){
         this.file = file;
+        this.config = config;
     }
 
 
@@ -42,4 +49,5 @@ public class ConfigReader {
         return value;
 
     }
+
 }

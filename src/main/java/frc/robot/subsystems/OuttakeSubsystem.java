@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.*;
 
 import org.json.simple.JSONObject;
@@ -31,8 +32,8 @@ public class OuttakeSubsystem extends SubsystemBase{
     motorController = new TalonFX(19);
     configure();
     checkConfiguration();
-    createConfigFile(config);
-    //readConfigFile(config, new File("/home/lvuser/deploy/talonfx-19-configs.txt"));
+    //createConfigFile(config);
+    readConfigFile(config, new File("/home/lvuser/deploy/talonfx-19-configs-keysheet.txt"));
   }
 
   public void configAllSettings(TalonFXConfiguration allConfigs) {
@@ -48,7 +49,7 @@ public class OuttakeSubsystem extends SubsystemBase{
   public void checkConfiguration() {
     
     System.out.println("Intake Configs: ");
-    System.out.println(config);
+    //System.out.println(config);
   }
 
   public void createConfigFile( TalonFXConfiguration config){
@@ -61,7 +62,6 @@ public class OuttakeSubsystem extends SubsystemBase{
       for(int i = 0; i<108;i++){
         StringTokenizer st = new StringTokenizer(config.toString(), ":");
         jsonObject.put(st.nextToken(), convertString(st.nextToken()));
-        System.out.println("goofy");
       }
 
       FileWriter fileWriter = new FileWriter(configFile);
@@ -78,19 +78,21 @@ public class OuttakeSubsystem extends SubsystemBase{
   public void readConfigFile(TalonFXConfiguration config, File file){
     try{
       Scanner scanner = new Scanner(file);
-      Map<String, Object> values = new HashMap<>();
+      Field field;
       while (scanner.hasNextLine()) {
         String data = scanner.nextLine();
         StringTokenizer st = new StringTokenizer(data, ": ");
-        values.put(st.nextToken(), st.nextToken());
+        String vString = st.nextToken();
+        field = config.getClass().getDeclaredField(vString);
+        field.setAccessible(true);
+        String vString2 = st.nextToken();
+        field.set(config, vString2);
+        System.out.println("Field: " + vString + ", Value:" + vString2);
+        
       }
-      String value = scanner.toString();
 
-
-      config.deserialize(value);
-      System.out.println(config.deserialize(value));
       scanner.close();
-    }catch(IOException e){
+    }catch(Exception e){
       System.out.println("File was not able to be read");
     }
 
