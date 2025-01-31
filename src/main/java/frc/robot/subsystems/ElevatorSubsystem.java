@@ -32,11 +32,11 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     private static final int POSITION_0 = 0; //Resting Height
     private static final int POSITION_2 = 0; //Position of lowest branch
-    private static final int POSITION_3 = 0; //Position of middle branch
+    private static final int POSITION_3 = 0; //Position of middle branch 
     private static final int POSITION_4 = 0; //Position of highest branch
     private static final int IH = 0; //Position of intake (also number 1)
 
-    private MotionMagicVoltage m_request; //The magic motion request, will change
+    private final MotionMagicVoltage m_request; //The magic motion request, will change
 
     // CANcoder beltPosition = new CANcoder(Constants.beltPosition_ID);
 
@@ -68,7 +68,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         slot0Configs.kG = 0.00; //Output of voltage to overcome gravity
         slot0Configs.kV = 0.12; //output per unit target velocity, perhaps not needed
         slot0Configs.kA = 0.01; //output per unit target acceleration, perhaps not needed
-        slot0Configs.kP = 0.1; //Controls the response to position error—how much the motor reacts to the difference between the current position and the target position.
+        slot0Configs.kP = 0.00; //Controls the response to position error—how much the motor reacts to the difference between the current position and the target position.
         slot0Configs.kI = 0.00; //Addresses steady-state error, which occurs when the motor doesn’t quite reach the target position due to forces like gravity or friction.
         slot0Configs.kD = 0.00; //Responds to the rate of change of the error, damping the motion as the motor approaches the target. This reduces overshooting and oscillations.
 
@@ -81,7 +81,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotor1.getConfigurator().apply(talonFXConfigs);
         elevatorMotor2.getConfigurator().apply(talonFXConfigs);
 
-       m_request = new MotionMagicVoltage(0);
+        m_request = new MotionMagicVoltage(0);
     }
 
     // public void startElevatorUp() {
@@ -119,9 +119,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         elevatorMotor1.setControl(m_request.withPosition(levDiff));
         elevatorMotor2.setControl(m_request.withPosition(levDiff));
-        //FIGURE OUT IF WITHPOS IS A RELATIVE CHANGE OR AN ABSOLUTE CHANGE OIESFJOIESJFOISEJFOISEJFOISJFEOISJFEOISJFEOIJ
-        //OIFESJOIESFOIESF:OIFESJO:IFESJ:OIFESJ:OSIEJF
-        //OSIFEJOIESFJOIESFJOIESFOIESFJOSIEJFOISEJF
+        //FIGURE OUT IF WITHPOS IS A RELATIVE CHANGE OR AN ABSOLUTE CHANGE
 
         currentPos = convertPos(newPos);
     }

@@ -15,63 +15,63 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class OuttakeSubsystem extends SubsystemBase {
 
-  private TalonFXConfiguration config;
+    private TalonFXConfiguration config;
 
-  private final TalonFX motorController;
+    private final TalonFX motorController;
 
-  public OuttakeSubsystem() {
-    config = new TalonFXConfiguration();
-    motorController = new TalonFX(19);
-    //configure();
-    //checkConfiguration();
-  }
+    public OuttakeSubsystem() {
+        config = new TalonFXConfiguration();
+        motorController = new TalonFX(19);
+        // configure();
+        // checkConfiguration();
+    }
 
-  //public ErrorCode configAllSettings(TalonFXConfiguration allConfigs) {
-    //allConfigs.continuousCurrentLimit = 1;
-    //allConfigs.peakCurrentDuration = 1;
-    //allConfigs.peakCurrentLimit = 1;
-    //NeutralMode
-    
-    //ErrorCode errorCode = motorController.configAllSettings(allConfigs);
-    //return errorCode;
-  //} 
+    // public ErrorCode configAllSettings(TalonFXConfiguration allConfigs) {
+    // allConfigs.continuousCurrentLimit = 1;
+    // allConfigs.peakCurrentDuration = 1;
+    // allConfigs.peakCurrentLimit = 1;
+    // NeutralMode
 
-  public void configure() {
-    motorController.setNeutralMode(NeutralModeValue.Brake);
-    //configAllSettings(config);
-  }
+    // ErrorCode errorCode = motorController.configAllSettings(allConfigs);
+    // return errorCode;
+    // }
 
-  public void checkConfiguration() {
-    //motorController.getAllConfigs(config);
-    System.out.println("Intake Configs: ");
-    System.out.println(config);
-  }
+    public void configure() {
+        motorController.setNeutralMode(NeutralModeValue.Brake);
+        // configAllSettings(config);
+    }
 
-  private void setSpeed(double speed) {
-    motorController.set(speed);
-  }
+    public void checkConfiguration() {
+        // motorController.getAllConfigs(config);
+        System.out.println("Intake Configs: ");
+        System.out.println(config);
+    }
 
-  private void stop() {
-    motorController.stopMotor();
-  }
+    private void setSpeed(double speed) {
+        motorController.set(speed);
+    }
 
-  // Templates
+    private void stop() {
+        motorController.stopMotor();
+    }
 
-  public void intake() {
-    System.out.println("in");
-    setSpeed(0.2);
-  }
+    // Templates
 
-  public void outtake() {
-    setSpeed(-0.2);
-  }
+    public void intake() {
+        System.out.println("in");
+        setSpeed(0.2);
+    }
 
-  public void stopIntake() {
-    stop();
-  }
+    public void outtake() {
+        setSpeed(-0.2);
+    }
 
-  @Override
-  public void periodic() {
-  }
+    public void stopIntake() {
+        stop();
+    }
+
+    @Override
+    public void periodic() {
+    }
 
 }
