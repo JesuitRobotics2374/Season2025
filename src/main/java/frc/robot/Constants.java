@@ -12,6 +12,9 @@ public class Constants {
     public static final double MAX_SPEED = 0.5; // kSpeedAt12Volts desired top speed
     public static final double MAX_ANGULAR_RATE = 0.3; // 3/4 of a rotation per second max angular velocity
 
+    public static final double FIELD_X_MIDPOINT = 8.779; // meters
+    public static final double FIELD_Y_MIDPOINT = 4.026; // meters
+
     // Limelight
 
     public static final LimelightObject[] LIMELIGHTS_ON_BOARD = {
@@ -20,5 +23,15 @@ public class Constants {
         // new LimelightObject("limelight-back", 1.4, LLType.kBack)
     };
     public static final Pose2d TEST_PATHFIND_TARGET = new Pose2d(1.199, 7.028, new Rotation2d(128.581 * (Math.PI / 180)));
+
+    // Pathfinding
+
+    public static final double PATHFINDING_MAX_VELOCITY = 3.5;
+    public static final double PATHFINDING_MAX_ACCELERATION = 1;
+    public static final double PATHFINDING_MAX_ROTATIONAL_VELOCITY = Units.degreesToRadians(540);
+    public static final double PATHFINDING_MAX_ROTATIONAL_ACCELERATION = Units.degreesToRadians(720);
+    
+    public static final double PATHFINDING_FRONT_BUFFER = 0.59116; // meters
+    public static final double PATHFINDING_SHIFT_FACTOR = 0.1551; // meters
     
 }

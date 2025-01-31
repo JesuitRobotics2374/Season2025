@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -24,7 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.auto.Outtake;
-import frc.robot.commands.teleop.OrganizePathfind;
+import frc.robot.commands.PathfindCommand;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.digital.NavInterfaceSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
@@ -167,7 +169,11 @@ Pose2d cameraPose3d = LimelightHelpers.getCameraPose3d_TargetSpace("limelight-le
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        ArrayList<Command> auto = navInterfaceSubsystem.getAutonomousCommand();
+        if (auto != null && auto.size() > 0) {
+            return Commands.sequence(auto.toArray(new Command[0]));
+        }
+        return null;
     }
 
     public void doPathfind(Pose2d target) {

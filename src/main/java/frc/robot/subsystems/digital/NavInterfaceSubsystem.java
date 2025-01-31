@@ -4,18 +4,23 @@
 
 package frc.robot.subsystems.digital;
 
+import java.lang.reflect.Array;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.commands.teleop.OrganizePathfind;
+import frc.robot.commands.PathfindCommand;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
 public class NavInterfaceSubsystem extends SubsystemBase {
 
     private final NetworkTableEntry teleopActionEntry;
+    private final NetworkTableEntry autoActionEntry;
     private int lastTag = -1;
+
+    private ArrayList<Command> autonomousRoutine = new ArrayList<>();
 
     private CommandSwerveDrivetrain drivetrain;
 
@@ -23,20 +28,45 @@ public class NavInterfaceSubsystem extends SubsystemBase {
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         NetworkTable navTable = inst.getTable("NavGUI");
         teleopActionEntry = navTable.getEntry("TeleopAction");
+        autoActionEntry = navTable.getEntry("AutoScheme");
         this.drivetrain = drivetrain;
     }
 
     @Override
     public void periodic() {
-        int actionValue = (int) teleopActionEntry.getInteger(-1);
-        if (actionValue != -1) {
-            DecodedData decodedData = decodeBitmask(actionValue);
+        int teleActionValue = (int) teleopActionEntry.getInteger(-1);
+        if (teleActionValue != -1) {
+            DecodedData decodedData = decodeBitmask(teleActionValue);
             if (lastTag != decodedData.tagID) {
                 System.out.println(decodedData.tagID);
                 lastTag = decodedData.tagID;
-                (new OrganizePathfind(drivetrain, lastTag)).schedule();
+                (new PathfindCommand(drivetrain, lastTag)).schedule();
+                return;
             }
         }
+        int[] autoActionValue = autoActionEntry.getArray(new int[]{-1});
+        if (autoActionValue != null && autoActionValue.length > 0 && autoActionValue[0] != -1) {
+            parseAutonomousRoutine(autoActionValue);
+        }
+    }
+
+    private void parseAutonomousRoutine(int[] autoActionValue) {
+        for (int i = 0; i < autoActionValue.length; i++) {
+            DecodedData decodedData = decodeBitmask(autoActionValue[i]);
+            switch (decodedData.instrSet) {
+                case 5: // Pathfind
+                    autonomousRoutine.add(new PathfindCommand(drivetrain, decodedData.tagID));
+                    break;
+            }
+        }
+    }
+
+    public ArrayList<Command> getAutonomousRoutine() {
+        return autonomousRoutine;
+    }
+
+    public void wipeAutonomousRoutine() {
+        autonomousRoutine.clear();
     }
 
     // Class to store the decoded data
