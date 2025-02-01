@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.security.PublicKey;
 import java.util.*;
 
 import org.json.simple.JSONObject;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class OuttakeSubsystem extends SubsystemBase{
 
   private TalonFXConfiguration config;
+  private Map<String, Object> configMap = new HashMap<>();
   private TalonFXConfigurator configurator;
 
   private final TalonFX motorController;
@@ -76,27 +78,40 @@ public class OuttakeSubsystem extends SubsystemBase{
   }
 
   public void readConfigFile(TalonFXConfiguration config, File file){
-    try{
-      Scanner scanner = new Scanner(file);
-      Field field;
-      while (scanner.hasNextLine()) {
-        String data = scanner.nextLine();
-        StringTokenizer st = new StringTokenizer(data, ": ");
-        String vString = st.nextToken();
-        field = config.getClass().getDeclaredField(vString);
+      //Scanner scanner = new Scanner(file);
+      Field[] fields = config.getClass().getFields();
+      
+      for(Field field : fields){
         field.setAccessible(true);
-        String vString2 = st.nextToken();
-        field.set(config, vString2);
-        System.out.println("Field: " + vString + ", Value:" + vString2);
+        System.out.println("Field" + field.getName());
+        try {
+          Field[] subFields = field.getType().getFields();
+          for(Field subField : subFields){
+            subField.setAccessible(true);
+            
+            Object value = subField.get(null);
+            configMap.put(subField.getName(),value);
+            System.out.println(value);
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
         
       }
+      // while (scanner.hasNextLine()) {
+      //   String data = scanner.nextLine();
+      //   StringTokenizer st = new StringTokenizer(data, ": ");
+      //   String vString = st.nextToken();
+      //   field = config.getClass().getDeclaredField(vString);
+      //   field.setAccessible(true);
+      
+      //   String vString2 = st.nextToken();
+      //   System.out.println("Field: " + vString + ", Value:" + vString2);
+      //   field.set(config,convertString(vString2));
+        
+      // }
 
-      scanner.close();
-    }catch(Exception e){
-      System.out.println("File was not able to be read");
-    }
-
-    
+      //scanner.close();
     
   }
 
