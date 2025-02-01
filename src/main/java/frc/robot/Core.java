@@ -56,37 +56,37 @@ public class Core {
                                                                                                                    // velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    // private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+    //         .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+    //         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+    // private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driveController = new CommandXboxController(0);
 
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    // public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+    // public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
 
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 
-    private final SendableChooser<Command> autoChooser;
+    // private final SendableChooser<Command> autoChooser;
 
     private Command pathfindingCommand;
 
     public Core() {
         registerAutoCommands();
-        autoChooser = AutoBuilder.buildAutoChooser();
+        // autoChooser = AutoBuilder.buildAutoChooser();
         configureBindings();
         configureShuffleBoard();
 
-        drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
+        // drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
     }
 
     public void registerAutoCommands() {
-        NamedCommands.registerCommand("OuttakeCommand", new Outtake(outtakeSubsystem));
+        // NamedCommands.registerCommand("OuttakeCommand", new Outtake(outtakeSubsystem));
         // NamedCommands.registerCommand("Test Pathfind", new PathfindBasic(drivetrain,
         // Constants.TEST_PATHFIND_TARGET));
 
@@ -108,7 +108,7 @@ public class Core {
         // Layout").withPosition(0, 0).withSize(2, 3);
 
         // Field
-        tab.add(drivetrain.getField()).withPosition(2, 1).withSize(5, 3);
+        // tab.add(drivetrain.getField()).withPosition(2, 1).withSize(5, 3);
 
         // Modes
         // tab.addBoolean("Slow Mode", () -> isSlow()).withPosition(2, 0).withSize(2,
@@ -124,24 +124,24 @@ public class Core {
         // .withWidget("Number Bar");
         // pos.addDouble("Robot X", () -> drivetrain.getRobotX());
 
-        tab.add("Auto Chooser", autoChooser);
+        // tab.add("Auto Chooser", autoChooser);
 
     }
 
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(
-                // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed) // Drive
-                                                                                                          // forward
-                                                                                                          // with
-                                                                                                          // negative Y
-                                                                                                          // (forward)
-                        .withVelocityY(-driveController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate) // Drive counterclockwise
-                                                                                           // with negative X (left)
-                ));
+        // drivetrain.setDefaultCommand(
+        //         // Drivetrain will execute this command periodically
+        //         drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed) // Drive
+        //                                                                                                   // forward
+        //                                                                                                   // with
+        //                                                                                                   // negative Y
+        //                                                                                                   // (forward)
+        //                 .withVelocityY(-driveController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+        //                 .withRotationalRate(-driveController.getRightX() * MaxAngularRate) // Drive counterclockwise
+        //                                                                                    // with negative X (left)
+        //         ));
 
         // driveController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // driveController.b().whileTrue(drivetrain.applyRequest(() ->
@@ -149,17 +149,17 @@ public class Core {
         // -driveController.getLeftX()))
         // ));
 
-        driveController.x().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.outtake()));
-        driveController.x().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
-        driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
-        driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
+        // driveController.x().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.outtake()));
+        // driveController.x().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
+        // driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
+        // driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
         driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM()));
 
         // driveController.a()
         //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
 
-        driveController.b().onTrue(new Outtake(outtakeSubsystem));
+        // driveController.b().onTrue(new Outtake(outtakeSubsystem));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -169,14 +169,14 @@ public class Core {
         // driveController.start().and(driveController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on left bumper press
-        driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        drivetrain.registerTelemetry(logger::telemeterize);
+        // drivetrain.registerTelemetry(logger::telemeterize);
     }
 
-    public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
-    }
+    // public Command getAutonomousCommand() {
+    //     return autoChooser.getSelected();
+    // }
 
     public void doPathfind(Pose2d target) {
         PathConstraints constraints = new PathConstraints(
