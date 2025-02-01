@@ -79,40 +79,20 @@ public class OuttakeSubsystem extends SubsystemBase{
 
   public void readConfigFile(TalonFXConfiguration config, File file){
       //Scanner scanner = new Scanner(file);
-      Field[] fields = config.getClass().getFields();
+      Field[] fields = TalonFXConfiguration.class.getFields();
       
       for(Field field : fields){
-        field.setAccessible(true);
-        System.out.println("Field" + field.getName());
-        try {
-          Field[] subFields = field.getType().getFields();
-          for(Field subField : subFields){
-            subField.setAccessible(true);
-            
-            Object value = subField.get(null);
-            configMap.put(subField.getName(),value);
-            System.out.println(value);
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
         
-      }
-      // while (scanner.hasNextLine()) {
-      //   String data = scanner.nextLine();
-      //   StringTokenizer st = new StringTokenizer(data, ": ");
-      //   String vString = st.nextToken();
-      //   field = config.getClass().getDeclaredField(vString);
-      //   field.setAccessible(true);
-      
-      //   String vString2 = st.nextToken();
-      //   System.out.println("Field: " + vString + ", Value:" + vString2);
-      //   field.set(config,convertString(vString2));
-        
-      // }
+          field.setAccessible(true);
+          System.out.println("Field" + field.getName());
+          try{
+            Object obj = field.get(config);
+            System.out.println("\n" + obj.toString() + "\n");
+          }catch(Exception e){
 
-      //scanner.close();
-    
+          }
+          
+      }
   }
 
   public Object convertString(String value){
@@ -138,7 +118,6 @@ public class OuttakeSubsystem extends SubsystemBase{
     return value;
 
 }
-
   
 
   private void setSpeed(double speed) {
