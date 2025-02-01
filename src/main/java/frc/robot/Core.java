@@ -21,17 +21,16 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.auto.Outtake;
 import frc.robot.commands.PathfindCommand;
+import frc.robot.commands.PathfindCommand.Alignment;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.digital.NavInterfaceSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
-import frc.robot.utils.LimelightHelpers;
 
 public class Core {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED; // kSpeedAt12Volts
@@ -51,8 +50,8 @@ public class Core {
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -64,12 +63,12 @@ public class Core {
 
     public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem(drivetrain);
 
-    private final SendableChooser<Command> autoChooser;
+    // private final SendableChooser<Command> autoChooser;
 
     private Command pathfindingCommand;
 
     public Core() {
-        autoChooser = AutoBuilder.buildAutoChooser();
+        // autoChooser = AutoBuilder.buildAutoChooser();
         configureBindings();
         configureShuffleBoard();
         registerAutoCommands();
@@ -147,10 +146,11 @@ public class Core {
         driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
         driveController.a()
-                .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], null, true)));
+                .onTrue(drivetrain
+                        .runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], null, true)));
 
-        driveController.b().onTrue(new OrganizePathfind(drivetrain, 18)); 
-        
+        driveController.b().onTrue(new PathfindCommand(drivetrain, 18, Alignment.LEFT));
+
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         // driveController.back().and(driveController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
@@ -160,16 +160,16 @@ public class Core {
 
         // reset the field-centric heading on left bumper press
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-Pose2d cameraPose3d = LimelightHelpers.getCameraPose3d_TargetSpace("limelight-left").toPose2d();
+        // Pose2d cameraPose3d = LimelightHelpers.getCameraPose3d_TargetSpace("limelight-left").toPose2d();
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
     public void forwardAlign() {
-        
+
     }
 
     public Command getAutonomousCommand() {
-        ArrayList<Command> auto = navInterfaceSubsystem.getAutonomousCommand();
+        ArrayList<Command> auto = navInterfaceSubsystem.getAutonomousRoutine();
         if (auto != null && auto.size() > 0) {
             return Commands.sequence(auto.toArray(new Command[0]));
         }

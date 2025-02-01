@@ -4,14 +4,15 @@
 
 package frc.robot.subsystems.digital;
 
-import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.PathfindCommand;
+import frc.robot.commands.PathfindCommand.Alignment;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
 public class NavInterfaceSubsystem extends SubsystemBase {
@@ -40,22 +41,25 @@ public class NavInterfaceSubsystem extends SubsystemBase {
             if (lastTag != decodedData.tagID) {
                 System.out.println(decodedData.tagID);
                 lastTag = decodedData.tagID;
-                (new PathfindCommand(drivetrain, lastTag)).schedule();
+                Alignment alignment = Alignment.parseTopology(decodedData.isReef, decodedData.reefLoc);
+                System.out.println("Sending pathfind command: " + lastTag + " " + alignment + " " + decodedData);
+                (new PathfindCommand(drivetrain, lastTag, alignment)).schedule();
                 return;
             }
         }
-        int[] autoActionValue = autoActionEntry.getArray(new int[]{-1});
+        long[] autoActionValue = autoActionEntry.getIntegerArray((long[]) null);
         if (autoActionValue != null && autoActionValue.length > 0 && autoActionValue[0] != -1) {
             parseAutonomousRoutine(autoActionValue);
         }
     }
 
-    private void parseAutonomousRoutine(int[] autoActionValue) {
+    private void parseAutonomousRoutine(long[] autoActionValue) {
         for (int i = 0; i < autoActionValue.length; i++) {
             DecodedData decodedData = decodeBitmask(autoActionValue[i]);
             switch (decodedData.instrSet) {
                 case 5: // Pathfind
-                    autonomousRoutine.add(new PathfindCommand(drivetrain, decodedData.tagID));
+                    Alignment alignment = Alignment.parseTopology(decodedData.isReef, decodedData.reefLoc);
+                    autonomousRoutine.add(new PathfindCommand(drivetrain, decodedData.tagID, alignment));
                     break;
             }
         }
@@ -102,14 +106,14 @@ public class NavInterfaceSubsystem extends SubsystemBase {
     }
 
     // Method to decode the bitmask
-    public static DecodedData decodeBitmask(int bitmask) {
+    public static DecodedData decodeBitmask(long bitmask) {
         // Decode each field using bitwise operations
-        int tagID = (bitmask >> 8) & 0x1F; // First 5 bits (positions 8–12)
+        int tagID = (int) (bitmask >> 8) & 0x1F; // First 5 bits (positions 8–12)
         boolean isReef = ((bitmask >> 7) & 0x1) == 1; // Next bit (position 7)
-        int reefLoc = (bitmask >> 4) & 0x7; // Next 3 bits (positions 4–6)
+        int reefLoc = (int) (bitmask >> 4) & 0x7; // Next 3 bits (positions 4–6)
         boolean isRed = ((bitmask >> 3) & 0x1) == 1; // Next bit (position 3)
-        int instrSet = (bitmask >> 0) & 0x7; // Next 3 bits (positions 0–2)
-        int instrUnit = (bitmask >> 0) & 0x7; // Last 3 bits (positions 0–2)
+        int instrSet = (int) (bitmask >> 0) & 0x7; // Next 3 bits (positions 0–2)
+        int instrUnit = (int) (bitmask >> 0) & 0x7; // Last 3 bits (positions 0–2)
 
         return new DecodedData(tagID, isReef, reefLoc, isRed, instrSet, instrUnit);
     }

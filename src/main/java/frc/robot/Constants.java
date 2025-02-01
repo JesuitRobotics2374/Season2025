@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.utils.LimelightObject;
 import frc.robot.utils.LimelightObject.LLType;
 
@@ -31,7 +32,7 @@ public class Constants {
     public static final double PATHFINDING_MAX_ROTATIONAL_VELOCITY = Units.degreesToRadians(540);
     public static final double PATHFINDING_MAX_ROTATIONAL_ACCELERATION = Units.degreesToRadians(720);
     
-    public static final double PATHFINDING_FRONT_BUFFER = 0.59116; // meters
+    public static final double PATHFINDING_FRONT_BUFFER = -0.59116; // meters
     public static final double PATHFINDING_SHIFT_FACTOR = 0.1551; // meters
     
 }

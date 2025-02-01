@@ -33,14 +33,7 @@ public class FMapConstant {
                             transform.set(j, k, matrixData[j * 4 + k]);
                         }
                     }
-                    Pose3d tagPose = new Pose3d(transform);
-                    boolean isRight = false;
-                    // Add 8.779 to the x and 4.026 to the y (half length and width of the field)
-                    double newX = tagPose.getX() + 0.59116 * Math.cos(tagPose.getRotation().getAngle()) + 0.1551 * Math.sin(tagPose.getRotation().getAngle()) * (isRight ? 1 : -1) + 8.779;
-                    double newY = tagPose.getY() + 0.59116 * Math.sin(tagPose.getRotation().getAngle()) + 0.1551 * Math.cos(tagPose.getRotation().getAngle()) * (isRight ? 1 : -1) + 4.026;
-                    double newZ = tagPose.getZ();
-                    Rotation3d newRotation = tagPose.getRotation().plus(new Rotation3d(0, 0, Math.PI));
-                    return new Pose3d(newX, newY, newZ, newRotation);
+                    return new Pose3d(transform);
                 }
             }
         } catch (ParseException e) {
