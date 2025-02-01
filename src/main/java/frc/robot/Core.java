@@ -19,11 +19,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.auto.Outtake;
 import frc.robot.commands.PathfindCommand;
 import frc.robot.commands.PathfindCommand.Alignment;
@@ -56,6 +59,7 @@ public class Core {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driveController = new CommandXboxController(0);
+    private final Joystick navController = new Joystick(2);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -150,6 +154,11 @@ public class Core {
                         .runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], null, true)));
 
         driveController.b().onTrue(new PathfindCommand(drivetrain, 18, Alignment.LEFT));
+
+
+        new JoystickButton(navController, 1).onTrue(new PathfindCommand(drivetrain, 17, Alignment.RIGHT));
+
+
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.

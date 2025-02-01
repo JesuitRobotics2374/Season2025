@@ -15,10 +15,13 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.commands.auto.DriveDynamicX;
+import frc.robot.commands.auto.StaticBackCommand;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.utils.FMapConstant;
 
 public class PathfindCommand extends SequentialCommandGroup {
+
+    public static boolean wasAligned = false;
 
     public enum Alignment {
 
@@ -80,7 +83,6 @@ public class PathfindCommand extends SequentialCommandGroup {
         // This may be a mathematical error; this is a temporary fix.
         if (tagId == 7 || tagId == 10 || tagId == 18 || tagId == 21) {
             System.out.println("Vertical face detected; flipping modifier");
-            System.out.println("FIX ME! FIX ME! FIX ME! FIX ME! FIX ME! FIX ME! FIX ME! FIX ME! FIX ME! FIX ME!");
             modifier *= -1;
         }
 
@@ -112,11 +114,19 @@ public class PathfindCommand extends SequentialCommandGroup {
 
         // pathfindingCommand.schedule();
 
-        Command driveDynamic = new DriveDynamicX(drivetrain, 0.167, 0.2);
+        Command driveDynamic = new DriveDynamicX(drivetrain, 0.297, 0.2);
 
         System.out.println("PATHFIND TO " + target.toString() + " STARTED");
+        System.out.println("Aligned Prior: " + wasAligned);
 
-        addCommands(new WaitCommand(1), pathfindingCommand, driveDynamic);
+        if (wasAligned) {
+            // addCommands(new StaticBackCommand(drivetrain, -0.2, -1), new WaitCommand(1), pathfindingCommand, driveDynamic);
+            addCommands(new WaitCommand(1), pathfindingCommand, driveDynamic);
+        } else {
+            addCommands(new WaitCommand(1), pathfindingCommand, driveDynamic);
+        }
+
+        wasAligned = true;
 
         addRequirements(drivetrain);
     }
