@@ -155,6 +155,8 @@ public class Core {
         // driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
         driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM()));
+        driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM2()));
+        driveController.x().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM3()));
 
         // driveController.a()
         //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
