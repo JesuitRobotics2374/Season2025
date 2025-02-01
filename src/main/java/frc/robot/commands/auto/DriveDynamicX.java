@@ -34,7 +34,9 @@ public class DriveDynamicX extends Command {
         drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(speed));
         double distance = drivetrain.getForwardRange();
         System.out.println(distance);
-        if (distance <= providedDistance) {
+        if (speed > 0 && distance <= providedDistance) {
+            done = true;
+        } else if (distance >= providedDistance) {
             done = true;
         }
     }

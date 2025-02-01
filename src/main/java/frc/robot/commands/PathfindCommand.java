@@ -67,13 +67,7 @@ public class PathfindCommand extends SequentialCommandGroup {
             return;
         }
 
-        System.out.println(" --- TAG DATA --- ");
-        System.out.println(tagTarget.getX());
-        System.out.println(tagTarget.getY());
-        System.out.println(tagTarget.getZ());
-        System.out.println(tagTarget.getRotation().getX());
-        System.out.println(tagTarget.getRotation().getY());
-        System.out.println(tagTarget.getRotation().getZ());
+        ///// PRE PATHFIND
 
         Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
 
@@ -85,6 +79,43 @@ public class PathfindCommand extends SequentialCommandGroup {
             System.out.println("Vertical face detected; flipping modifier");
             modifier *= -1;
         }
+
+        Pose3d pretarget3d = new Pose3d(
+                tagTarget.getX() + Constants.PATHFINDING_PRE_BUFFER * Math.cos(tagRotation.getZ())
+                        + Constants.PATHFINDING_SHIFT_FACTOR * Math.sin(tagRotation.getZ()) * modifier
+                        + Constants.FIELD_X_MIDPOINT,
+                tagTarget.getY() + Constants.PATHFINDING_PRE_BUFFER * Math.sin(tagRotation.getZ())
+                        + Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ()) * modifier
+                        + Constants.FIELD_Y_MIDPOINT,
+                tagTarget.getZ(),
+                tagRotation);
+
+        Pose2d pretarget = pretarget3d.toPose2d();
+
+        PathConstraints constraints = new PathConstraints(
+                Constants.PATHFINDING_MAX_VELOCITY,
+                Constants.PATHFINDING_MAX_ACCELERATION,
+                Constants.PATHFINDING_MAX_ROTATIONAL_VELOCITY,
+                Constants.PATHFINDING_MAX_ROTATIONAL_ACCELERATION);
+
+        System.out.println(pretarget);
+
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        Command prepathfindingCommand = AutoBuilder.pathfindToPose(
+                pretarget,
+                constraints,
+                0.5);
+
+
+        ///// MAIN PATHFIND
+
+        System.out.println(" --- TAG DATA --- ");
+        System.out.println(tagTarget.getX());
+        System.out.println(tagTarget.getY());
+        System.out.println(tagTarget.getZ());
+        System.out.println(tagTarget.getRotation().getX());
+        System.out.println(tagTarget.getRotation().getY());
+        System.out.println(tagTarget.getRotation().getZ());
 
         Pose3d target3d = new Pose3d(
                 tagTarget.getX() + Constants.PATHFINDING_FRONT_BUFFER * Math.cos(tagRotation.getZ())
@@ -98,12 +129,6 @@ public class PathfindCommand extends SequentialCommandGroup {
 
         Pose2d target = target3d.toPose2d();
 
-        PathConstraints constraints = new PathConstraints(
-                Constants.PATHFINDING_MAX_VELOCITY,
-                Constants.PATHFINDING_MAX_ACCELERATION,
-                Constants.PATHFINDING_MAX_ROTATIONAL_VELOCITY,
-                Constants.PATHFINDING_MAX_ROTATIONAL_ACCELERATION);
-
         System.out.println(target);
 
         // Since AutoBuilder is configured, we can use it to build pathfinding commands
@@ -114,17 +139,20 @@ public class PathfindCommand extends SequentialCommandGroup {
 
         // pathfindingCommand.schedule();
 
-        Command driveDynamic = new DriveDynamicX(drivetrain, 0.297, 0.2);
+        Command driveBackDynamic = new DriveDynamicX(drivetrain, 0.6, -0.5);
+        Command driveDynamic = new DriveDynamicX(drivetrain, 0.297, 0.3);
 
         System.out.println("PATHFIND TO " + target.toString() + " STARTED");
         System.out.println("Aligned Prior: " + wasAligned);
 
-        if (wasAligned) {
-            // addCommands(new StaticBackCommand(drivetrain, -0.2, -1), new WaitCommand(1), pathfindingCommand, driveDynamic);
-            addCommands(new WaitCommand(1), pathfindingCommand, driveDynamic);
-        } else {
-            addCommands(new WaitCommand(1), pathfindingCommand, driveDynamic);
-        }
+        // if (wasAligned) {
+        //     // addCommands(new StaticBackCommand(drivetrain, -0.2, -1), new WaitCommand(1), pathfindingCommand, driveDynamic);
+        //     addCommands(new WaitCommand(1), pathfindingCommand, driveDynamic);
+        // } else {
+        //     addCommands(new WaitCommand(1), pathfindingCommand, driveDynamic);
+        // }
+
+        addCommands(driveBackDynamic, prepathfindingCommand, pathfindingCommand);
 
         wasAligned = true;
 
