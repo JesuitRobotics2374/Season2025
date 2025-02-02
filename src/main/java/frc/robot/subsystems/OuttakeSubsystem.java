@@ -6,16 +6,13 @@ package frc.robot.subsystems;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.security.PublicKey;
 import java.util.*;
 
 import org.json.simple.JSONObject;
 
-import com.ctre.phoenix.ErrorCode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 
@@ -33,9 +30,8 @@ public class OuttakeSubsystem extends SubsystemBase{
     config = new TalonFXConfiguration();
     motorController = new TalonFX(19);
     configure();
-    checkConfiguration();
-    //createConfigFile(config);
-    readConfigFile(config, new File("/home/lvuser/deploy/talonfx-19-configs-keysheet.txt"));
+    createConfigFile(config);
+    //readConfigFile(config, new File("/home/lvuser/deploy/talonfx-19-configs-keysheet.txt"));
   }
 
   public void configAllSettings(TalonFXConfiguration allConfigs) {
@@ -48,51 +44,31 @@ public class OuttakeSubsystem extends SubsystemBase{
     configAllSettings(config);
   }
 
-  public void checkConfiguration() {
+  public void createConfigFile(TalonFXConfiguration config){
+    //File configFile = new File("/home/lvuser/talonfx-19-configs.json");
+    Field[] fields = TalonFXConfiguration.class.getFields();
     
-    System.out.println("Intake Configs: ");
-    //System.out.println(config);
-  }
-
-  public void createConfigFile( TalonFXConfiguration config){
-    try{
-      File configFile = new File("/home/lvuser/talonfx-19-configs.json");
-      // FileWriter writer = new FileWriter(configFile);
-      // writer.write(config.serialize());
-      // writer.close();
-      JSONObject jsonObject = new JSONObject();
-      for(int i = 0; i<108;i++){
-        StringTokenizer st = new StringTokenizer(config.toString(), ":");
-        jsonObject.put(st.nextToken(), convertString(st.nextToken()));
-      }
-
-      FileWriter fileWriter = new FileWriter(configFile);
-      fileWriter.write(jsonObject.toString());
-      fileWriter.close();
-
+    for(Field field : fields){
       
-    }
-    catch (Exception e){
-      System.out.println("File not created");
+        field.setAccessible(true);
+        Field[] subFields = field.getType().getFields();
+
+        try{
+          Object obj = field.get(config);
+          for(Field subField : subFields){
+            subField.setAccessible(true);
+            Object value = subField.get(obj);
+            configMap.put(subField.getName(), value);
+          }
+          
+        }catch(Exception e){
+          
+        }
     }
   }
 
   public void readConfigFile(TalonFXConfiguration config, File file){
-      //Scanner scanner = new Scanner(file);
-      Field[] fields = TalonFXConfiguration.class.getFields();
-      
-      for(Field field : fields){
-        
-          field.setAccessible(true);
-          System.out.println("Field" + field.getName());
-          try{
-            Object obj = field.get(config);
-            System.out.println("\n" + obj.toString() + "\n");
-          }catch(Exception e){
-
-          }
-          
-      }
+    
   }
 
   public Object convertString(String value){
