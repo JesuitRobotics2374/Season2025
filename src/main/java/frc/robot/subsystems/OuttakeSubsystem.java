@@ -29,6 +29,7 @@ public class OuttakeSubsystem extends SubsystemBase{
   public OuttakeSubsystem() {
     config = new TalonFXConfiguration();
     motorController = new TalonFX(19);
+
     configure();
     createConfigFile(config);
     //readConfigFile(config, new File("/home/lvuser/deploy/talonfx-19-configs-keysheet.txt"));
@@ -94,7 +95,6 @@ public class OuttakeSubsystem extends SubsystemBase{
     return value;
 
 }
-  
 
   private void setSpeed(double speed) {
     motorController.set(speed);
