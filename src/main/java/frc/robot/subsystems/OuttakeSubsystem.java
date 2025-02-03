@@ -6,41 +6,43 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class OuttakeSubsystem extends SubsystemBase {
 
-  private TalonSRXConfiguration config;
+  private TalonFXConfiguration config;
 
-  private final WPI_TalonSRX motorController;
+  private final TalonFX motorController;
 
   public OuttakeSubsystem() {
-    config = new TalonSRXConfiguration();
-    motorController = new WPI_TalonSRX(40);
-    configure();
-    checkConfiguration();
+    config = new TalonFXConfiguration();
+    motorController = new TalonFX(19);
+    //configure();
+    //checkConfiguration();
   }
 
-  public ErrorCode configAllSettings(TalonSRXConfiguration allConfigs) {
-    allConfigs.continuousCurrentLimit = 1;
-    allConfigs.peakCurrentDuration = 1;
-    allConfigs.peakCurrentLimit = 1;
-    //NeutralMode
+  // public ErrorCode configAllSettings(TalonFXConfiguration allConfigs) {
+  //   allConfigs.continuousCurrentLimit = 1;
+  //   allConfigs.peakCurrentDuration = 1;
+  //   allConfigs.peakCurrentLimit = 1;
+  //   NeutralMode
     
-    ErrorCode errorCode = motorController.configAllSettings(allConfigs);
-    return errorCode;
-  } 
+  //   ErrorCode errorCode = motorController.configAllSettings(allConfigs);
+  //   return errorCode;
+  // } 
 
   public void configure() {
-    motorController.setNeutralMode(NeutralMode.Brake);
-    configAllSettings(config);
+    motorController.setNeutralMode(NeutralModeValue.Brake);
+    //configAllSettings(config);
   }
 
   public void checkConfiguration() {
-    motorController.getAllConfigs(config);
+    //motorController.getAllConfigs(config);
     System.out.println("Intake Configs: ");
     System.out.println(config);
   }
