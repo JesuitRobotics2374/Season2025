@@ -1,0 +1,108 @@
+Config Group: MotorOutput
+Inverted: CounterClockwise_Positive
+NeutralMode: Brake
+DutyCycleNeutralDeadband: 0.0 fractional
+PeakForwardDutyCycle: 1.0 fractional
+PeakReverseDutyCycle: -1.0 fractional
+ControlTimesyncFreqHz: 0.0 Hz
+Config Group: CurrentLimits
+StatorCurrentLimit: 120.0 A
+StatorCurrentLimitEnable: true
+SupplyCurrentLimit: 70.0 A
+SupplyCurrentLimitEnable: true
+SupplyCurrentLowerLimit: 40.0 A
+SupplyCurrentLowerTime: 1.0 seconds
+Config Group: Voltage
+SupplyVoltageTimeConstant: 0.0 seconds
+PeakForwardVoltage: 16.0 V
+PeakReverseVoltage: -16.0 V
+Config Group: TorqueCurrent
+PeakForwardTorqueCurrent: 800.0 A
+PeakReverseTorqueCurrent: -800.0 A
+TorqueNeutralDeadband: 0.0 A
+Config Group: Feedback
+FeedbackRotorOffset: 0.0 rotations
+SensorToMechanismRatio: 1.0 scalar
+RotorToSensorRatio: 1.0 scalar
+FeedbackSensorSource: RotorSensor
+FeedbackRemoteSensorID: 0
+VelocityFilterTimeConstant: 0.0 seconds
+Config Group: DifferentialSensors
+DifferentialSensorSource: Disabled
+DifferentialTalonFXSensorID: 0
+DifferentialRemoteSensorID: 0
+Config Group: DifferentialConstants
+PeakDifferentialDutyCycle: 2.0 fractional
+PeakDifferentialVoltage: 32.0 V
+PeakDifferentialTorqueCurrent: 1600.0 A
+Config Group: OpenLoopRamps
+DutyCycleOpenLoopRampPeriod: 0.0 seconds
+VoltageOpenLoopRampPeriod: 0.0 seconds
+TorqueOpenLoopRampPeriod: 0.0 seconds
+Config Group: ClosedLoopRamps
+DutyCycleClosedLoopRampPeriod: 0.0 seconds
+VoltageClosedLoopRampPeriod: 0.0 seconds
+TorqueClosedLoopRampPeriod: 0.0 seconds
+Config Group: HardwareLimitSwitch
+ForwardLimitType: NormallyOpen
+ForwardLimitAutosetPositionEnable: false
+ForwardLimitAutosetPositionValue: 0.0 rotations
+ForwardLimitEnable: true
+ForwardLimitSource: LimitSwitchPin
+ForwardLimitRemoteSensorID: 0
+ReverseLimitType: NormallyOpen
+ReverseLimitAutosetPositionEnable: false
+ReverseLimitAutosetPositionValue: 0.0 rotations
+ReverseLimitEnable: true
+ReverseLimitSource: LimitSwitchPin
+ReverseLimitRemoteSensorID: 0
+Config Group: Audio
+BeepOnBoot: true
+BeepOnConfig: true
+AllowMusicDurDisable: false
+Config Group: SoftwareLimitSwitch
+ForwardSoftLimitEnable: false
+ReverseSoftLimitEnable: false
+ForwardSoftLimitThreshold: 0.0 rotations
+ReverseSoftLimitThreshold: 0.0 rotations
+Config Group: MotionMagic
+MotionMagicCruiseVelocity: 0.0 rot per sec
+MotionMagicAcceleration: 0.0 rot per sec�
+MotionMagicJerk: 0.0 rot per sec�
+MotionMagicExpo_kV: 0.11999988555908203 V/rps
+MotionMagicExpo_kA: 0.09999990463256836 V/rps�
+Config Group: CustomParams
+CustomParam0: 0
+CustomParam1: 0
+Config Group: ClosedLoopGeneral
+ContinuousWrap: false
+Config Group: Slot0
+kP: 0.0
+kI: 0.0
+kD: 0.0
+kS: 0.0
+kV: 0.0
+kA: 0.0
+kG: 0.0
+GravityType: Elevator_Static
+StaticFeedforwardSign: UseVelocitySign
+Config Group: Slot1
+kP: 0.0
+kI: 0.0
+kD: 0.0
+kS: 0.0
+kV: 0.0
+kA: 0.0
+kG: 0.0
+GravityType: Elevator_Static
+StaticFeedforwardSign: UseVelocitySign
+Config Group: Slot2
+kP: 0.0
+kI: 0.0
+kD: 0.0
+kS: 0.0
+kV: 0.0
+kA: 0.0
+kG: 0.0
+GravityType: Elevator_Static
+StaticFeedforwardSign: UseVelocitySign
