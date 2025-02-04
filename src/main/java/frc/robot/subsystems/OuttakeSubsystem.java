@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix6.StatusSignal;
@@ -26,39 +27,52 @@ public class OuttakeSubsystem extends SubsystemBase {
   ShuffleboardTab tab = Shuffleboard.getTab(Constants.DRIVER_READOUT_TAB_NAME);
   public final TimeOfFlight noteSensor;
 
-  public OuttakeSubsystem() {
-    
-    motorController = new WPI_TalonSRX(40);
+    public OuttakeSubsystem() {
+        config = new TalonFXConfiguration();
+        motorController = new TalonFX(19);
+        // configure();
+        // checkConfiguration();
+    }
 
-    motorController.setNeutralMode(NeutralMode.Brake);
+    // public ErrorCode configAllSettings(TalonFXConfiguration allConfigs) {
+    // allConfigs.continuousCurrentLimit = 1;
+    // allConfigs.peakCurrentDuration = 1;
+    // allConfigs.peakCurrentLimit = 1;
+    // NeutralMode
 
-    noteSensor = new TimeOfFlight(Constants.SENSOR_PORT);
-    tab.addDouble("TOF range", () -> noteSensor.getRange());
-    noteSensor.setRangingMode(RangingMode.Short, 24);
-    noteSensor.setRangeOfInterest(9, 9, 11, 11);
+    // ErrorCode errorCode = motorController.configAllSettings(allConfigs);
+    // return errorCode;
+    // }
 
+    public void configure() {
+        motorController.setNeutralMode(NeutralModeValue.Brake);
+        // configAllSettings(config);
+    }
+
+  public void checkConfiguration() {
+    //motorController.getAllConfigs(config);
+    System.out.println("Intake Configs: ");
+    System.out.println(config);
   }
-
-  // Typeset
 
   public void getDistance() {
     StatusSignal<Distance> d = cCANrange.getDistance();
     System.out.println(d);
   }
 
-  private void setSpeed(double speed) {
-    motorController.set(speed);
-  }
+    private void setSpeed(double speed) {
+        motorController.set(speed);
+    }
 
-  private void stop() {
-    motorController.stopMotor();
-  }
+    private void stop() {
+        motorController.stopMotor();
+    }
 
-  // Templates
+    // Templates
 
-  public void intake() {
-    System.out.println("in");
-    setSpeed(0.2);
+    public void intake() {
+        System.out.println("in");
+        setSpeed(0.2);
   }
 
   public void autoIntake() {
@@ -66,18 +80,18 @@ public class OuttakeSubsystem extends SubsystemBase {
         intake = true;
     }
     startIntake();
-}
-
-  public void outtake() {
-    setSpeed(-0.2);
   }
 
-  public void stopIntake() {
-    stop();
-  }
+    public void outtake() {
+        setSpeed(-0.2);
+    }
 
-  @Override
-  public void periodic() {
-  }
+    public void stopIntake() {
+        stop();
+    }
+
+    @Override
+    public void periodic() {
+    }
 
 }

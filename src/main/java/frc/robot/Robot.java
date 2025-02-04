@@ -4,13 +4,6 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.path.PathConstraints;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -18,10 +11,10 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-  private final Core m_robotContainer;
+  private final Core m_core;
 
   public Robot() {
-    m_robotContainer = new Core();
+    m_core = new Core();
 
     // PathfindingCommand.warmupCommand().schedule();
   }
@@ -45,6 +38,17 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    m_autonomousCommand = m_core.getAutonomousCommand();
+
+    if (m_autonomousCommand != null) {
+    m_autonomousCommand.schedule();
+    }
+
+    // m_robotContainer.doPathfind(Constants.TEST_PATHFIND_TARGET);
+
+    // m_robotContainer.getPath("Prec-BLUE-TOP").schedule();
+
+    // m_robotContainer.doPathfindToPath("Prec-BLUE-TOP");
 
   }
 

@@ -6,43 +6,42 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.ArrayList;
+
+import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.auto.Outtake;
-import frc.robot.commands.auto.Pathfind;
-import frc.robot.commands.auto.PathfindBasic;
+import frc.robot.commands.PathfindCommand;
+import frc.robot.commands.PathfindCommand.Alignment;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
+import frc.robot.subsystems.digital.NavInterfaceSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
-import frc.robot.utils.LimelightObject;
-import frc.robot.utils.LimelightObject.LLType;
 
 public class Core {
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED; // kSpeedAt12Volts
+    public double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED; // kSpeedAt12Volts
                                                                                                         // desired top
                                                                                                         // speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE; // 3/4
+    public double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE; // 3/4
                                                                                                                    // of
                                                                                                                    // a
                                                                                                                    // rotation                                                                                            // per
@@ -55,53 +54,39 @@ public class Core {
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.02) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+    // private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driveController = new CommandXboxController(0);
+    private final Joystick navController = new Joystick(2);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+    // public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
 
-    private final SendableChooser<Command> autoChooser;
+    public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+
+    public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem(drivetrain);
+
+    // private final SendableChooser<Command> autoChooser;
+
+    private Command pathfindingCommand;
 
     public Core() {
-        autoChooser = AutoBuilder.buildAutoChooser();
+        registerAutoCommands();
+        // autoChooser = AutoBuilder.buildAutoChooser();
         configureBindings();
         configureShuffleBoard();
-        registerAutoCommands();
 
-        drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(0)));
+        drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
     }
 
     public void registerAutoCommands() {
-        // NamedCommands.registerCommand("Outtake", new Outtake(outtakeSubsystem));
+        // NamedCommands.registerCommand("OuttakeCommand", new Outtake(outtakeSubsystem));
         // NamedCommands.registerCommand("Test Pathfind", new PathfindBasic(drivetrain,
         // Constants.TEST_PATHFIND_TARGET));
-        NamedCommands.registerCommand("Test Pathfind", new InstantCommand(() -> {
-            // Create the constraints to use while pathfinding
-            PathConstraints constraints = new PathConstraints(
-                    3, 4,
-                    Units.degreesToRadians(540),
-                    Units.degreesToRadians(720));
-
-            Pose2d target = new Pose2d(2.45, 6.57, new Rotation2d(90));
-
-            System.out.println(target);
-
-            // Since AutoBuilder is configured, we can use it to build pathfinding commands
-            Command pathfindingCommand = AutoBuilder.pathfindToPose(
-                    target,
-                    constraints,
-                    0);
-
-            pathfindingCommand.schedule();
-
-            System.out.println("PATHFIND TO " + target.toString() + " STARTED");
-        }));
 
         // PathfindingCommand.warmupCommand().schedule();
     }
@@ -117,10 +102,11 @@ public class Core {
         // tab.add(httpCamera).withPosition(7, 0).withSize(3, 2);
 
         // New List Layout
-        //ShuffleboardContainer pos = tab.getLayout("Position", "List Layout").withPosition(0, 0).withSize(2, 3);
+        // ShuffleboardContainer pos = tab.getLayout("Position", "List
+        // Layout").withPosition(0, 0).withSize(2, 3);
 
         // Field
-        tab.add(drivetrain.getField()).withPosition(2, 1).withSize(5, 3);
+        // tab.add(drivetrain.getField()).withPosition(2, 1).withSize(5, 3);
 
         // Modes
         // tab.addBoolean("Slow Mode", () -> isSlow()).withPosition(2, 0).withSize(2,
@@ -130,10 +116,10 @@ public class Core {
 
         // Robot (Reverse order for list layout)
         // pos.addDouble("Robot R", () -> drivetrain.getRobotR())
-        //         .withWidget("Gyro");
+        // .withWidget("Gyro");
         // ;
         // pos.addDouble("Robot Y", () -> drivetrain.getRobotY())
-        //         .withWidget("Number Bar");
+        // .withWidget("Number Bar");
         // pos.addDouble("Robot X", () -> drivetrain.getRobotX());
 
         // tab.add("Auto Chooser", autoChooser);
@@ -166,8 +152,22 @@ public class Core {
         // driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
         // driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
+        // driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM()));
+        // driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM2()));
+        driveController.x().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM3()));
+
+        driveController.povDown().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
+        driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
+        driveController.povUp().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
+        driveController.povRight().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
+        driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(0)));
+        driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(5)));
+        driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.zeroSystem()));
+
         // driveController.a()
         //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
+
+        // driveController.b().onTrue(new Outtake(outtakeSubsystem));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -178,12 +178,74 @@ public class Core {
         driveController.a().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.getDistance()));
 
         // reset the field-centric heading on left bumper press
-        driveController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        drivetrain.registerTelemetry(logger::telemeterize);
+        // drivetrain.registerTelemetry(logger::telemeterize);
     }
 
-    public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+    public void forwardAlign() {
+
+    }
+
+    // public Command getAutonomousCommand() {
+    //     return autoChooser.getSelected();
+    // }
+
+    public void doPathfind(Pose2d target) {
+        PathConstraints constraints = new PathConstraints(
+                3, 4, // 3 - 4
+                Units.degreesToRadians(540),
+                Units.degreesToRadians(720));
+
+        System.out.println(target);
+
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        pathfindingCommand = AutoBuilder.pathfindToPose(
+                target,
+                constraints,
+                0);
+
+        pathfindingCommand.schedule();
+
+        System.out.println("PATHFIND TO " + target.toString() + " STARTED");
+    }
+
+    public void doPathfindToPath(String path) {
+        try {
+
+            PathPlannerPath pathData = PathPlannerPath.fromPathFile(path);
+
+            PathConstraints constraints = new PathConstraints(
+                    3, 4, // 3 - 4
+                    Units.degreesToRadians(540),
+                    Units.degreesToRadians(720));
+
+            // Since AutoBuilder is configured, we can use it to build pathfinding commands
+            pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
+                    pathData,
+                    constraints);
+
+            pathfindingCommand.schedule();
+
+            System.out.println("PATHFIND TO " + path + " STARTED");
+
+        } catch (Exception e) {
+            DriverStation.reportError("Pathing failed: " + e.getMessage(), e.getStackTrace());
+        }
+    }
+
+    public Command getPath(String id) {
+        try {
+            // Load the path you want to follow using its name in the GUI
+            PathPlannerPath path = PathPlannerPath.fromPathFile(id);
+
+            // Create a path following command using AutoBuilder. This will also trigger
+            // event markers.
+            return AutoBuilder.followPath(path);
+
+        } catch (Exception e) {
+            DriverStation.reportError("Pathing failed: " + e.getMessage(), e.getStackTrace());
+            return Commands.none();
+        }
     }
 }

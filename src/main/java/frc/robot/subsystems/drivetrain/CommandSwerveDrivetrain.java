@@ -5,7 +5,9 @@ import static edu.wpi.first.units.Units.*;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.hardware.core.CoreCANrange;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -25,6 +27,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -38,6 +41,7 @@ import frc.robot.subsystems.drivetrain.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.utils.LimelightObject.LLType;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.LimelightObject;
+import frc.robot.utils.LimelightHelpers.PoseEstimate;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -63,6 +67,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     // CUSTOM DECLARATIONS
     private final SwerveDrivePoseEstimator estimator;
     Field2d field = new Field2d();
+
+    public CoreCANrange robotRange = new CoreCANrange(19);
 
     private final SwerveRequest.ApplyRobotSpeeds autoRequest = new SwerveRequest.ApplyRobotSpeeds();
 
@@ -163,13 +169,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 () -> this.estimator.getEstimatedPosition(), // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getCurrentRobotChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                (speeds) -> this.setControl(autoRequest.withSpeeds(speeds)), // Method that will drive the robot given ROBOT
-                                                                      // RELATIVE ChassisSpeeds. Also optionally outputs
-                                                                      // individual module feedforwards
+                (speeds) -> this.setControl(autoRequest.withSpeeds(speeds)), // Method that will drive the robot given
+                                                                             // ROBOT
+                // RELATIVE ChassisSpeeds. Also optionally outputs
+                // individual module feedforwards
                 new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
                                                 // holonomic drive trains
-                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                        new PIDConstants(0.0, 0.0, 0.0), // Translation PID constants
+                        new PIDConstants(0.0, 0.0, 0.0) // Rotation PID constants
                 ),
                 ppConfig, // The robot configuration
                 () -> {
@@ -326,7 +333,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         field.getObject("Robot").setPose(estimator.update(getGyroscopeRotation(), smps));
 
         // // Limelight not available in sim env
-        // if (!Utils.isSimulation()) {
+        if (!Utils.isSimulation()) {
 
         //     // Update graphics
         //     field.getObject("Vision1").setPose(
@@ -334,14 +341,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         //     field.getObject("Vision2").setPose(
         //             LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
 
-        //     // Align to all limelights
-        //     for (LimelightObject ll : Constants.LIMELIGHTS_ON_BOARD) {
-        //         alignToVision(ll, false);
-        //     }
+            var displayCounter = 1;
+            for (LimelightObject llo : Constants.LIMELIGHTS_ON_BOARD) {
+                PoseEstimate fp = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(llo.name);
+                if (fp != null) {
+                    field.getObject("Vision" + displayCounter).setPose(fp.pose);
+                    alignToVision(llo, fp.pose, false);
+                }
+            }
 
-        // }
-
-        
+        }
 
     }
 
@@ -373,44 +382,57 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private SwerveModulePosition[] getSwerveModulePositions() {
         SwerveModulePosition[] smp = new SwerveModulePosition[4];
         @SuppressWarnings("rawtypes")
-		SwerveModule[] sms = getModules();
+        SwerveModule[] sms = getModules();
         for (int i = 0; i < 4; i++) {
             smp[i] = sms[i].getPosition(false);
         }
         return smp;
     }
 
-    // public void alignToVision(LimelightObject ll, boolean snap) {
-    //     boolean doRejectUpdate = false;
-    //     LimelightHelpers.SetRobotOrientation(ll.name,
-    //             estimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-    //     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ll.name);
+    private int counter = 0;
 
-    //     if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2 * Math.PI) {
-    //         doRejectUpdate = true;
-    //         System.out.println("ESTLOG: " + ll.name + " was REJECTED due to high rot of "
-    //                 + getState().Speeds.omegaRadiansPerSecond);
-    //     }
-    //     if (mt2.tagCount == 0) {
-    //         doRejectUpdate = true;
-    //         System.out.println("ESTLOG: " + ll.name + " was REJECTED due to notags");
-    //     }
-    //     if (mt2.avgTagDist > 8) {
-    //         doRejectUpdate = true;
-    //         System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of " + mt2.avgTagDist);
-    //     }
+    public void alignToVision(LimelightObject ll, Pose2d detPose, boolean snap) {
+        boolean doRejectUpdate = false;
+        LimelightHelpers.SetRobotOrientation(ll.name,
+                estimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ll.name);
 
-    //     if (!doRejectUpdate) {
-    //         if (snap) {
-    //             estimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.001, 0.001, 9999999));
-    //         } else {
-    //             estimator.setVisionMeasurementStdDevs(VecBuilder.fill(ll.trust, ll.trust, 9999999));
-    //         }
-    //         estimator.addVisionMeasurement(
-    //                 mt2.pose,
-    //                 mt2.timestampSeconds);
-    //     }
-    // }
+        if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2 * Math.PI) {
+            doRejectUpdate = true;
+            // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to high rot of "
+            // + getState().Speeds.omegaRadiansPerSecond);
+        }
+        if (mt2.tagCount == 0) {
+            doRejectUpdate = true;
+            // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to notags");
+        }
+        if (mt2.avgTagDist > 8) {
+            doRejectUpdate = true;
+            // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of
+            // " + mt2.avgTagDist);
+        }
+        if (detPose != null && detPose.getX() == 8.77 && detPose.getY() == 4.03) {
+            doRejectUpdate = true; // at center of field
+        } else if (detPose.getX() == 0 && detPose.getY() == 0) {
+            doRejectUpdate = true; // at null zone
+        }
+        counter++;
+        if (counter > 50) {
+            //System.out.println(detPose);
+            counter = 0;
+        }
+
+        if (!doRejectUpdate) {
+            if (snap) {
+                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.00001, 0.00001, 0.00001));
+            } else {
+                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(ll.trust, ll.trust, 9999999));
+            }
+            estimator.addVisionMeasurement(
+                    mt2.pose,
+                    mt2.timestampSeconds);
+        }
+    }
 
     public void setRobotPose(Pose2d pose) {
         estimator.resetPose(pose);
@@ -430,6 +452,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getRobotR() {
         return estimator.getEstimatedPosition().getRotation().getDegrees();
+    }
+
+    public double getForwardRange() {
+        StatusSignal<Distance> d = robotRange.getDistance();
+        return d.getValueAsDouble();
     }
 
 }

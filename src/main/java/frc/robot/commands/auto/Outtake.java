@@ -16,6 +16,8 @@ public class Outtake extends Command {
   /** Creates a new Outtake. */
   public Outtake(OuttakeSubsystem outtake) {
 
+    System.out.println("Outtake started.");
+
     this.outtake = outtake;
 
     addRequirements(outtake);
@@ -36,12 +38,14 @@ public class Outtake extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    counter = 0;
     outtake.stopIntake();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    System.out.println(counter);
     return (counter > 30);
   }
 }
