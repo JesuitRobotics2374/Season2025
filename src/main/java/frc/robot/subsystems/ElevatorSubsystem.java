@@ -8,6 +8,9 @@ import java.io.ObjectInputFilter.Config;
 import java.security.InvalidParameterException;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.ControlRequest;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
@@ -17,10 +20,12 @@ import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.CustomParamsConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ConnectedMotorValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix6.controls.Follower;
 
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.Unit;
@@ -32,7 +37,7 @@ import frc.robot.Constants;
 public class ElevatorSubsystem extends SubsystemBase {
 
     public TalonFX elevatorMotor1;
-    // public TalonFX elevatorMotor2;
+    public TalonFX elevatorMotor2;
     // public CANrange range;
 
     public CANcoder shaftEncoder;
@@ -42,23 +47,25 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     //CANcoder beltPosition = new CANcoder(Constants.beltPosition_ID);
 
-    private static final int POSITION_0 = 0; //Resting Height
-    private static final int POSITION_1 = 0; //Position of the lowest reef level
-    private static final int POSITION_2 = 0; //Position of lowest branch
-    private static final int POSITION_3 = 0; //Position of middle branch 
-    private static final int POSITION_4 = 0; //Position of highest branch
-    private static final int IH = 0; //Position of intake (also number 1)
+    private static final double POSITION_0 = 0; //Lowest Height
+    private static final double POSITION_1 = 1; //Position of the lowest reef level
+    private static final double POSITION_2 = 2; //Position of lowest branch
+    private static final double POSITION_3 = 3; //Position of middle branch 
+    private static final double POSITION_4 = 4; //Position of highest branch
+    private static final double IH = 2.5; //Position of intake (also number 5)
 
     private MotionMagicConfigs motionMagicConfigs;
 
     // CANcoder beltPosition = new CANcoder(Constants.beltPosition_ID);
 
-    // DigitalInput L1Bottom = new DigitalInput(0);
-    // DigitalInput L1Top = new DigitalInput(1);
-    // DigitalInput L2Bottom = new DigitalInput(2);
-    // DigitalInput L2Top = new DigitalInput(3);
-    // DigitalInput L3Bottom = new DigitalInput(4);
-    // DigitalInput L3Top = new DigitalInput(5);
+    DigitalInput L1Bottom = new DigitalInput(0);
+    DigitalInput L1Top = new DigitalInput(1);
+    DigitalInput L2Bottom = new DigitalInput(2);
+    DigitalInput L2Top = new DigitalInput(3);
+    DigitalInput L3Bottom = new DigitalInput(4);
+    DigitalInput L3Top = new DigitalInput(5);
+
+    private final double elevatorSpeed = 0.5;
 
     // public CANcoderConfiguration withMagnetSensor(MagnetSensorConfigs newMagnetSensor) {
     // 
@@ -70,14 +77,14 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public ElevatorSubsystem() {
         this.elevatorMotor1 = new TalonFX(27, "FastFD"); // TODO DEVICE ID
-        // this.elevatorMotor2 = new TalonFX(0); // TODO DEVICE ID
+        this.elevatorMotor2 = new TalonFX(28, "FastFD"); // TODO DEVICE ID
 
         shaftEncoder = new CANcoder(35, "FastFD");
         // coderConfig = new CANcoderConfiguration();
 
 
-        var talonFXConfigs = new TalonFXConfiguration();
-        var slot0Configs = talonFXConfigs.Slot0;
+        TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
+        Slot0Configs slot0Configs = talonFXConfigs.Slot0;
         motionMagicConfigs = talonFXConfigs.MotionMagic;
 
         // talonFXConfigs.Feedback.FeedbackRemoteSensorID = 35;
@@ -98,27 +105,41 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotor1.getConfigurator().apply(talonFXConfigs);
         elevatorMotor1.getConfigurator().apply(slot0Configs);
         elevatorMotor1.getConfigurator().apply(motionMagicConfigs);
-        
 
-        // this.elevatorMotor1.getConfigurator().apply(slot0Configs);
-        // this.elevatorMotor2.getConfigurator().apply(talonFXConfigs);
+        elevatorMotor1.getConfigurator().apply(talonFXConfigs);
+        elevatorMotor1.getConfigurator().apply(slot0Configs);
+        elevatorMotor1.getConfigurator().apply(motionMagicConfigs);
+
+        final DutyCycleOut m_request2 = new DutyCycleOut(0);
+
+        elevatorMotor2.setControl(new Follower(elevatorMotor1.getDeviceID(), true));
+
     }
 
-    // public void startElevatorUp() {
-    //     //elevatorMotor1.set(elevatorSpeed);
-    //     //elevatorMotor2.set(-1 * elevatorSpeed);
+    public void upReset() { //elevator 1 and 2 have different directions to move, figure out which is which //GET VALUES FOR POS
+        while (!L3Top.get()) {
+            elevatorMotor1.set(elevatorSpeed);
+            elevatorMotor2.set(-elevatorSpeed);
+        }
+        stopElevator();
+        elevatorMotor1.setPosition(0);
+        elevatorMotor2.setPosition(0);
 
-    //     //where elevatorMotor1 and elevatorMotor2 have inversed directions
-    // }
+    }
 
-    // public void startElevatorDown() {
-    //     //elevatorMotor1.set(-1 * elevatorSpeed);
-    //     //elevatorMotor2.set(elevatorSpeed);
-    // }
+    public void downReset() { //elevator 1 and 2 have different directions to move, figure out which is which
+        while (!L1Bottom.get()) {
+            elevatorMotor1.set(-elevatorSpeed);
+            elevatorMotor2.set(elevatorSpeed);
+        }
+        stopElevator();
+        elevatorMotor1.setPosition(0);
+        elevatorMotor2.setPosition(0);
+    }
 
     public void stopElevator() {
         elevatorMotor1.stopMotor();
-        // elevatorMotor2.stopMotor();
+        elevatorMotor2.stopMotor();
     }
 
     public void testMM() {
@@ -160,8 +181,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         MotionMagicVoltage m_request = new MotionMagicVoltage(posGoTo);
         elevatorMotor1.setControl(m_request);
-
-        //elevatorMotor2.setControl(m_request);
+        elevatorMotor2.setControl(m_request);
     }
 
     private double convertPos(int heightLevel) { //Get values once elevator is finished
@@ -186,6 +206,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         else throw new InvalidParameterException("Number is not in accepted height range");
     }
 
+
     private int clock = 0;
 
     @Override
@@ -193,13 +214,21 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         clock++;
 
-        if (clock == 25) {
-            clock = 0;
-            System.out.println("shaft out: " + shaftEncoder.getPosition());
-            System.out.println("motor out: " + elevatorMotor1.getPosition());
-            System.out.println("rotor out: " + elevatorMotor1.getRotorPosition());
+        if (L1Bottom.get()) {
+            stopElevator();
+            elevatorMotor1.setPosition(0);
+            elevatorMotor2.setPosition(0);
+        }
+        if (L3Top.get()) { //GET THE VLSAUES FOR THIS
+            stopElevator();
+            elevatorMotor1.setPosition(0);
+            elevatorMotor2.setPosition(0);
         }
 
+        if (clock == 20) {
+            System.out.println(elevatorMotor1.getPosition());
+            clock = 0;
+        }
     }
 
 }
