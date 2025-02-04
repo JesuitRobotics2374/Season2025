@@ -95,13 +95,13 @@ public class ElevatorSubsystem extends SubsystemBase {
         // talonFXConfigs.Feedback.RotorToSensorRatio = 1/20;
 
         slot0Configs.kG = 0.00; //Output of voltage to overcome gravity
-        slot0Configs.kV = 0.2; //Output per unit target velocity, perhaps not needed
-        slot0Configs.kA = 0.02; //Output per unit target acceleration, perhaps not needed
-        slot0Configs.kP = 0.00; //Controls the response to position error—how much the motor reacts to the difference between the current position and the target position.
-        slot0Configs.kI = 0.00; //Addresses steady-state error, which occurs when the motor doesn’t quite reach the target position due to forces like gravity or friction.
-        slot0Configs.kD = 0.00; //Responds to the rate of change of the error, damping the motion as the motor approaches the target. This reduces overshooting and oscillations.
+        slot0Configs.kV = 0.01; //Output per unit target velocity, perhaps not needed
+        slot0Configs.kA = 0.01; //Output per unit target acceleration, perhaps not needed
+        slot0Configs.kP = 1; //Controls the response to position error—how much the motor reacts to the difference between the current position and the target position.
+        slot0Configs.kI = 0.01; //Addresses steady-state error, which occurs when the motor doesn’t quite reach the target position due to forces like gravity or friction.
+        slot0Configs.kD = 0.01; //Responds to the rate of change of the error, damping the motion as the motor approaches the target. This reduces overshooting and oscillations.
 
-        motionMagicConfigs.MotionMagicCruiseVelocity = 40; // Target velocity in rps
+        motionMagicConfigs.MotionMagicCruiseVelocity = 50; // Target velocity in rps
         motionMagicConfigs.MotionMagicAcceleration = 100; // Target acceleration in rps/s
         motionMagicConfigs.MotionMagicJerk = 1000; // Target jerk in rps/s/s
 
