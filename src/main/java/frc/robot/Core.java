@@ -56,17 +56,17 @@ public class Core {
                                                                                                                    // velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
-    // private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-    //         .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-    //         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     // private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driveController = new CommandXboxController(0);
 
-    // public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     // public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
 
@@ -82,7 +82,7 @@ public class Core {
         configureBindings();
         configureShuffleBoard();
 
-        // drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
+        drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
     }
 
     public void registerAutoCommands() {
@@ -131,17 +131,17 @@ public class Core {
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        // drivetrain.setDefaultCommand(
-        //         // Drivetrain will execute this command periodically
-        //         drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed) // Drive
-        //                                                                                                   // forward
-        //                                                                                                   // with
-        //                                                                                                   // negative Y
-        //                                                                                                   // (forward)
-        //                 .withVelocityY(-driveController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-        //                 .withRotationalRate(-driveController.getRightX() * MaxAngularRate) // Drive counterclockwise
-        //                                                                                    // with negative X (left)
-        //         ));
+        drivetrain.setDefaultCommand(
+                // Drivetrain will execute this command periodically
+                drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed) // Drive
+                                                                                                          // forward
+                                                                                                          // with
+                                                                                                          // negative Y
+                                                                                                          // (forward)
+                        .withVelocityY(-driveController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate) // Drive counterclockwise
+                                                                                           // with negative X (left)
+                ));
 
         // driveController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // driveController.b().whileTrue(drivetrain.applyRequest(() ->
@@ -154,9 +154,17 @@ public class Core {
         // driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
         // driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
-        driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM()));
-        driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM2()));
+        // driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM()));
+        // driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM2()));
         driveController.x().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM3()));
+
+        driveController.povDown().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
+        driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
+        driveController.povUp().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
+        driveController.povRight().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
+        driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(0)));
+        driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(5)));
+        driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.zeroSystem()));
 
         // driveController.a()
         //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
