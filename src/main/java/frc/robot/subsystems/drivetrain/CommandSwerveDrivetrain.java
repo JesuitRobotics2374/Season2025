@@ -333,7 +333,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         field.getObject("Robot").setPose(estimator.update(getGyroscopeRotation(), smps));
 
         // // Limelight not available in sim env
-        // if (!Utils.isSimulation()) {
+        if (!Utils.isSimulation()) {
 
         //     // Update graphics
         //     field.getObject("Vision1").setPose(
