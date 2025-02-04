@@ -20,27 +20,27 @@ public class OuttakeSubsystem extends SubsystemBase {
   public CANrangeConfiguration rangeConfig = new CANrangeConfiguration();
   public CoreCANrange cCANrange = new CoreCANrange(19);
 
-  public OuttakeSubsystem() {
-    config = new TalonFXConfiguration();
-    motorController = new TalonFX(19);
-    //configure();
-    //checkConfiguration();
-  }
+    public OuttakeSubsystem() {
+        config = new TalonFXConfiguration();
+        motorController = new TalonFX(19);
+        // configure();
+        // checkConfiguration();
+    }
 
-  //public ErrorCode configAllSettings(TalonFXConfiguration allConfigs) {
-    //allConfigs.continuousCurrentLimit = 1;
-    //allConfigs.peakCurrentDuration = 1;
-    //allConfigs.peakCurrentLimit = 1;
-    //NeutralMode
-    
-    //ErrorCode errorCode = motorController.configAllSettings(allConfigs);
-    //return errorCode;
-  //} 
+    // public ErrorCode configAllSettings(TalonFXConfiguration allConfigs) {
+    // allConfigs.continuousCurrentLimit = 1;
+    // allConfigs.peakCurrentDuration = 1;
+    // allConfigs.peakCurrentLimit = 1;
+    // NeutralMode
 
-  public void configure() {
-    motorController.setNeutralMode(NeutralModeValue.Brake);
-    //configAllSettings(config);
-  }
+    // ErrorCode errorCode = motorController.configAllSettings(allConfigs);
+    // return errorCode;
+    // }
+
+    public void configure() {
+        motorController.setNeutralMode(NeutralModeValue.Brake);
+        // configAllSettings(config);
+    }
 
   public void checkConfiguration() {
     //motorController.getAllConfigs(config);
@@ -53,31 +53,31 @@ public class OuttakeSubsystem extends SubsystemBase {
     System.out.println(d);
   }
 
-  private void setSpeed(double speed) {
-    motorController.set(speed);
-  }
+    private void setSpeed(double speed) {
+        motorController.set(speed);
+    }
 
-  private void stop() {
-    motorController.stopMotor();
-  }
+    private void stop() {
+        motorController.stopMotor();
+    }
 
-  // Templates
+    // Templates
 
-  public void intake() {
-    System.out.println("in");
-    setSpeed(0.2);
-  }
+    public void intake() {
+        System.out.println("in");
+        setSpeed(0.2);
+    }
 
-  public void outtake() {
-    setSpeed(-0.2);
-  }
+    public void outtake() {
+        setSpeed(-0.2);
+    }
 
-  public void stopIntake() {
-    stop();
-  }
+    public void stopIntake() {
+        stop();
+    }
 
-  @Override
-  public void periodic() {
-  }
+    @Override
+    public void periodic() {
+    }
 
 }

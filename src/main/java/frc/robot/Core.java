@@ -31,16 +31,17 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.auto.Outtake;
 import frc.robot.commands.PathfindCommand;
 import frc.robot.commands.PathfindCommand.Alignment;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.digital.NavInterfaceSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 
 public class Core {
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED; // kSpeedAt12Volts
+    public double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED; // kSpeedAt12Volts
                                                                                                         // desired top
                                                                                                         // speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE; // 3/4
+    public double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE; // 3/4
                                                                                                                    // of
                                                                                                                    // a
                                                                                                                    // rotation                                                                                            // per
@@ -56,14 +57,16 @@ public class Core {
     // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+    // private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driveController = new CommandXboxController(0);
     private final Joystick navController = new Joystick(2);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+    // public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+
+    public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 
     public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem(drivetrain);
 
@@ -72,16 +75,16 @@ public class Core {
     private Command pathfindingCommand;
 
     public Core() {
+        registerAutoCommands();
         // autoChooser = AutoBuilder.buildAutoChooser();
         configureBindings();
         configureShuffleBoard();
-        registerAutoCommands();
 
         drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
     }
 
     public void registerAutoCommands() {
-        // NamedCommands.registerCommand("Outtake", new Outtake(outtakeSubsystem));
+        // NamedCommands.registerCommand("OuttakeCommand", new Outtake(outtakeSubsystem));
         // NamedCommands.registerCommand("Test Pathfind", new PathfindBasic(drivetrain,
         // Constants.TEST_PATHFIND_TARGET));
 
@@ -103,7 +106,7 @@ public class Core {
         // Layout").withPosition(0, 0).withSize(2, 3);
 
         // Field
-        tab.add(drivetrain.getField()).withPosition(2, 1).withSize(5, 3);
+        // tab.add(drivetrain.getField()).withPosition(2, 1).withSize(5, 3);
 
         // Modes
         // tab.addBoolean("Slow Mode", () -> isSlow()).withPosition(2, 0).withSize(2,
@@ -149,16 +152,22 @@ public class Core {
         // driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
         // driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
-        driveController.a()
-                .onTrue(drivetrain
-                        .runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], null, true)));
+        // driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM()));
+        // driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM2()));
+        driveController.x().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM3()));
 
-        driveController.b().onTrue(new PathfindCommand(drivetrain, 18, Alignment.LEFT));
+        driveController.povDown().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
+        driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
+        driveController.povUp().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
+        driveController.povRight().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
+        driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(0)));
+        driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(5)));
+        driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.zeroSystem()));
 
+        // driveController.a()
+        //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
 
-        new JoystickButton(navController, 1).onTrue(new PathfindCommand(drivetrain, 17, Alignment.RIGHT));
-
-
+        // driveController.b().onTrue(new Outtake(outtakeSubsystem));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -169,22 +178,18 @@ public class Core {
         driveController.a().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.getDistance()));
 
         // reset the field-centric heading on left bumper press
-        driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        // Pose2d cameraPose3d = LimelightHelpers.getCameraPose3d_TargetSpace("limelight-left").toPose2d();
-        drivetrain.registerTelemetry(logger::telemeterize);
+        // driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        // drivetrain.registerTelemetry(logger::telemeterize);
     }
 
     public void forwardAlign() {
 
     }
 
-    public Command getAutonomousCommand() {
-        ArrayList<Command> auto = navInterfaceSubsystem.getAutonomousRoutine();
-        if (auto != null && auto.size() > 0) {
-            return Commands.sequence(auto.toArray(new Command[0]));
-        }
-        return null;
-    }
+    // public Command getAutonomousCommand() {
+    //     return autoChooser.getSelected();
+    // }
 
     public void doPathfind(Pose2d target) {
         PathConstraints constraints = new PathConstraints(
