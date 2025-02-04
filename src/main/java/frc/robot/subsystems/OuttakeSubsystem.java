@@ -6,18 +6,19 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANrangeConfiguration;
+import com.ctre.phoenix6.hardware.core.CoreCANrange;
 
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class OuttakeSubsystem extends SubsystemBase {
 
-  private TalonFXConfiguration config;
-
-  private final TalonFX motorController;
+  public final WPI_TalonSRX motorController;
+  public CANrangeConfiguration rangeConfig = new CANrangeConfiguration();
+  public CoreCANrange cCANrange = new CoreCANrange(19);
 
   public OuttakeSubsystem() {
     config = new TalonFXConfiguration();
@@ -45,6 +46,11 @@ public class OuttakeSubsystem extends SubsystemBase {
     //motorController.getAllConfigs(config);
     System.out.println("Intake Configs: ");
     System.out.println(config);
+  }
+
+  public void getDistance() {
+    StatusSignal<Distance> d = cCANrange.getDistance();
+    System.out.println(d);
   }
 
   private void setSpeed(double speed) {

@@ -42,8 +42,7 @@ public class Core {
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE; // 3/4
                                                                                                                    // of
                                                                                                                    // a
-                                                                                                                   // rotation
-                                                                                                                   // per
+                                                                                                                   // rotation                                                                                            // per
                                                                                                                    // second
                                                                                                                    // max
                                                                                                                    // angular
@@ -51,7 +50,7 @@ public class Core {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.02) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
@@ -81,7 +80,7 @@ public class Core {
     }
 
     public void registerAutoCommands() {
-        NamedCommands.registerCommand("Outtake", new Outtake(outtakeSubsystem));
+        // NamedCommands.registerCommand("Outtake", new Outtake(outtakeSubsystem));
         // NamedCommands.registerCommand("Test Pathfind", new PathfindBasic(drivetrain,
         // Constants.TEST_PATHFIND_TARGET));
 
@@ -144,10 +143,10 @@ public class Core {
         // -driveController.getLeftX()))
         // ));
 
-        driveController.x().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.outtake()));
-        driveController.x().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
-        driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
-        driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
+        // driveController.x().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.outtake()));
+        // driveController.x().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
+        // driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
+        // driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
         driveController.a()
                 .onTrue(drivetrain
@@ -162,10 +161,11 @@ public class Core {
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
-        // driveController.back().and(driveController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        // driveController.back().and(driveController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        // driveController.start().and(driveController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        // driveController.start().and(driveController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        driveController.back().and(driveController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        driveController.back().and(driveController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        driveController.start().and(driveController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        driveController.start().and(driveController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        driveController.a().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.getDistance()));
 
         // reset the field-centric heading on left bumper press
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));

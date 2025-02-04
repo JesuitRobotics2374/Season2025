@@ -332,14 +332,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // System.out.println(smps[0].distanceMeters);
         field.getObject("Robot").setPose(estimator.update(getGyroscopeRotation(), smps));
 
-        // Limelight not available in sim env
-        if (!Utils.isSimulation()) {
+        // // Limelight not available in sim env
+        // if (!Utils.isSimulation()) {
 
-            // Update graphics
-            // field.getObject("Vision1").setPose(
-            // LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left").pose);
-            // field.getObject("Vision2").setPose(
-            // LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
+        //     // Update graphics
+        //     field.getObject("Vision1").setPose(
+        //             LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left").pose);
+        //     field.getObject("Vision2").setPose(
+        //             LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
 
             var displayCounter = 1;
             for (LimelightObject llo : Constants.LIMELIGHTS_ON_BOARD) {
