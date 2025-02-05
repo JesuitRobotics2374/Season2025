@@ -39,4 +39,9 @@ public class Constants {
     public static final int SENSOR_PORT = 18;
     public static final String DRIVER_READOUT_TAB_NAME = "Driver Readout";
 
+    // Elevator
+
+    public static final int PIGEON_ID = 29;
+    public static final double MAX_TIP_ANGLE = 8.0;
+
 }
