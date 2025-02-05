@@ -325,14 +325,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // System.out.println(smps[0].distanceMeters);
         field.getObject("Robot").setPose(estimator.update(getGyroscopeRotation(), smps));
 
-        // Limelight not available in sim env
-        if (!Utils.isSimulation()) {
-            // Align to all limelights
-            for (LimelightObject ll : Constants.LIMELIGHTS_ON_BOARD) {
-                alignToVision(ll, false);
-            }
+        // // Limelight not available in sim env
+        // if (!Utils.isSimulation()) {
+        //     // Align to all limelights
+        //     for (LimelightObject ll : Constants.LIMELIGHTS_ON_BOARD) {
+        //         alignToVision(ll, false);
+        //     }
 
-        }
+        // }
 
         
 
@@ -377,18 +377,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         boolean doRejectUpdate = false;
         LimelightHelpers.SetRobotOrientation(ll.name,
                 estimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ll.name);
+        LimelightHelpers.PoseEstimate llEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(ll.name);
 
         if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2 * Math.PI) {
             doRejectUpdate = true;
             // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to high rot of "
             //         + getState().Speeds.omegaRadiansPerSecond);
         }
-        if (mt2.tagCount == 0) {
+        if (llEstimate.tagCount == 0) {
             doRejectUpdate = true;
             // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to notags");
         }
-        if (mt2.avgTagDist > 8) {
+        if (llEstimate.avgTagDist > 8) {
             doRejectUpdate = true;
             // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of " + mt2.avgTagDist);
         }
@@ -400,8 +400,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 estimator.setVisionMeasurementStdDevs(VecBuilder.fill(ll.trust, ll.trust, 9999999));
             }
             estimator.addVisionMeasurement(
-                    mt2.pose,
-                    mt2.timestampSeconds);
+                llEstimate.pose,
+                llEstimate.timestampSeconds);
         }
     }
 

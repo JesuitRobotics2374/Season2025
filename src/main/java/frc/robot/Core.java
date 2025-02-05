@@ -151,8 +151,8 @@ public class Core {
         driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
         driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
-        driveController.a()
-                .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
+        // driveController.a()
+        //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
 
         driveController.b().onTrue(new Outtake(outtakeSubsystem));
 

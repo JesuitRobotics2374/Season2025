@@ -4,123 +4,122 @@
 
 package frc.robot.subsystems;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
 
-import org.json.simple.JSONObject;
-
-
+import com.ctre.phoenix.ErrorCode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class OuttakeSubsystem extends SubsystemBase{
+public class OuttakeSubsystem extends SubsystemBase {
 
-  private TalonFXConfiguration config;
-  private Map<String, Object> configMap = new HashMap<>();
-  private TalonFXConfigurator configurator;
+    private TalonFXConfiguration config;
+    private Map<String, Field> configMap = new HashMap<>();
 
-  private final TalonFX motorController;
+    //private final TalonFX motorController;
 
-  public OuttakeSubsystem() {
-    config = new TalonFXConfiguration();
-    motorController = new TalonFX(19);
+    public OuttakeSubsystem() {
+        config = new TalonFXConfiguration();
+        //motorController = new TalonFX(19);
+        configure();
+        //checkConfiguration();
+    }
 
-    configure();
-    createConfigFile(config);
-    //readConfigFile(config, new File("/home/lvuser/deploy/talonfx-19-configs-keysheet.txt"));
-  }
+    public void configure() {
+        Field[] fields = TalonFXConfiguration.class.getFields();
+        for( Field field : fields){
+            Field[] subFields = field.getType().getFields();
 
-  public void configAllSettings(TalonFXConfiguration allConfigs) {
-    configurator = motorController.getConfigurator();
-    configurator.refresh(allConfigs);
-  }
+            try{
+                Object obj = field.get(config);
+                for(Field subField : subFields) {
+                    configMap.put(subField.getName(), subField);
+                    //Object value = subField.get(obj);
+                    System.out.println(subField.getName());
+                }
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+        
+    }
 
-  public void configure() {
-    motorController.setNeutralMode(NeutralModeValue.Brake);
-    configAllSettings(config);
-  }
+    public void checkConfiguration() {
+        // motorController.getAllConfigs(config);
 
-  public void createConfigFile(TalonFXConfiguration config){
-    //File configFile = new File("/home/lvuser/talonfx-19-configs.json");
-    Field[] fields = TalonFXConfiguration.class.getFields();
-    
-    for(Field field : fields){
-      
-        field.setAccessible(true);
-        Field[] subFields = field.getType().getFields();
-
+        File file = new File("/home/lvuser/deploy/talonfx-19-configs-keysheet.txt");
         try{
-          Object obj = field.get(config);
-          for(Field subField : subFields){
-            subField.setAccessible(true);
-            Object value = subField.get(obj);
-            configMap.put(subField.getName(), value);
-          }
-          
+            Scanner scanner = new Scanner(file);
+            String fileValueString = scanner.toString();
+
+            StringTokenizer st = new StringTokenizer(fileValueString);
+            while (st.hasMoreTokens()) {
+                String preKey = st.nextToken();
+                String key = preKey.substring(0, preKey.length() - 2);
+                String value = st.nextToken();
+                Field field = configMap.get(key);
+                field.set(config, convertString(value));
+                System.out.println(field.get(config));
+            }
+            scanner.close();
+            
+
         }catch(Exception e){
-          
+            e.printStackTrace();
         }
     }
-  }
 
-  public void readConfigFile(TalonFXConfiguration config, File file){
-    
-  }
-
-  public Object convertString(String value){
-    try{
-        return Integer.parseInt(value);
-    }catch(NumberFormatException e){
-
+    private void setSpeed(double speed) {
+        //motorController.set(speed);
     }
 
-    try{
-        return Double.parseDouble(value);
-    }catch(NumberFormatException e){
-
+    private void stop() {
+        //motorController.stopMotor();
     }
 
-    try{
-        return Boolean.parseBoolean(value);
-    }catch(NumberFormatException e){
+    // Templates
 
+    public void intake() {
+        System.out.println("in");
+        setSpeed(0.2);
     }
 
+    public void outtake() {
+        setSpeed(-0.2);
+    }
 
-    return value;
+    public void stopIntake() {
+        stop();
+    }
 
-}
+    @Override
+    public void periodic() {
+    }
 
-  private void setSpeed(double speed) {
-    motorController.set(speed);
-  }
-
-  private void stop() {
-    motorController.stopMotor();
-  }
-
-  // Templates
-
-  public void intake() {
-    System.out.println("in");
-    setSpeed(0.2);
-  }
-
-  public void outtake() {
-    setSpeed(-0.2);
-  }
-
-  public void stopIntake() {
-    stop();
-  }
-
-  @Override
-  public void periodic() {
-  }
+    public Object convertString(String value){
+        try{
+            return Integer.getInteger(value);
+        }catch(Exception e){
+            
+        }
+        try{
+            return Double.valueOf(value);
+        }catch(Exception e){
+            
+        }
+        try{
+            return Boolean.valueOf(value);
+        }catch(Exception e){
+            
+        }
+        return value;
+    }
 
 }
