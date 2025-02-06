@@ -45,6 +45,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     public TalonFX elevatorMotor2;
     //public CANcoder shaftEncoder;
     private Pigeon2 pidgey;
+
+    private double loadedPos = 0;
     
     // public CANcoderConfiguration coderConfig = new CANcoderConfiguration();
     // private CANrangeConfiguration rangeConfig = new CANrangeConfiguration();
@@ -52,11 +54,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     //CANcoder beltPosition = new CANcoder(Constants.beltPosition_ID);
 
     private static final double POSITION_0 = 0; //Lowest Height
-    private static final double POSITION_1 = 50; //Position of the lowest reef level
-    private static final double POSITION_2 = 100; //Position of lowest branch
-    private static final double POSITION_3 = 150; //Position of middle branch 
-    private static final double POSITION_4 = 200; //Position of highest branch
-    private static final double IH = 300; //Position of intake (also number 5)
+    private static final double POSITION_1 = 25; //Position of the lowest reef level
+    private static final double POSITION_2 = 50; //Position of lowest branch
+    private static final double POSITION_3 = 75; //Position of middle branch 
+    private static final double POSITION_4 = 100; //Position of highest branch
+    private static final double IH = 118; //Position of intake (also number 5)
 
     // CANcoder beltPosition = new CANcoder(Constants.beltPosition_ID);
 
@@ -75,9 +77,9 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public ElevatorSubsystem() {
 
-        this.elevatorMotor1 = new TalonFX(27, "FastFD"); // TODO DEVICE ID
-        this.elevatorMotor2 = new TalonFX(28, "FastFD"); // TODO DEVICE ID
-        this.pidgey = new Pigeon2(Constants.PIGEON_ID, "FastFD"); // TODO DEVICE ID
+        this.elevatorMotor1 = new TalonFX(28, "rio"); // TODO DEVICE ID
+        this.elevatorMotor2 = new TalonFX(27, "rio"); // TODO DEVICE ID
+        this.pidgey = new Pigeon2(Constants.PIGEON_ID, "rio"); // TODO DEVICE ID
 
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
@@ -87,12 +89,12 @@ public class ElevatorSubsystem extends SubsystemBase {
         slot0Configs.kG = 0.00; //Output of voltage to overcome gravity
         slot0Configs.kV = 0.05; //Output per unit target velocity, perhaps not needed
         slot0Configs.kA = 0.01; //Output per unit target acceleration, perhaps not needed
-        slot0Configs.kP = 1; //Controls the response to position error—how much the motor reacts to the difference between the current position and the target position.
+        slot0Configs.kP = 0.5; //Controls the response to position error—how much the motor reacts to the difference between the current position and the target position.
         slot0Configs.kI = 0.01; //Addresses steady-state error, which occurs when the motor doesn’t quite reach the target position due to forces like gravity or friction.
         slot0Configs.kD = 0.1; //Responds to the rate of change of the error, damping the motion as the motor approaches the target. This reduces overshooting and oscillations.
 
-        motionMagicConfigs.MotionMagicCruiseVelocity = 150; // Target velocity in rps
-        motionMagicConfigs.MotionMagicAcceleration = 250; // Target acceleration in rps/s
+        motionMagicConfigs.MotionMagicCruiseVelocity = 200; // Target velocity in rps
+        motionMagicConfigs.MotionMagicAcceleration = 180; // Target acceleration in rps/s
         motionMagicConfigs.MotionMagicJerk = 1000; // Target jerk in rps/s/s
 
         elevatorMotor1.getConfigurator().apply(talonFXConfigs);
@@ -128,6 +130,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void stopElevator() {
         elevatorMotor1.stopMotor();
+        elevatorMotor1.setNeutralMode(NeutralModeValue.Brake);
     }
 
     public void testMM() {
@@ -165,13 +168,22 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void elevatorGoTo(int newPos) { //pos defines which height to go to. 0 is resting, 4 is top level, 5 is intake
         double posGoTo = convertPos(newPos);
+        loadedPos = posGoTo;
 
         MotionMagicVoltage m_request = new MotionMagicVoltage(posGoTo);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
     }
 
     public void lower() {
-        MotionMagicVoltage m_request = new MotionMagicVoltage(Math.max(0, elevatorMotor1.getPosition().getValueAsDouble() - 10));
+        MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - 1);
+        elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+
+        // Since the new request is based on the current position, there is not stacking of lower requests
+        // The delta essentiallly is the speed of the lower
+    }
+
+    public void raise() {
+        MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() + 1);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
 
         // Since the new request is based on the current position, there is not stacking of lower requests

@@ -30,7 +30,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.PathfindCommand;
 import frc.robot.commands.PathfindCommand.Alignment;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.digital.NavInterfaceSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
@@ -58,15 +60,17 @@ public class Core {
     // private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driveController = new CommandXboxController(0);
-    private final Joystick navController = new Joystick(2);
+    private final CommandXboxController operatorController = new CommandXboxController(1);
 
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    // private final Joystick navController = new Joystick(2);
 
-    // public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+    // public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+    // public final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
+    public final ArmSubsystem armSubsystem = new ArmSubsystem();
 
-    public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem(drivetrain);
+    // public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem(drivetrain);
 
     // private final SendableChooser<Command> autoChooser;
 
@@ -78,7 +82,7 @@ public class Core {
         configureBindings();
         configureShuffleBoard();
 
-        drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
+        // drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
     }
 
     public void registerAutoCommands() {
@@ -127,17 +131,17 @@ public class Core {
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(
-                // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed) // Drive
-                                                                                                          // forward
-                                                                                                          // with
-                                                                                                          // negative Y
-                                                                                                          // (forward)
-                        .withVelocityY(-driveController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate) // Drive counterclockwise
-                                                                                           // with negative X (left)
-                ));
+        // drivetrain.setDefaultCommand(
+        //         // Drivetrain will execute this command periodically
+        //         drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed) // Drive
+        //                                                                                                   // forward
+        //                                                                                                   // with
+        //                                                                                                   // negative Y
+        //                                                                                                   // (forward)
+        //                 .withVelocityY(-driveController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+        //                 .withRotationalRate(-driveController.getRightX() * MaxAngularRate) // Drive counterclockwise
+        //                                                                                    // with negative X (left)
+        //         ));
 
         // driveController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // driveController.b().whileTrue(drivetrain.applyRequest(() ->
@@ -162,22 +166,12 @@ public class Core {
         driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(5)));
         driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.zeroSystem()));
 
-        // driveController.a()
-        //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
+        driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
+        driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
 
-        // driveController.b().onTrue(new Outtake(outtakeSubsystem));
 
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        driveController.back().and(driveController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        driveController.back().and(driveController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        driveController.start().and(driveController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        driveController.start().and(driveController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // reset the field-centric heading on left bumper press
-        // driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
-        // drivetrain.registerTelemetry(logger::telemeterize);
+        operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
+        operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
     }
 
     public void forwardAlign() {
