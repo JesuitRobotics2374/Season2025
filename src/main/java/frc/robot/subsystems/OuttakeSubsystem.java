@@ -9,11 +9,13 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.core.CoreCANrange;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import com.playingwithfusion.TimeOfFlight;
-import com.revrobotics.TimeOfFlight;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,14 +24,15 @@ import frc.robot.Constants;
 public class OuttakeSubsystem extends SubsystemBase {
 
   public final WPI_TalonSRX motorController;
+  private final TalonFXConfiguration config;
   public CANrangeConfiguration rangeConfig = new CANrangeConfiguration();
   public CoreCANrange cCANrange = new CoreCANrange(19);
   ShuffleboardTab tab = Shuffleboard.getTab(Constants.DRIVER_READOUT_TAB_NAME);
-  public final TimeOfFlight noteSensor;
+  // public final TimeOfFlight noteSensor;
 
     public OuttakeSubsystem() {
         config = new TalonFXConfiguration();
-        motorController = new TalonFX(19);
+        motorController = new WPI_TalonSRX(19);
         // configure();
         // checkConfiguration();
     }
@@ -45,7 +48,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     // }
 
     public void configure() {
-        motorController.setNeutralMode(NeutralModeValue.Brake);
+        motorController.setNeutralMode(NeutralMode.Brake);
         // configAllSettings(config);
     }
 
@@ -75,12 +78,7 @@ public class OuttakeSubsystem extends SubsystemBase {
         setSpeed(0.2);
   }
 
-  public void autoIntake() {
-    if (noteSensor.getRange() > 150) {
-        intake = true;
-    }
-    startIntake();
-  }
+  // public void auts
 
     public void outtake() {
         setSpeed(-0.2);
