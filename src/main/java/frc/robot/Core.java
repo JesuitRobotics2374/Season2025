@@ -183,23 +183,22 @@ public class Core {
         // drivetrain.registerTelemetry(logger::telemeterize);
 
         //Reef controller inputs for Teleop alignments + elevator positions
-        new JoystickButton(navController, 1).onTrue(drivetrain.runOnce(() -> {System.out.println("Reef-mote button 1 pressed, *beep boop*");}));
-        // new JoystickButton(navController, 1).onTrue(new PathfindCommand(drivetrain, 17, Alignment.LEFT));
-        // new JoystickButton(navController, 2).onTrue(new PathfindCommand(drivetrain, 17, Alignment.RIGHT));
-        // new JoystickButton(navController, 3).onTrue(new PathfindCommand(drivetrain, 22, Alignment.LEFT));
-        // new JoystickButton(navController, 4).onTrue(new PathfindCommand(drivetrain, 22, Alignment.RIGHT));
-        // new JoystickButton(navController, 5).onTrue(new PathfindCommand(drivetrain, 21, Alignment.LEFT));
-        // new JoystickButton(navController, 6).onTrue(new PathfindCommand(drivetrain, 21, Alignment.RIGHT));
-        // new JoystickButton(navController, 7).onTrue(new PathfindCommand(drivetrain, 20, Alignment.LEFT));
-        // new JoystickButton(navController, 8).onTrue(new PathfindCommand(drivetrain, 20, Alignment.RIGHT));
-        // new JoystickButton(navController, 9).onTrue(new PathfindCommand(drivetrain, 19, Alignment.LEFT));
-        // new JoystickButton(navController, 10).onTrue(new PathfindCommand(drivetrain, 19, Alignment.RIGHT));
-        // new JoystickButton(navController, 11).onTrue(new PathfindCommand(drivetrain, 18, Alignment.LEFT));
-        // new JoystickButton(navController, 12).onTrue(new PathfindCommand(drivetrain, 18, Alignment.RIGHT));
-        // new JoystickButton(navController, 13).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
-        // new JoystickButton(navController, 14).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
-        // new JoystickButton(navController, 15).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
-        // new JoystickButton(navController, 16).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
+        new JoystickButton(navController, 1).onTrue(new PathfindCommand(drivetrain, 17, Alignment.LEFT));
+        new JoystickButton(navController, 2).onTrue(new PathfindCommand(drivetrain, 17, Alignment.RIGHT));
+        new JoystickButton(navController, 3).onTrue(new PathfindCommand(drivetrain, 22, Alignment.LEFT));
+        new JoystickButton(navController, 4).onTrue(new PathfindCommand(drivetrain, 22, Alignment.RIGHT));
+        new JoystickButton(navController, 5).onTrue(new PathfindCommand(drivetrain, 21, Alignment.LEFT));
+        new JoystickButton(navController, 6).onTrue(new PathfindCommand(drivetrain, 21, Alignment.RIGHT));
+        new JoystickButton(navController, 7).onTrue(new PathfindCommand(drivetrain, 20, Alignment.LEFT));
+        new JoystickButton(navController, 8).onTrue(new PathfindCommand(drivetrain, 20, Alignment.RIGHT));
+        new JoystickButton(navController, 9).onTrue(new PathfindCommand(drivetrain, 19, Alignment.LEFT));
+        new JoystickButton(navController, 10).onTrue(new PathfindCommand(drivetrain, 19, Alignment.RIGHT));
+        new JoystickButton(navController, 11).onTrue(new PathfindCommand(drivetrain, 18, Alignment.LEFT));
+        new JoystickButton(navController, 12).onTrue(new PathfindCommand(drivetrain, 18, Alignment.RIGHT));
+        new JoystickButton(navController, 13).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
+        new JoystickButton(navController, 14).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
+        new JoystickButton(navController, 15).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
+        new JoystickButton(navController, 16).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
     }
 
     public void forwardAlign() {
