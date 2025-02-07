@@ -43,7 +43,7 @@ import frc.robot.Constants;
 public class ArmSubsystem extends SubsystemBase {
 
     public TalonFX armMotor;
-    //public CANcoder shaftEncoder;
+    // public CANcoder shaftEncoder;
 
     // public CANcoderConfiguration coderConfig = new CANcoderConfiguration();
     // private CANrangeConfiguration rangeConfig = new CANrangeConfiguration();
@@ -56,11 +56,11 @@ public class ArmSubsystem extends SubsystemBase {
         Slot0Configs slot0Configs = talonFXConfigs.Slot0;
         MotionMagicConfigs motionMagicConfigs = talonFXConfigs.MotionMagic;
 
-        slot0Configs.kG = 1.5; //Output of voltage to overcome gravity
+        slot0Configs.kG = 8; //Output of voltage to overcome gravity
         slot0Configs.kV = 1.6; //Output per unit target velocity, perhaps not needed
         slot0Configs.kA = 0.3; //Output per unit target acceleration, perhaps not needed
-        slot0Configs.kP = 0.6; //Controls the response to position error—how much the motor reacts to the difference between the current position and the target position.
-        slot0Configs.kI = 0.01; //Addresses steady-state error, which occurs when the motor doesn’t quite reach the target position due to forces like gravity or friction.
+        slot0Configs.kP = 7; //Controls the response to position error—how much the motor reacts to the difference between the current position and the target position.
+        slot0Configs.kI = 1; //Addresses steady-state error, which occurs when the motor doesn’t quite reach the target position due to forces like gravity or friction.
         slot0Configs.kD = 0.1; //Responds to the rate of change of the error, damping the motion as the motor approaches the target. This reduces overshooting and oscillations.
 
         motionMagicConfigs.MotionMagicCruiseVelocity = 4; // Target velocity in rps
@@ -74,14 +74,14 @@ public class ArmSubsystem extends SubsystemBase {
 
     public void armUp() {
         MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor.getPosition().getValueAsDouble() + 0.7);
-        System.out.println("ewr" + (armMotor.getPosition().getValueAsDouble() + 2));
+        System.out.println("Up" + (armMotor.getPosition().getValueAsDouble() + 2));
 
         armMotor.setControl(m_request);
     }
 
     public void armDown() {
         MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor.getPosition().getValueAsDouble() - 0.7);
-        System.out.println("dsaf" + (armMotor.getPosition().getValueAsDouble() - 2));
+        System.out.println("Down" + (armMotor.getPosition().getValueAsDouble() - 2));
 
 
         armMotor.setControl(m_request);
@@ -99,15 +99,8 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor.setNeutralMode(NeutralModeValue.Brake);
     }
 
-    // private int clock = 0;
-
     @Override
     public void periodic() {
-        // if (++clock == 20) {
-        //     System.out.println(elevatorMotor1.getPosition());
-        //     clock = 0;
-        // }
     }
-
 }
   

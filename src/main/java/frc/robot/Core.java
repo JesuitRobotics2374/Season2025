@@ -149,14 +149,6 @@ public class Core {
         // -driveController.getLeftX()))
         // ));
 
-        // driveController.x().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.outtake()));
-        // driveController.x().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
-        // driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
-        // driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
-
-        // driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM()));
-        // driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM2()));
-        driveController.x().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.testMM3()));
 
         driveController.povDown().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
         driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
@@ -164,6 +156,7 @@ public class Core {
         driveController.povRight().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
         driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(0)));
         driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(5)));
+        
         driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.zeroSystem()));
 
         driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
@@ -175,7 +168,6 @@ public class Core {
     }
 
     public void forwardAlign() {
-
     }
 
     // public Command getAutonomousCommand() {

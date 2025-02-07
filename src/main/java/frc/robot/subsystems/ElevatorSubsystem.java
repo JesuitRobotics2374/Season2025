@@ -133,39 +133,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotor1.setNeutralMode(NeutralModeValue.Brake);
     }
 
-    public void testMM() {
-        // MotionMagicVoltage voltage = new MotionMagicVoltage(10);
-        // elevatorMotor1.setControl(voltage);
-        System.out.println("--- Test Executed ---");
-        System.out.println();
-        MotionMagicVoltage m_request = new MotionMagicVoltage(100);
-        elevatorMotor1.setControl(m_request);
-        // elevatorMotor1.setControl(m_request.withPosition(0));
-        // System.out.println("Insert locked in alien here");
-        // elevatorMotor1.setControl(m_request.withPosition(5));
-        // System.out.println("Insert explosion");
-    }
-
-    public void testMM2() {
-        // MotionMagicVoltage voltage = new MotionMagicVoltage(10);
-        // elevatorMotor1.setControl(voltage);
-        System.out.println("--- Test Executed ---");
-        System.out.println();
-        MotionMagicVoltage m_request = new MotionMagicVoltage(0);
-        elevatorMotor1.setControl(m_request);
-        // elevatorMotor1.setControl(m_request.withPosition(0));
-        // System.out.println("Insert locked in alien here");
-        // elevatorMotor1.setControl(m_request.withPosition(5));
-        // System.out.println("Insert explosion");
-    }
-
-    public void testMM3() {
-        System.out.println("--- Test Executed ---");
-        System.out.println();
-        MotionMagicVoltage m_request = new MotionMagicVoltage(50);
-        elevatorMotor1.setControl(m_request);
-    }
-
     public void elevatorGoTo(int newPos) { //pos defines which height to go to. 0 is resting, 4 is top level, 5 is intake
         double posGoTo = convertPos(newPos);
         loadedPos = posGoTo;

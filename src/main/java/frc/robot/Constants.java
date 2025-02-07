@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Time;
 import frc.robot.utils.LimelightObject;
 import frc.robot.utils.LimelightObject.LLType;
 
@@ -43,5 +44,6 @@ public class Constants {
 
     public static final int PIGEON_ID = 29;
     public static final double MAX_TIP_ANGLE = 8.0;
+    public static int outtakeWaitTime = 3; //in seconds
 
 }
