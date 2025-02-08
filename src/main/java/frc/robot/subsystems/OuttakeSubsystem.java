@@ -23,82 +23,28 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class OuttakeSubsystem extends SubsystemBase {
 
     private TalonFXConfiguration config;
-    private Map<String, Field> configMap = new HashMap<>();
+    private TalonFXConfigurationHelper configHelper;
 
-    //private final TalonFX motorController;
+    private final TalonFX motorController;
 
     public OuttakeSubsystem() {
         config = new TalonFXConfiguration();
-        //motorController = new TalonFX(19);
-        //configure();
-        checkConfiguration();
-    }
+        configHelper = new TalonFXConfigurationHelper(config);
+        motorController = new TalonFX(19);
+        try {
+            configHelper.checkConfiguration();
+        } catch (Exception e) {
 
-    public void configure() {
-        Field[] fields = TalonFXConfiguration.class.getFields();
-        for( Field field : fields){
-            Field[] subFields = field.getType().getFields();
-
-            try{
-                for(Field subField : subFields) {
-                    configMap.put(subField.getName(), subField);
-                    //Object value = subField.get(obj);
-                    //System.out.println(obj.toString());
-                    
-                }
-            } catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-        
-    }
-
-    public void checkConfiguration() {
-        // motorController.getAllConfigs(config);
-
-        File file = new File("/home/lvuser/deploy/talonfx-19-configs-keysheet.txt");
-        
-        try{
-            Field[] fields = TalonFXConfiguration.class.getFields();
-            Scanner scanner = new Scanner(file);
-            String fileValueString = "";
-
-            while(scanner.hasNextLine()){
-                fileValueString+=scanner.nextLine() + "\n";
-            }
-            
-            scanner.close();
-            StringTokenizer st = new StringTokenizer(fileValueString);
-            for(Field field : fields){
-                if(!field.equals(fields[0])){
-                    Object obj = field.get(config);
-                    for(int i = 0; i < obj.getClass().getFields().length; i++){
-                        String preKey = st.nextToken();
-                        String key = preKey.substring(0, preKey.length() - 1);
-                        String value = st.nextToken();
-                        
-                        
-                        Field subField = obj.getClass().getField(key);
-                        subField.set(obj, convertString(value, subField.getType()));
-                    }
-                    
-                }
-                
-            }
-        System.out.println(config);
-        }catch(Exception e){
-            e.printStackTrace();
         }
 
-        
     }
 
     private void setSpeed(double speed) {
-        //motorController.set(speed);
+        // motorController.set(speed);
     }
 
     private void stop() {
-        //motorController.stopMotor();
+        // motorController.stopMotor();
     }
 
     // Templates
@@ -118,29 +64,6 @@ public class OuttakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-    }
-
-    public Object convertString(String value, Class clazz){
-        try {
-            return Integer.valueOf(value);
-        } catch (Exception e) {
-            
-        }
-        try {
-            return Double.valueOf(value);
-        } catch (Exception e) {
-            
-        }
-        try {
-            return Enum.valueOf(clazz, value);
-        } catch (Exception e) {
-        }
-        if(value.contains("true")){
-            return true;
-        }else if (value.contains("false")){
-            return false;
-        }
-        return value;
     }
 
 }
