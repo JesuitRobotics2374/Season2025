@@ -1,6 +1,6 @@
 Inverted: CounterClockwise_Positive
 NeutralMode: Brake
-DutyCycleNeutralDeadband: 1.0
+DutyCycleNeutralDeadband: 0.0
 PeakForwardDutyCycle: 1.0
 PeakReverseDutyCycle: -1.0
 ControlTimesyncFreqHz: 0.0
@@ -13,7 +13,6 @@ SupplyCurrentLowerTime: 1.0
 SupplyVoltageTimeConstant: 0.0
 PeakForwardVoltage: 16.0
 PeakReverseVoltage: -16.0
-Config Group: TorqueCurrent
 PeakForwardTorqueCurrent: 800.0
 PeakReverseTorqueCurrent: -800.0
 TorqueNeutralDeadband: 0.0

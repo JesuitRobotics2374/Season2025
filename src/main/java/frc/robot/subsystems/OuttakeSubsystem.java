@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.channels.Pipe.SourceChannel;
 import java.util.*;
 
 import com.ctre.phoenix.ErrorCode;
@@ -14,6 +15,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,8 +30,8 @@ public class OuttakeSubsystem extends SubsystemBase {
     public OuttakeSubsystem() {
         config = new TalonFXConfiguration();
         //motorController = new TalonFX(19);
-        configure();
-        //checkConfiguration();
+        //configure();
+        checkConfiguration();
     }
 
     public void configure() {
@@ -38,11 +40,11 @@ public class OuttakeSubsystem extends SubsystemBase {
             Field[] subFields = field.getType().getFields();
 
             try{
-                Object obj = field.get(config);
                 for(Field subField : subFields) {
                     configMap.put(subField.getName(), subField);
                     //Object value = subField.get(obj);
-                    System.out.println(subField.getName());
+                    //System.out.println(obj.toString());
+                    
                 }
             } catch(Exception e){
                 e.printStackTrace();
@@ -55,25 +57,40 @@ public class OuttakeSubsystem extends SubsystemBase {
         // motorController.getAllConfigs(config);
 
         File file = new File("/home/lvuser/deploy/talonfx-19-configs-keysheet.txt");
+        
         try{
+            Field[] fields = TalonFXConfiguration.class.getFields();
             Scanner scanner = new Scanner(file);
-            String fileValueString = scanner.toString();
+            String fileValueString = "";
 
-            StringTokenizer st = new StringTokenizer(fileValueString);
-            while (st.hasMoreTokens()) {
-                String preKey = st.nextToken();
-                String key = preKey.substring(0, preKey.length() - 2);
-                String value = st.nextToken();
-                Field field = configMap.get(key);
-                field.set(config, convertString(value));
-                System.out.println(field.get(config));
+            while(scanner.hasNextLine()){
+                fileValueString+=scanner.nextLine() + "\n";
             }
-            scanner.close();
             
-
+            scanner.close();
+            StringTokenizer st = new StringTokenizer(fileValueString);
+            for(Field field : fields){
+                if(!field.equals(fields[0])){
+                    Object obj = field.get(config);
+                    for(int i = 0; i < obj.getClass().getFields().length; i++){
+                        String preKey = st.nextToken();
+                        String key = preKey.substring(0, preKey.length() - 1);
+                        String value = st.nextToken();
+                        
+                        
+                        Field subField = obj.getClass().getField(key);
+                        subField.set(obj, convertString(value, subField.getType()));
+                    }
+                    
+                }
+                
+            }
+        System.out.println(config);
         }catch(Exception e){
             e.printStackTrace();
         }
+
+        
     }
 
     private void setSpeed(double speed) {
@@ -103,21 +120,25 @@ public class OuttakeSubsystem extends SubsystemBase {
     public void periodic() {
     }
 
-    public Object convertString(String value){
-        try{
-            return Integer.getInteger(value);
-        }catch(Exception e){
+    public Object convertString(String value, Class clazz){
+        try {
+            return Integer.valueOf(value);
+        } catch (Exception e) {
             
         }
-        try{
+        try {
             return Double.valueOf(value);
-        }catch(Exception e){
+        } catch (Exception e) {
             
         }
-        try{
-            return Boolean.valueOf(value);
-        }catch(Exception e){
-            
+        try {
+            return Enum.valueOf(clazz, value);
+        } catch (Exception e) {
+        }
+        if(value.contains("true")){
+            return true;
+        }else if (value.contains("false")){
+            return false;
         }
         return value;
     }
