@@ -117,7 +117,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public void rotateOuttake() {
-        rotateTo(0, 0.1);
+        rotateTo(0, -0.1);
     }
 
     private void rotateTo(double position, double speed) {
