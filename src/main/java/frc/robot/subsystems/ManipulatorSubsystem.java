@@ -1,10 +1,18 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.config.BaseConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.SparkBase;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,6 +30,12 @@ public class ManipulatorSubsystem extends SubsystemBase {
     this.sensor = new TimeOfFlight(0);
     this.control = new TalonFX(0);
     this.eject = new SparkMax(0, MotorType.kBrushless);
+
+    control.setNeutralMode(NeutralModeValue.Brake);
+    
+    SparkMaxConfig config = new SparkMaxConfig();
+    config.idleMode(SparkBaseConfig.IdleMode.kBrake);
+    eject.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
   }
 
   private void spinControl(double speed) {

@@ -29,6 +29,12 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ConnectedMotorValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.controls.Follower;
@@ -43,6 +49,7 @@ import frc.robot.Constants;
 public class ArmSubsystem extends SubsystemBase {
 
     public TalonFX armMotor;
+    public SparkMax wristMotor;
     // public CANcoder shaftEncoder;
 
     // public CANcoderConfiguration coderConfig = new CANcoderConfiguration();
@@ -50,7 +57,13 @@ public class ArmSubsystem extends SubsystemBase {
 
     public ArmSubsystem() {
         this.armMotor = new TalonFX(18);
+        this.wristMotor = new SparkMax(0, MotorType.kBrushless);
+
         this.armMotor.setNeutralMode(NeutralModeValue.Brake);
+
+        SparkMaxConfig config = new SparkMaxConfig();
+        config.idleMode(SparkBaseConfig.IdleMode.kBrake);
+        this.wristMotor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
         Slot0Configs slot0Configs = talonFXConfigs.Slot0;
@@ -97,6 +110,21 @@ public class ArmSubsystem extends SubsystemBase {
     public void stopArm() {
         armMotor.stopMotor();
         armMotor.setNeutralMode(NeutralModeValue.Brake);
+    }
+
+    public void rotateIntake() {
+        rotateTo(0.25, 0.1);
+    }
+
+    public void rotateOuttake() {
+        rotateTo(0, 0.1);
+    }
+
+    private void rotateTo(double position, double speed) {
+        while (wristMotor.getEncoder().getPosition() < position) {
+            wristMotor.set(speed);
+        }
+        wristMotor.stopMotor();
     }
 
     @Override
