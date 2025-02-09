@@ -11,8 +11,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.commands.PathfindCommand;
-import frc.robot.commands.PathfindCommand.Alignment;
+import frc.robot.subsystems.digital.PathfindCommand.Alignment;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
 public class NavInterfaceSubsystem extends SubsystemBase {
@@ -43,7 +42,7 @@ public class NavInterfaceSubsystem extends SubsystemBase {
                 lastTag = decodedData.tagID;
                 Alignment alignment = Alignment.parseTopology(decodedData.isReef, decodedData.reefLoc);
                 System.out.println("Sending pathfind command: " + lastTag + " " + alignment + " " + decodedData);
-                (new PathfindCommand(drivetrain, lastTag, alignment)).schedule();
+                // (new PathfindCommand(drivetrain, lastTag, alignment)).schedule();
                 return;
             }
         }
@@ -59,7 +58,7 @@ public class NavInterfaceSubsystem extends SubsystemBase {
             switch (decodedData.instrSet) {
                 case 5: // Pathfind
                     Alignment alignment = Alignment.parseTopology(decodedData.isReef, decodedData.reefLoc);
-                    autonomousRoutine.add(new PathfindCommand(drivetrain, decodedData.tagID, alignment));
+                    // autonomousRoutine.add(new PathfindCommand(drivetrain, decodedData.tagID, alignment));
                     break;
             }
         }

@@ -34,16 +34,28 @@ public class Constants {
     public static final double PATHFINDING_MAX_ROTATIONAL_ACCELERATION = Units.degreesToRadians(720);
     
     public static final double PATHFINDING_PRE_BUFFER = -2.14116; // meters
-    public static final double PATHFINDING_FRONT_BUFFER = -0.42; // meters
+    public static final double PATHFINDING_FRONT_BUFFER = -0.72; // meters
     public static final double PATHFINDING_SHIFT_FACTOR = 0.1951; // meters
+
+    public static final double GENERIC_DISTANCE_THRESHOLD = 0.2;
+    public static final double GENERIC_ROTATION_THRESHOLD = 1;
+    public static final double ALIGN_MOVE_SPEED = 0.1;
+    public static final double ALIGN_ROTATE_SPEED = 0.01;
+    public static final double ALIGN_ROTATIONAL_FEED_FORWARD = 0.8;
+
+    // Other
     
     public static final int SENSOR_PORT = 18;
     public static final String DRIVER_READOUT_TAB_NAME = "Driver Readout";
+    
 
     // Elevator
 
     public static final int PIGEON_ID = 29;
     public static final double MAX_TIP_ANGLE = 8.0;
+
+    
+
     public static int outtakeWaitTime = 3; //in seconds
 
 }

@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.subsystems.digital;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
@@ -11,15 +11,22 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.commands.auto.DriveDynamicX;
+import frc.robot.commands.auto.ExactAlign;
 import frc.robot.commands.auto.StaticBackCommand;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.utils.FMapConstant;
 
-public class PathfindCommand extends SequentialCommandGroup {
+public class PathfindCommand {
+
+    CommandSwerveDrivetrain drivetrain;
+    int tagId;
+    Alignment alignment;
 
     public static boolean wasAligned = false;
 
@@ -49,6 +56,9 @@ public class PathfindCommand extends SequentialCommandGroup {
     }
 
     public PathfindCommand(CommandSwerveDrivetrain drivetrain, int tagId, Alignment alignment) {
+        this.drivetrain = drivetrain;
+        this.tagId = tagId;
+        this.alignment = alignment;
 
         // int tagId = (int) LimelightHelpers.getFiducialID("limelight-left");
         // int tagId = 18;
@@ -75,17 +85,17 @@ public class PathfindCommand extends SequentialCommandGroup {
 
         // For some unknown reason, the modifier must be flipped for vertical faces of the reef.
         // This may be a mathematical error; this is a temporary fix.
-        if (tagId == 7 || tagId == 10 || tagId == 18 || tagId == 21) {
-            System.out.println("Vertical face detected; flipping modifier");
-            modifier *= -1;
-        }
+        // if (tagId == 7 || tagId == 10 || tagId == 18 || tagId == 21) {
+        //     System.out.println("Vertical face detected; flipping modifier");
+        //     modifier *= -1;
+        // }
 
         Pose3d pretarget3d = new Pose3d(
                 tagTarget.getX() + Constants.PATHFINDING_PRE_BUFFER * Math.cos(tagRotation.getZ())
                         + Constants.PATHFINDING_SHIFT_FACTOR * Math.sin(tagRotation.getZ()) * modifier
                         + Constants.FIELD_X_MIDPOINT,
                 tagTarget.getY() + Constants.PATHFINDING_PRE_BUFFER * Math.sin(tagRotation.getZ())
-                        + Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ()) * modifier
+                        - Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ()) * modifier
                         + Constants.FIELD_Y_MIDPOINT,
                 tagTarget.getZ(),
                 tagRotation);
@@ -99,12 +109,13 @@ public class PathfindCommand extends SequentialCommandGroup {
                 Constants.PATHFINDING_MAX_ROTATIONAL_ACCELERATION);
 
         System.out.println(pretarget);
+        drivetrain.setLabel(pretarget, "pre");
 
         // Since AutoBuilder is configured, we can use it to build pathfinding commands
         Command prepathfindingCommand = AutoBuilder.pathfindToPose(
                 pretarget,
                 constraints,
-                0.5);
+                0.8);
 
 
         ///// MAIN PATHFIND
@@ -122,7 +133,7 @@ public class PathfindCommand extends SequentialCommandGroup {
                         + Constants.PATHFINDING_SHIFT_FACTOR * Math.sin(tagRotation.getZ()) * modifier
                         + Constants.FIELD_X_MIDPOINT,
                 tagTarget.getY() + Constants.PATHFINDING_FRONT_BUFFER * Math.sin(tagRotation.getZ())
-                        + Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ()) * modifier
+                        - Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ()) * modifier
                         + Constants.FIELD_Y_MIDPOINT,
                 tagTarget.getZ(),
                 tagRotation);
@@ -130,6 +141,7 @@ public class PathfindCommand extends SequentialCommandGroup {
         Pose2d target = target3d.toPose2d();
 
         System.out.println(target);
+        drivetrain.setLabel(target, "main");
 
         // Since AutoBuilder is configured, we can use it to build pathfinding commands
         Command pathfindingCommand = AutoBuilder.pathfindToPose(
@@ -138,6 +150,8 @@ public class PathfindCommand extends SequentialCommandGroup {
                 0);
 
         // pathfindingCommand.schedule();
+
+        Command exactAlign = new ExactAlign(drivetrain, pretarget);
 
         Command driveBackDynamic = new DriveDynamicX(drivetrain, 0.6, -0.5);
         Command driveDynamic = new DriveDynamicX(drivetrain, 0.297, 0.3);
@@ -152,10 +166,11 @@ public class PathfindCommand extends SequentialCommandGroup {
         //     addCommands(new WaitCommand(1), pathfindingCommand, driveDynamic);
         // }
 
-        addCommands(driveBackDynamic, prepathfindingCommand, pathfindingCommand);
+        // Command organizedPathfind = new SequentialCommandGroup(prepathfindingCommand, pathfindingCommand);
+        // Command organizedPathfind =
+        exactAlign.schedule();
+        // organizedPathfind.schedule();
 
         wasAligned = true;
-
-        addRequirements(drivetrain);
     }
 }

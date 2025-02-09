@@ -345,7 +345,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             for (LimelightObject llo : Constants.LIMELIGHTS_ON_BOARD) {
                 PoseEstimate fp = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(llo.name);
                 if (fp != null) {
-                    field.getObject("Vision" + displayCounter).setPose(fp.pose);
+                    // field.getObject("Vision" + displayCounter).setPose(fp.pose);
                     alignToVision(llo, fp.pose, false);
                 }
             }
@@ -457,6 +457,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public double getForwardRange() {
         StatusSignal<Distance> d = robotRange.getDistance();
         return d.getValueAsDouble();
+    }
+
+    public void setLabel(Pose2d pose2d, String label) {
+        field.getObject(label).setPose(pose2d);
     }
 
 }

@@ -77,9 +77,9 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public ElevatorSubsystem() {
 
-        this.elevatorMotor1 = new TalonFX(28, "rio"); // TODO DEVICE ID
-        this.elevatorMotor2 = new TalonFX(27, "rio"); // TODO DEVICE ID
-        this.pidgey = new Pigeon2(Constants.PIGEON_ID, "rio"); // TODO DEVICE ID
+        this.elevatorMotor1 = new TalonFX(31, "FastFD"); // TODO DEVICE ID
+        this.elevatorMotor2 = new TalonFX(32, "FastFD"); // TODO DEVICE ID
+        this.pidgey = new Pigeon2(Constants.PIGEON_ID, "FastFD"); // TODO DEVICE ID
 
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();

@@ -25,15 +25,16 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.commands.PathfindCommand;
-import frc.robot.commands.PathfindCommand.Alignment;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.digital.NavInterfaceSubsystem;
+import frc.robot.subsystems.digital.PathfindCommand;
+import frc.robot.subsystems.digital.PathfindCommand.Alignment;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 
@@ -60,18 +61,16 @@ public class Core {
     // private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driveController = new CommandXboxController(0);
-    private final CommandXboxController operatorController = new CommandXboxController(1);
+    // private final CommandXboxController operatorController = new CommandXboxController(1);
 
     // private final Joystick navController = new Joystick(2);
     private final Joystick navController = new Joystick(2);
     
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    // public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     // public final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
-    public final ArmSubsystem armSubsystem = new ArmSubsystem();
+    // public final ArmSubsystem armSubsystem = new ArmSubsystem();
 
     // public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem(drivetrain);
 
@@ -111,7 +110,7 @@ public class Core {
         // Layout").withPosition(0, 0).withSize(2, 3);
 
         // Field
-        // tab.add(drivetrain.getField()).withPosition(2, 1).withSize(5, 3);
+        tab.add(drivetrain.getField()).withPosition(2, 1).withSize(5, 3);
 
         // Modes
         // tab.addBoolean("Slow Mode", () -> isSlow()).withPosition(2, 0).withSize(2,
@@ -123,9 +122,9 @@ public class Core {
         // pos.addDouble("Robot R", () -> drivetrain.getRobotR())
         // .withWidget("Gyro");
         // ;
-        // pos.addDouble("Robot Y", () -> drivetrain.getRobotY())
+        tab.addDouble("Robot Y", () -> drivetrain.getRobotY());
         // .withWidget("Number Bar");
-        // pos.addDouble("Robot X", () -> drivetrain.getRobotX());
+        tab.addDouble("Robot X", () -> drivetrain.getRobotX());
 
         // tab.add("Auto Chooser", autoChooser);
 
@@ -134,17 +133,17 @@ public class Core {
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        // drivetrain.setDefaultCommand(
-        //         // Drivetrain will execute this command periodically
-        //         drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed) // Drive
-        //                                                                                                   // forward
-        //                                                                                                   // with
-        //                                                                                                   // negative Y
-        //                                                                                                   // (forward)
-        //                 .withVelocityY(-driveController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-        //                 .withRotationalRate(-driveController.getRightX() * MaxAngularRate) // Drive counterclockwise
-        //                                                                                    // with negative X (left)
-        //         ));
+        drivetrain.setDefaultCommand(
+                // Drivetrain will execute this command periodically
+                drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed) // Drive
+                                                                                                          // forward
+                                                                                                          // with
+                                                                                                          // negative Y
+                                                                                                          // (forward)
+                        .withVelocityY(-driveController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate) // Drive counterclockwise
+                                                                                           // with negative X (left)
+                ));
 
         // driveController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // driveController.b().whileTrue(drivetrain.applyRequest(() ->
@@ -153,10 +152,12 @@ public class Core {
         // ));
 
 
-        // driveController.povDown().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
-        // driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
-        // driveController.povUp().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
-        // driveController.povRight().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
+        driveController.povDown().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
+        driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
+        driveController.povUp().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
+        driveController.povRight().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
+
+
         driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(0)));
         driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(5)));
         
@@ -166,8 +167,10 @@ public class Core {
         driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
 
 
-        operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
-        operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
+        // operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
+        // operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
+
+
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         // driveController.back().and(driveController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
@@ -177,27 +180,27 @@ public class Core {
         // driveController.a().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.getDistance()));
         
         // reset the field-centric heading on left bumper press
-        // driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         
         // drivetrain.registerTelemetry(logger::telemeterize);
 
         //Reef controller inputs for Teleop alignments + elevator positions
-        new JoystickButton(navController, 1).onTrue(new PathfindCommand(drivetrain, 17, Alignment.LEFT));
-        new JoystickButton(navController, 2).onTrue(new PathfindCommand(drivetrain, 17, Alignment.RIGHT));
-        new JoystickButton(navController, 3).onTrue(new PathfindCommand(drivetrain, 22, Alignment.LEFT));
-        new JoystickButton(navController, 4).onTrue(new PathfindCommand(drivetrain, 22, Alignment.RIGHT));
-        new JoystickButton(navController, 5).onTrue(new PathfindCommand(drivetrain, 21, Alignment.LEFT));
-        new JoystickButton(navController, 6).onTrue(new PathfindCommand(drivetrain, 21, Alignment.RIGHT));
-        new JoystickButton(navController, 7).onTrue(new PathfindCommand(drivetrain, 20, Alignment.LEFT));
-        new JoystickButton(navController, 8).onTrue(new PathfindCommand(drivetrain, 20, Alignment.RIGHT));
-        new JoystickButton(navController, 9).onTrue(new PathfindCommand(drivetrain, 19, Alignment.LEFT));
-        new JoystickButton(navController, 10).onTrue(new PathfindCommand(drivetrain, 19, Alignment.RIGHT));
-        new JoystickButton(navController, 11).onTrue(new PathfindCommand(drivetrain, 18, Alignment.LEFT));
-        new JoystickButton(navController, 12).onTrue(new PathfindCommand(drivetrain, 18, Alignment.RIGHT));
-        new JoystickButton(navController, 13).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
-        new JoystickButton(navController, 14).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
-        new JoystickButton(navController, 15).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
-        new JoystickButton(navController, 16).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
+        new JoystickButton(navController, 1).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.LEFT);}));
+        new JoystickButton(navController, 2).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.RIGHT);}));
+        new JoystickButton(navController, 3).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 22, Alignment.LEFT);}));
+        new JoystickButton(navController, 4).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 22, Alignment.RIGHT);}));
+        new JoystickButton(navController, 5).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 21, Alignment.LEFT);}));
+        new JoystickButton(navController, 6).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 21, Alignment.RIGHT);}));
+        new JoystickButton(navController, 7).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 20, Alignment.LEFT);}));
+        new JoystickButton(navController, 8).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 20, Alignment.RIGHT);}));
+        new JoystickButton(navController, 9).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 19, Alignment.LEFT);}));
+        new JoystickButton(navController, 10).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 19, Alignment.RIGHT);}));
+        new JoystickButton(navController, 11).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.LEFT);}));
+        new JoystickButton(navController, 12).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.RIGHT);}));
+        // new JoystickButton(navController, 13).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
+        // new JoystickButton(navController, 14).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
+        // new JoystickButton(navController, 15).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
+        // new JoystickButton(navController, 16).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
     }
 
     public void forwardAlign() {
