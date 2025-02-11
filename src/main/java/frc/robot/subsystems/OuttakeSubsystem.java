@@ -30,7 +30,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     public OuttakeSubsystem() {
         config = new TalonFXConfiguration();
         configHelper = new TalonFXConfigurationHelper(config);
-        motorController = new TalonFX(19);
+        motorController = new TalonFX(29);
         try {
             configHelper.checkConfiguration();
         } catch (Exception e) {
@@ -40,11 +40,11 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
 
     private void setSpeed(double speed) {
-        // motorController.set(speed);
+        motorController.set(speed);
     }
 
     private void stop() {
-        // motorController.stopMotor();
+        motorController.stopMotor();
     }
 
     // Templates

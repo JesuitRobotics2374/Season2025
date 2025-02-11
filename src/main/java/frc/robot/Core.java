@@ -64,6 +64,8 @@ public class Core {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driveController = new CommandXboxController(0);
+    
+    private final CommandXboxController operatorController = new CommandXboxController(1);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -146,15 +148,15 @@ public class Core {
         // -driveController.getLeftX()))
         // ));
 
-        driveController.x().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.outtake()));
-        driveController.x().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
-        driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
-        driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
+        operatorController.x().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.outtake()));
+        operatorController.x().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
+        operatorController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
+        operatorController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
         // driveController.a()
         //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
 
-        driveController.b().onTrue(new Outtake(outtakeSubsystem));
+       // driveController.b().onTrue(new Outtake(outtakeSubsystem));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
