@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ManipulatorSubsystem extends SubsystemBase {
 
-  TimeOfFlight sensor;
+  //TimeOfFlight sensor;
   TalonFX control;
   SparkMax eject;
 
@@ -30,7 +30,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
     
     this.eject = new SparkMax(20, MotorType.kBrushless);
     this.control = new TalonFX(21);
-    this.sensor = new TimeOfFlight(22);
+    //this.sensor = new TimeOfFlight(22);
 
     SparkMaxConfig config = new SparkMaxConfig();
     config.idleMode(SparkBaseConfig.IdleMode.kBrake);
@@ -40,21 +40,30 @@ public class ManipulatorSubsystem extends SubsystemBase {
   }
 
   public void intake() {
-    if (sensor.getRange() > 100) {
-      control.set(0.1);
-    }
+    //if (sensor.getRange() > 100) {
+      control.set(-0.1);
+    //}
   }
   
   public void outtake() {
     eject.set(-0.1);
   }
 
-  @Override
-  public void periodic() {
-    if (sensor.getRange() <= 100) {
-      control.stopMotor();
-    } else {
-      eject.stopMotor();
-    }
+  public void outtakeAlgae() {
+    control.set(0.1);
   }
+
+  public void stop() {
+    control.stopMotor();
+    eject.stopMotor();
+  }
+
+  // @Override
+  // public void periodic() {
+  //   if (sensor.getRange() <= 100) {
+  //     control.stopMotor();
+  //   } else {
+  //     eject.stopMotor();
+  //   }
+  // }
 }

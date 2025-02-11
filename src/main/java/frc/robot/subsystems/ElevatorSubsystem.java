@@ -78,7 +78,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         this.elevatorMotor1 = new TalonFX(31, "FastFD");
         this.elevatorMotor2 = new TalonFX(32, "FastFD");
         this.pidgey = new Pigeon2(Constants.PIGEON_ID, "FastFD");
-        this.shaftEncoder = new CANcoder(0, "FastFD");
+       // this.shaftEncoder = new CANcoder(0, "FastFD");
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
         Slot0Configs slot0Configs = talonFXConfigs.Slot0;
@@ -99,7 +99,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotor1.getConfigurator().apply(slot0Configs);
         elevatorMotor1.getConfigurator().apply(motionMagicConfigs);
 
-        elevatorMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble()*25);
+        //elevatorMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble()*20);
 
         elevatorMotor2.setControl(new Follower(elevatorMotor1.getDeviceID(), true));
     }
@@ -114,8 +114,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void zeroSystem() {
-        shaftEncoder.setPosition(0.0);
-        elevatorMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble());
+        //shaftEncoder.setPosition(0.0);
+        elevatorMotor1.setPosition(0.0);
 
         MotionMagicVoltage m_request = new MotionMagicVoltage(0);
         elevatorMotor1.setControl(m_request);

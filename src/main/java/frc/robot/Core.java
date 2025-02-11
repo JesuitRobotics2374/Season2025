@@ -61,7 +61,7 @@ public class Core {
     // private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driveController = new CommandXboxController(0);
-    // private final CommandXboxController operatorController = new CommandXboxController(1);
+    private final CommandXboxController operatorController = new CommandXboxController(1);
 
     // private final Joystick navController = new Joystick(2);
     private final Joystick navController = new Joystick(2);
@@ -69,8 +69,8 @@ public class Core {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-    // public final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
-    // public final ArmSubsystem armSubsystem = new ArmSubsystem();
+    public final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
+    public final ArmSubsystem armSubsystem = new ArmSubsystem();
 
     // public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem(drivetrain);
 
@@ -165,14 +165,17 @@ public class Core {
         driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
 
 
-        // operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
-        // operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
 
-        // operatorController.x().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake));
-        // operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake));
+        operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
+        operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
 
-        // operatorController.y().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
-        // operatorController.b().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
+        operatorController.x().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake()));
+        operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake()));
+
+        operatorController.y().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
+        operatorController.b().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
+
+        operatorController.povUp().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.stop()));
 
 
         // Run SysId routines when holding back/start and X/Y.

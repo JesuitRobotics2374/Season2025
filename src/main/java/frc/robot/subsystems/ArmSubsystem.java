@@ -59,7 +59,7 @@ public class ArmSubsystem extends SubsystemBase {
     public ArmSubsystem() {
         this.armMotor1 = new TalonFX(11);
         this.armMotor2 = new TalonFX(12);
-        this.wristMotor = new SparkMax(0, MotorType.kBrushless);
+        this.wristMotor = new SparkMax(13, MotorType.kBrushless);
         this.shaftEncoder = new CANcoder(0); // GET DEVICE IDDDDDDDDDDDDDDDD
 
         this.armMotor1.setNeutralMode(NeutralModeValue.Brake);
@@ -84,7 +84,7 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor1.getConfigurator().apply(slot0Configs);
         armMotor1.getConfigurator().apply(motionMagicConfigs);
 
-        armMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble() * 125);
+        //armMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble() * 125);
 
         armMotor2.setControl(new Follower(armMotor1.getDeviceID(), true));
 
@@ -106,7 +106,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public void zeroSystem() {
-        shaftEncoder.setPosition(0.0);
+        //shaftEncoder.setPosition(0.0);
         armMotor1.setPosition(0.0);
 
         MotionMagicVoltage m_request = new MotionMagicVoltage(0);
