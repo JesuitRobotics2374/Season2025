@@ -43,10 +43,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public TalonFX elevatorMotor1;
     public TalonFX elevatorMotor2;
-    //public CANcoder shaftEncoder;
+    public CANcoder shaftEncoder;
     private Pigeon2 pidgey;
-
-    private double loadedPos = 0;
     
     // public CANcoderConfiguration coderConfig = new CANcoderConfiguration();
     // private CANrangeConfiguration rangeConfig = new CANrangeConfiguration();
@@ -77,10 +75,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public ElevatorSubsystem() {
 
-        this.elevatorMotor1 = new TalonFX(31, "FastFD"); // TODO DEVICE ID
-        this.elevatorMotor2 = new TalonFX(32, "FastFD"); // TODO DEVICE ID
-        this.pidgey = new Pigeon2(Constants.PIGEON_ID, "FastFD"); // TODO DEVICE ID
-
+        this.elevatorMotor1 = new TalonFX(31, "FastFD");
+        this.elevatorMotor2 = new TalonFX(32, "FastFD");
+        this.pidgey = new Pigeon2(Constants.PIGEON_ID, "FastFD");
+        this.shaftEncoder = new CANcoder(0, "FastFD");
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
         Slot0Configs slot0Configs = talonFXConfigs.Slot0;
@@ -101,6 +99,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotor1.getConfigurator().apply(slot0Configs);
         elevatorMotor1.getConfigurator().apply(motionMagicConfigs);
 
+        elevatorMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble()*25);
+
         elevatorMotor2.setControl(new Follower(elevatorMotor1.getDeviceID(), true));
     }
 
@@ -114,9 +114,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void zeroSystem() {
-        MotionMagicVoltage m_request = new MotionMagicVoltage(0);
+        shaftEncoder.setPosition(0.0);
+        elevatorMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble());
 
-        elevatorMotor1.setPosition(0.0);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(0);
         elevatorMotor1.setControl(m_request);
     }
 
@@ -135,7 +136,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void elevatorGoTo(int newPos) { //pos defines which height to go to. 0 is resting, 4 is top level, 5 is intake
         double posGoTo = convertPos(newPos);
-        loadedPos = posGoTo;
 
         MotionMagicVoltage m_request = new MotionMagicVoltage(posGoTo);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));

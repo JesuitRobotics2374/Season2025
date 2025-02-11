@@ -27,50 +27,34 @@ public class ManipulatorSubsystem extends SubsystemBase {
   boolean outtaking = false; //to stop motor after outtaking
 
   public ManipulatorSubsystem() {
-    this.sensor = new TimeOfFlight(0);
-    this.control = new TalonFX(0);
-    this.eject = new SparkMax(0, MotorType.kBrushless);
-
-    control.setNeutralMode(NeutralModeValue.Brake);
     
+    this.eject = new SparkMax(20, MotorType.kBrushless);
+    this.control = new TalonFX(21);
+    this.sensor = new TimeOfFlight(22);
+
     SparkMaxConfig config = new SparkMaxConfig();
     config.idleMode(SparkBaseConfig.IdleMode.kBrake);
     eject.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
-  }
 
-  private void spinControl(double speed) {
-    control.set(speed);
-  }
-
-  private void spinEject(double speed) {
-    eject.set(speed);
+    control.setNeutralMode(NeutralModeValue.Brake);
   }
 
   public void intake() {
-    if (!isIntake) {
-      spinControl(0.1);
+    if (sensor.getRange() > 100) {
+      control.set(0.1);
     }
   }
   
   public void outtake() {
-    spinEject(-0.1);
-  }
-
-  public void stopControl() {
-	  control.stopMotor();
-  }
-
-  public void stopEject() {
-	  eject.stopMotor();
+    eject.set(-0.1);
   }
 
   @Override
   public void periodic() {
     if (sensor.getRange() <= 100) {
-      isIntake = true;
-    }
-    if(sensor.getRange() > 100) {
-	    isIntake = false;
+      control.stopMotor();
+    } else {
+      eject.stopMotor();
     }
   }
 }

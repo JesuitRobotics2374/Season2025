@@ -156,8 +156,6 @@ public class Core {
         driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
         driveController.povUp().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
         driveController.povRight().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
-
-
         driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(0)));
         driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(5)));
         
@@ -169,6 +167,12 @@ public class Core {
 
         // operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
         // operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
+
+        // operatorController.x().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake));
+        // operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake));
+
+        // operatorController.y().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
+        // operatorController.b().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
 
 
         // Run SysId routines when holding back/start and X/Y.

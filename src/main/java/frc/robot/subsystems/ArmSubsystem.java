@@ -48,22 +48,22 @@ import frc.robot.Constants;
 
 public class ArmSubsystem extends SubsystemBase {
 
-    public TalonFX armMotor;
+    public TalonFX armMotor1;
+    public TalonFX armMotor2;
     public SparkMax wristMotor;
-    // public CANcoder shaftEncoder;
+    public CANcoder shaftEncoder;
 
     // public CANcoderConfiguration coderConfig = new CANcoderConfiguration();
     // private CANrangeConfiguration rangeConfig = new CANrangeConfiguration();
 
     public ArmSubsystem() {
-        this.armMotor = new TalonFX(18);
+        this.armMotor1 = new TalonFX(11);
+        this.armMotor2 = new TalonFX(12);
         this.wristMotor = new SparkMax(0, MotorType.kBrushless);
+        this.shaftEncoder = new CANcoder(0); // GET DEVICE IDDDDDDDDDDDDDDDD
 
-        this.armMotor.setNeutralMode(NeutralModeValue.Brake);
-
-        SparkMaxConfig config = new SparkMaxConfig();
-        config.idleMode(SparkBaseConfig.IdleMode.kBrake);
-        this.wristMotor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+        this.armMotor1.setNeutralMode(NeutralModeValue.Brake);
+        this.armMotor2.setNeutralMode(NeutralModeValue.Brake);
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
         Slot0Configs slot0Configs = talonFXConfigs.Slot0;
@@ -80,55 +80,57 @@ public class ArmSubsystem extends SubsystemBase {
         motionMagicConfigs.MotionMagicAcceleration = 3; // Target acceleration in rps/s
         motionMagicConfigs.MotionMagicJerk = 5; // Target jerk in rps/s/s
 
-        armMotor.getConfigurator().apply(talonFXConfigs);
-        armMotor.getConfigurator().apply(slot0Configs);
-        armMotor.getConfigurator().apply(motionMagicConfigs);
+        armMotor1.getConfigurator().apply(talonFXConfigs);
+        armMotor1.getConfigurator().apply(slot0Configs);
+        armMotor1.getConfigurator().apply(motionMagicConfigs);
+
+        armMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble() * 125);
+
+        armMotor2.setControl(new Follower(armMotor1.getDeviceID(), true));
+
+        SparkMaxConfig config = new SparkMaxConfig();
+        config.idleMode(SparkBaseConfig.IdleMode.kBrake);
+        this.wristMotor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
     }
 
     public void armUp() {
-        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor.getPosition().getValueAsDouble() + 0.7);
-        System.out.println("Up" + (armMotor.getPosition().getValueAsDouble() + 2));
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor1.getPosition().getValueAsDouble() + 0.7);
 
-        armMotor.setControl(m_request);
+        armMotor1.setControl(m_request);
     }
 
     public void armDown() {
-        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor.getPosition().getValueAsDouble() - 0.7);
-        System.out.println("Down" + (armMotor.getPosition().getValueAsDouble() - 2));
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor1.getPosition().getValueAsDouble() - 0.7);
 
-
-        armMotor.setControl(m_request);
+        armMotor1.setControl(m_request);
     }
 
     public void zeroSystem() {
-        MotionMagicVoltage m_request = new MotionMagicVoltage(0);
+        shaftEncoder.setPosition(0.0);
+        armMotor1.setPosition(0.0);
 
-        armMotor.setPosition(0.0);
-        armMotor.setControl(m_request);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(0);
+        armMotor1.setControl(m_request);
     }
 
     public void stopArm() {
-        armMotor.stopMotor();
-        armMotor.setNeutralMode(NeutralModeValue.Brake);
+        armMotor1.stopMotor();
+        armMotor1.setNeutralMode(NeutralModeValue.Brake);
     }
 
-    public void rotateIntake() {
-        rotateTo(0.25, 0.1);
+    public void rotateWristIntake() {
+        rotateWristTo(0.25, 0.1);
     }
 
-    public void rotateOuttake() {
-        rotateTo(0, -0.1);
+    public void rotateWristOuttake() {
+        rotateWristTo(0, -0.1);
     }
 
-    private void rotateTo(double position, double speed) {
+    private void rotateWristTo(double position, double speed) {
         while (wristMotor.getEncoder().getPosition() < position) {
             wristMotor.set(speed);
         }
         wristMotor.stopMotor();
-    }
-
-    @Override
-    public void periodic() {
     }
 }
   
