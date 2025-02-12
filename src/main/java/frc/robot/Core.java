@@ -35,6 +35,7 @@ import frc.robot.commands.auto.Outtake;
 import frc.robot.commands.auto.Pathfind;
 import frc.robot.commands.auto.PathfindBasic;
 import frc.robot.subsystems.OuttakeSubsystem;
+import frc.robot.subsystems.TestEject;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.utils.LimelightObject;
@@ -70,6 +71,8 @@ public class Core {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+
+    public final TestEject testEject = new TestEject();
 
     private final SendableChooser<Command> autoChooser;
 
@@ -147,6 +150,9 @@ public class Core {
         // point.withModuleDirection(new Rotation2d(-driveController.getLeftY(),
         // -driveController.getLeftX()))
         // ));
+
+        driveController.x().onTrue(testEject.runOnce(() -> testEject.outtake()));
+        driveController.y().onTrue(testEject.runOnce(() -> testEject.outtake()));
 
         operatorController.x().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.outtake()));
         operatorController.x().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
