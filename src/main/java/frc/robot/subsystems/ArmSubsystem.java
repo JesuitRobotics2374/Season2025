@@ -92,6 +92,7 @@ public class ArmSubsystem extends SubsystemBase {
 
         SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(IdleMode.kBrake);
+        config.signals.primaryEncoderPositionPeriodMs(5);
         this.wristMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 

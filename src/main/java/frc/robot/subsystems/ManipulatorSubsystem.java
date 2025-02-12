@@ -36,6 +36,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
     SparkMaxConfig config = new SparkMaxConfig();
     config.idleMode(IdleMode.kBrake);
+    config.signals.primaryEncoderPositionPeriodMs(5);
     eject.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     control.setNeutralMode(NeutralModeValue.Brake);
