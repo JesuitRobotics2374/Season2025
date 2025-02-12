@@ -56,7 +56,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     private static final double POSITION_2 = 50; //Position of lowest branch
     private static final double POSITION_3 = 75; //Position of middle branch 
     private static final double POSITION_4 = 100; //Position of highest branch
-    private static final double IH = 118; //Position of intake (also number 5)
+    private static final double IH = 118; //Position of intake (number 5)
+    private static final double AH = 118; //Position of algae outtake height (number 6)
 
     // CANcoder beltPosition = new CANcoder(Constants.beltPosition_ID);
 
@@ -176,6 +177,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         else if (heightLevel == 5) {
             return IH;
         }
+        else if (heightLevel == 6) {
+            return AH;
+        }
         else throw new InvalidParameterException("Number is not in accepted height range");
     }
 
@@ -205,6 +209,10 @@ public class ElevatorSubsystem extends SubsystemBase {
             lower();
             System.out.println("Lowering Elevator Due To Tipping");
         }
+
+        // if (elevatorMotor1.getPosition().getValueAsDouble() > 119 || elevatorMotor1.getPosition().getValueAsDouble() < 0.5) {
+        //     elevatorMotor1.stopMotor();
+        // }
     }
 
 }

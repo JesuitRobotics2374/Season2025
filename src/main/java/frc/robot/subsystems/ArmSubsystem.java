@@ -30,6 +30,8 @@ import com.ctre.phoenix6.signals.ConnectedMotorValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -51,16 +53,16 @@ public class ArmSubsystem extends SubsystemBase {
     public TalonFX armMotor1;
     public TalonFX armMotor2;
     public SparkMax wristMotor;
-    public CANcoder shaftEncoder;
+    //public CANcoder shaftEncoder;
 
     // public CANcoderConfiguration coderConfig = new CANcoderConfiguration();
     // private CANrangeConfiguration rangeConfig = new CANrangeConfiguration();
 
     public ArmSubsystem() {
-        this.armMotor1 = new TalonFX(11);
-        this.armMotor2 = new TalonFX(12);
-        this.wristMotor = new SparkMax(13, MotorType.kBrushless);
-        this.shaftEncoder = new CANcoder(0); // GET DEVICE IDDDDDDDDDDDDDDDD
+        this.armMotor1 = new TalonFX(11, "rio");
+        this.armMotor2 = new TalonFX(12, "rio");
+        this.wristMotor = new SparkMax(56, MotorType.kBrushless);
+       // this.shaftEncoder = new CANcoder(0); // GET DEVICE IDDDDDDDDDDDDDDDD
 
         this.armMotor1.setNeutralMode(NeutralModeValue.Brake);
         this.armMotor2.setNeutralMode(NeutralModeValue.Brake);
@@ -89,8 +91,8 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor2.setControl(new Follower(armMotor1.getDeviceID(), true));
 
         SparkMaxConfig config = new SparkMaxConfig();
-        config.idleMode(SparkBaseConfig.IdleMode.kBrake);
-        this.wristMotor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+        config.idleMode(IdleMode.kBrake);
+        this.wristMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void armUp() {

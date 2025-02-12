@@ -13,6 +13,8 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.config.BaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,29 +30,29 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   public ManipulatorSubsystem() {
     
-    this.eject = new SparkMax(20, MotorType.kBrushless);
-    this.control = new TalonFX(21);
+    this.eject = new SparkMax(33, MotorType.kBrushless);
+    this.control = new TalonFX(21, "rio");
     //this.sensor = new TimeOfFlight(22);
 
     SparkMaxConfig config = new SparkMaxConfig();
-    config.idleMode(SparkBaseConfig.IdleMode.kBrake);
-    eject.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+    config.idleMode(IdleMode.kBrake);
+    eject.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     control.setNeutralMode(NeutralModeValue.Brake);
   }
 
   public void intake() {
     //if (sensor.getRange() > 100) {
-      control.set(-0.1);
+      control.set(-0.25);
     //}
   }
   
   public void outtake() {
-    eject.set(-0.1);
+    eject.setVoltage(3);
   }
 
   public void outtakeAlgae() {
-    control.set(0.1);
+    control.set(0.25);
   }
 
   public void stop() {

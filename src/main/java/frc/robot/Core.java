@@ -166,14 +166,16 @@ public class Core {
 
 
 
+
         operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
         operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
 
-        operatorController.x().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake()));
-        operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake()));
+        operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake()));
+        operatorController.b().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake()));
+
 
         operatorController.y().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
-        operatorController.b().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
+        operatorController.x().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
 
         operatorController.povUp().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.stop()));
 
