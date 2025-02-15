@@ -40,11 +40,11 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
 
     private void setSpeed(double speed) {
-        // motorController.set(speed);
+        motorController.set(speed);
     }
 
     private void stop() {
-        // motorController.stopMotor();
+        motorController.stopMotor();
     }
 
     // Templates
