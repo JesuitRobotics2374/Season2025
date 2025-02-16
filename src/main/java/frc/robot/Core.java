@@ -63,14 +63,14 @@ public class Core {
     private final CommandXboxController driveController = new CommandXboxController(0);
     private final CommandXboxController operatorController = new CommandXboxController(1);
 
-    // private final Joystick navController = new Joystick(2);
-    private final Joystick navController = new Joystick(2);
+    private final Joystick navControllerA = new Joystick(2);
+    private final Joystick navControllerB = new Joystick(3);
     
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-    public final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
-    public final ArmSubsystem armSubsystem = new ArmSubsystem();
+    // public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+    // public final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
+    // public final ArmSubsystem armSubsystem = new ArmSubsystem();
 
     // public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem(drivetrain);
 
@@ -152,32 +152,32 @@ public class Core {
         // ));
 
 
-        driveController.povDown().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
-        driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
-        driveController.povUp().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
-        driveController.povRight().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
-        driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(0)));
-        driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(5)));
+        // driveController.povDown().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
+        // driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
+        // driveController.povUp().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
+        // driveController.povRight().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
+        // driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(0)));
+        // driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(5)));
         
-        driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.zeroSystem()));
+        // driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.zeroSystem()));
 
-        driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
-        driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
-
-
+        // driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
+        // driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
 
 
-        operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
-        operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
-
-        operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake()));
-        operatorController.b().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake()));
 
 
-        operatorController.y().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
-        operatorController.x().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
+        // operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
+        // operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
 
-        operatorController.povUp().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.stop()));
+        // operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake()));
+        // operatorController.b().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake()));
+
+
+        // operatorController.y().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
+        // operatorController.x().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
+
+        // operatorController.povUp().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.stop()));
 
 
         // Run SysId routines when holding back/start and X/Y.
@@ -190,22 +190,24 @@ public class Core {
         
         // reset the field-centric heading on left bumper press
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        driveController.a().onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.LEFT);}));
         
         // drivetrain.registerTelemetry(logger::telemeterize);
 
         //Reef controller inputs for Teleop alignments + elevator positions
-        new JoystickButton(navController, 1).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.LEFT);}));
-        new JoystickButton(navController, 2).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.RIGHT);}));
-        new JoystickButton(navController, 3).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 22, Alignment.LEFT);}));
-        new JoystickButton(navController, 4).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 22, Alignment.RIGHT);}));
-        new JoystickButton(navController, 5).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 21, Alignment.LEFT);}));
-        new JoystickButton(navController, 6).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 21, Alignment.RIGHT);}));
-        new JoystickButton(navController, 7).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 20, Alignment.LEFT);}));
-        new JoystickButton(navController, 8).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 20, Alignment.RIGHT);}));
-        new JoystickButton(navController, 9).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 19, Alignment.LEFT);}));
-        new JoystickButton(navController, 10).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 19, Alignment.RIGHT);}));
-        new JoystickButton(navController, 11).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.LEFT);}));
-        new JoystickButton(navController, 12).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.RIGHT);}));
+        new JoystickButton(navControllerA, 1).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.LEFT);}));
+        new JoystickButton(navControllerA, 2).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.RIGHT);}));
+        new JoystickButton(navControllerA, 3).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.LEFT);}));
+        new JoystickButton(navControllerA, 4).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.RIGHT);}));
+        new JoystickButton(navControllerA, 5).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 22, Alignment.LEFT);}));
+        new JoystickButton(navControllerA, 6).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 22, Alignment.RIGHT);}));
+        new JoystickButton(navControllerA, 7).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 21, Alignment.LEFT);}));
+        new JoystickButton(navControllerA, 8).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 21, Alignment.RIGHT);}));
+        new JoystickButton(navControllerA, 9).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 20, Alignment.LEFT);}));
+        new JoystickButton(navControllerA, 10).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 20, Alignment.RIGHT);}));
+        new JoystickButton(navControllerA, 11).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 19, Alignment.LEFT);}));
+        new JoystickButton(navControllerA, 12).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 19, Alignment.RIGHT);}));
         // new JoystickButton(navController, 13).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
         // new JoystickButton(navController, 14).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
         // new JoystickButton(navController, 15).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
