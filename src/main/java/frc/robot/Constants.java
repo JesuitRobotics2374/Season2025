@@ -3,9 +3,9 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Time;
 import frc.robot.utils.LimelightObject;
 import frc.robot.utils.LimelightObject.LLType;
+import frc.robot.utils.Setpoint;
 
 public class Constants {
 
@@ -16,6 +16,25 @@ public class Constants {
 
     public static final double FIELD_X_MIDPOINT = 8.779; // meters
     public static final double FIELD_Y_MIDPOINT = 4.026; // meters
+
+    // Elevator
+
+    public static final double ELEVATOR_RATIO = 20;
+
+    // Arm
+
+    public static final double ARM_RATIO = 125;
+
+    public static final double WRIST_PID_P = 0.1; // TODO
+    public static final double WRIST_PID_I = 0.0; // TODO
+    public static final double WRIST_PID_D = 0.0; // TODO
+
+    public static final double WRIST_MIN_POSITION = 0.0; // TODO: Verify (I think theres a built in encoder)
+    public static final double WRIST_MAX_POSITION = 0.235; // TODO: Verify (I think theres a built in encoder)
+
+    public static final double WRIST_INCREMENT = 0.8; // TODO
+    public static final double WRIST_MAX_SPEED = 0.2; // TODO
+    public static final double WRIST_RATIO = 64;
 
     // Limelight
 
@@ -51,7 +70,17 @@ public class Constants {
 
     // Elevator
 
-    public static final int PIGEON_ID = 26;
+    public static final int PIGEON_ID = 0;
     public static final double MAX_TIP_ANGLE = 8.0;
+
+    // SETPOINTS
+
+    public static final Setpoint SETPOINT_MIN = new Setpoint(5, 0, WRIST_MIN_POSITION);
+    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(20, 0, WRIST_MAX_POSITION);
+    public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(25, 0, WRIST_MIN_POSITION);
+    public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(50, 0, WRIST_MIN_POSITION);
+    public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(75, 0, WRIST_MIN_POSITION);
+    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(100, 0, WRIST_MIN_POSITION);
+    public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION);
 
 }

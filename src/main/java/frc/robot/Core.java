@@ -37,8 +37,10 @@ import frc.robot.subsystems.digital.PathfindCommand;
 import frc.robot.subsystems.digital.PathfindCommand.Alignment;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
+import frc.robot.utils.Setpoint;
 
 public class Core {
+
     public double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED; // kSpeedAt12Volts
                                                                                                         // desired top
                                                                                                         // speed
@@ -85,6 +87,12 @@ public class Core {
         configureShuffleBoard();
 
         // drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
+    }
+
+    public void moveToSetpoint(Setpoint setpoint) {
+        elevatorSubsystem.elevatorGoToDouble(setpoint.getElevator());
+        armSubsystem.armGoTo(setpoint.getArm());
+        armSubsystem.wristGoTo(setpoint.getWrist());
     }
 
     public void registerAutoCommands() {
@@ -135,13 +143,13 @@ public class Core {
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed) // Drive
+                drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed * getAxisMovementScale()) // Drive
                                                                                                           // forward
                                                                                                           // with
                                                                                                           // negative Y
                                                                                                           // (forward)
-                        .withVelocityY(-driveController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate) // Drive counterclockwise
+                        .withVelocityY(-driveController.getLeftX() * MaxSpeed * getAxisMovementScale()) // Drive left with negative X (left)
+                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale()) // Drive counterclockwise
                                                                                            // with negative X (left)
                 ));
 
@@ -152,41 +160,35 @@ public class Core {
         // ));
 
 
-        driveController.povDown().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
-        driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
-        driveController.povUp().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
-        driveController.povRight().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
-        driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(0)));
-        driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(5)));
+        driveController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T1)));
+        driveController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T2)));
+        driveController.povUp().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T3)));
+        driveController.povRight().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T4)));
+
+        driveController.a().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_MIN)));
+        driveController.y().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_MAX)));
+
+        driveController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
         
-        driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.zeroSystem()));
+        // driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.zeroSystem()));
 
         driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
         driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
 
 
-
-
         operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
         operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
 
-        operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake()));
-        operatorController.b().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake()));
+        operatorController.y().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake()));
+        operatorController.x().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake()));
 
+        operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.wristCCW()));
+        operatorController.b().onTrue(armSubsystem.runOnce(() -> armSubsystem.wristCW()));
 
-        operatorController.y().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
-        operatorController.x().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
-
-        operatorController.povUp().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.stop()));
-
-
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        // driveController.back().and(driveController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        // driveController.back().and(driveController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        // driveController.start().and(driveController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        // driveController.start().and(driveController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-        // driveController.a().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.getDistance()));
+        operatorController.povUp().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
+        operatorController.povDown().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
+        operatorController.povLeft().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.stop()));
+        operatorController.povRight().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.eject()));
         
         // reset the field-centric heading on left bumper press
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
@@ -275,5 +277,9 @@ public class Core {
             DriverStation.reportError("Pathing failed: " + e.getMessage(), e.getStackTrace());
             return Commands.none();
         }
+    }
+
+    public double getAxisMovementScale() {
+        return (1 - (driveController.getRightTriggerAxis() * 0.9));
     }
 }

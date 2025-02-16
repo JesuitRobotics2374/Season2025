@@ -45,89 +45,61 @@ public class ElevatorSubsystem extends SubsystemBase {
     public TalonFX elevatorMotor2;
     public CANcoder shaftEncoder;
     private Pigeon2 pidgey;
-    
-    // public CANcoderConfiguration coderConfig = new CANcoderConfiguration();
-    // private CANrangeConfiguration rangeConfig = new CANrangeConfiguration();
 
-    //CANcoder beltPosition = new CANcoder(Constants.beltPosition_ID);
+    private static final double POSITION_0 = 2; // Lowest Height
+    private static final double POSITION_1 = 25; // Position of the lowest reef level
+    private static final double POSITION_2 = 50; // Position of lowest branch
+    private static final double POSITION_3 = 75; // Position of middle branch
+    private static final double POSITION_4 = 100; // Position of highest branch
+    private static final double IH = 125; // Position of intake (number 5)
+    private static final double AH = 125; // Position of algae outtake height (number 6)
 
-    private static final double POSITION_0 = 0; //Lowest Height
-    private static final double POSITION_1 = 25; //Position of the lowest reef level
-    private static final double POSITION_2 = 50; //Position of lowest branch
-    private static final double POSITION_3 = 75; //Position of middle branch 
-    private static final double POSITION_4 = 100; //Position of highest branch
-    private static final double IH = 118; //Position of intake (number 5)
-    private static final double AH = 118; //Position of algae outtake height (number 6)
-
-    // CANcoder beltPosition = new CANcoder(Constants.beltPosition_ID);
-
-    DigitalInput L1Bottom = new DigitalInput(0);
-    DigitalInput L1Top = new DigitalInput(1);
-    DigitalInput L2Bottom = new DigitalInput(2);
-    DigitalInput L2Top = new DigitalInput(3);
-    DigitalInput L3Bottom = new DigitalInput(4);
-    DigitalInput L3Top = new DigitalInput(5);
-
-    private final double elevatorSpeed = 0.5;
-
-   //public CANcoderConfiguration withMagnetSensor(MagnetSensorConfigs newMagnetSensor) {
-    //}
-
+    private double elevatorSpeed = 0.5;
 
     public ElevatorSubsystem() {
 
         this.elevatorMotor1 = new TalonFX(31, "FastFD");
         this.elevatorMotor2 = new TalonFX(32, "FastFD");
         this.pidgey = new Pigeon2(Constants.PIGEON_ID, "FastFD");
-       // this.shaftEncoder = new CANcoder(0, "FastFD");
+        this.shaftEncoder = new CANcoder(30, "FastFD");
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
         Slot0Configs slot0Configs = talonFXConfigs.Slot0;
         MotionMagicConfigs motionMagicConfigs = talonFXConfigs.MotionMagic;
 
-        slot0Configs.kG = 0.00; //Output of voltage to overcome gravity
-        slot0Configs.kV = 0.05; //Output per unit target velocity, perhaps not needed
-        slot0Configs.kA = 0.01; //Output per unit target acceleration, perhaps not needed
-        slot0Configs.kP = 0.5; //Controls the response to position error—how much the motor reacts to the difference between the current position and the target position.
-        slot0Configs.kI = 0.01; //Addresses steady-state error, which occurs when the motor doesn’t quite reach the target position due to forces like gravity or friction.
-        slot0Configs.kD = 0.1; //Responds to the rate of change of the error, damping the motion as the motor approaches the target. This reduces overshooting and oscillations.
+        slot0Configs.kG = 0.00; // Output of voltage to overcome gravity
+        slot0Configs.kV = 0.05; // Output per unit target velocity, perhaps not needed
+        slot0Configs.kA = 0.01; // Output per unit target acceleration, perhaps not needed
+        slot0Configs.kP = 0.5; // Controls the response to position error—how much the motor reacts to the
+                               // difference between the current position and the target position.
+        slot0Configs.kI = 0.01; // Addresses steady-state error, which occurs when the motor doesn’t quite reach
+                                // the target position due to forces like gravity or friction.
+        slot0Configs.kD = 0.1; // Responds to the rate of change of the error, damping the motion as the motor
+                               // approaches the target. This reduces overshooting and oscillations.
 
         motionMagicConfigs.MotionMagicCruiseVelocity = 200; // Target velocity in rps
         motionMagicConfigs.MotionMagicAcceleration = 180; // Target acceleration in rps/s
         motionMagicConfigs.MotionMagicJerk = 1000; // Target jerk in rps/s/s
 
+        elevatorSpeed = motionMagicConfigs.getMotionMagicCruiseVelocityMeasure().magnitude();
+
         elevatorMotor1.getConfigurator().apply(talonFXConfigs);
         elevatorMotor1.getConfigurator().apply(slot0Configs);
         elevatorMotor1.getConfigurator().apply(motionMagicConfigs);
 
-        //elevatorMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble()*20);
-
         elevatorMotor2.setControl(new Follower(elevatorMotor1.getDeviceID(), true));
+
+        elevatorMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble() * Constants.ELEVATOR_RATIO);
+        // MotionMagicVoltage m_request = new MotionMagicVoltage(0);
+        // elevatorMotor1.setControl(m_request);
     }
 
-    public void upReset() {
-        while (!L3Top.get()) {
-            elevatorMotor1.set(elevatorSpeed);
-        }
-        stopElevator();
-        zeroSystem();
-
-    }
-
-    public void zeroSystem() {
-        //shaftEncoder.setPosition(0.0);
+    public void zeroSystem() { // Should happen automatically
+        // shaftEncoder.setPosition(0.0);
         elevatorMotor1.setPosition(0.0);
 
         MotionMagicVoltage m_request = new MotionMagicVoltage(0);
         elevatorMotor1.setControl(m_request);
-    }
-
-    public void downReset() { //elevator 1 and 2 have different directions to move, figure out which is which
-        while (!L1Bottom.get()) {
-            elevatorMotor1.set(-elevatorSpeed);
-        }
-        stopElevator();
-        zeroSystem();
     }
 
     public void stopElevator() {
@@ -135,10 +107,17 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotor1.setNeutralMode(NeutralModeValue.Brake);
     }
 
-    public void elevatorGoTo(int newPos) { //pos defines which height to go to. 0 is resting, 4 is top level, 5 is intake
+    public void elevatorGoTo(int newPos) { // pos defines which height to go to. 0 is resting, 4 is top level, 5 is
+                                           // intake
         double posGoTo = convertPos(newPos);
 
         MotionMagicVoltage m_request = new MotionMagicVoltage(posGoTo);
+        elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+    }
+
+    public void elevatorGoToDouble(double pos) {
+
+        MotionMagicVoltage m_request = new MotionMagicVoltage(pos);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
     }
 
@@ -146,7 +125,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - 1);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
 
-        // Since the new request is based on the current position, there is not stacking of lower requests
+        // Since the new request is based on the current position, there is not stacking
+        // of lower requests
         // The delta essentiallly is the speed of the lower
     }
 
@@ -154,35 +134,53 @@ public class ElevatorSubsystem extends SubsystemBase {
         MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() + 1);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
 
-        // Since the new request is based on the current position, there is not stacking of lower requests
+        // Since the new request is based on the current position, there is not stacking
+        // of lower requests
         // The delta essentiallly is the speed of the lower
     }
 
-    private double convertPos(int heightLevel) { //Get values once elevator is finished
-        if (heightLevel == 0) {
-            return POSITION_0;
-        }
-        else if (heightLevel == 1) {
-            return POSITION_1;
-        }
-        else if (heightLevel == 2) {
-            return POSITION_2;
-        }
-        else if (heightLevel == 3) {
-            return POSITION_3;
-        }
-        else if (heightLevel == 4) {
-            return POSITION_4;
-        }
-        else if (heightLevel == 5) {
-            return IH;
-        }
-        else if (heightLevel == 6) {
-            return AH;
-        }
-        else throw new InvalidParameterException("Number is not in accepted height range");
+    public void lowerIfTip() {
+        // MotionMagicVoltage m_request = new
+        // MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - 1);
+
+        // elevatorMotor1.getConfigurator().apply(motionMagicConfigs);
+
+        // elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+
+        // motionMagicConfigs.MotionMagicCruiseVelocity = elevatorSpeed;
+        // elevatorMotor1.getConfigurator().apply(motionMagicConfigs);
+
+        double posGoTo = convertPos(0);
+
+        // MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs();
+        // motionMagicConfigs.MotionMagicCruiseVelocity = 400;
+        // elevatorMotor1.getConfigurator().apply(motionMagicConfigs);
+
+        MotionMagicVoltage m_request = new MotionMagicVoltage(posGoTo);
+        elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+
+        // motionMagicConfigs.MotionMagicCruiseVelocity = elevatorSpeed;
+        // elevatorMotor1.getConfigurator().apply(motionMagicConfigs);
     }
 
+    private double convertPos(int heightLevel) { // Get values once elevator is finished
+        if (heightLevel == 0) {
+            return POSITION_0;
+        } else if (heightLevel == 1) {
+            return POSITION_1;
+        } else if (heightLevel == 2) {
+            return POSITION_2;
+        } else if (heightLevel == 3) {
+            return POSITION_3;
+        } else if (heightLevel == 4) {
+            return POSITION_4;
+        } else if (heightLevel == 5) {
+            return IH;
+        } else if (heightLevel == 6) {
+            return AH;
+        } else
+            throw new InvalidParameterException("Number is not in accepted height range");
+    }
 
     private int clock = 0;
 
@@ -190,30 +188,21 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void periodic() {
 
         clock++;
-
-        // if (L1Bottom.get()) {
-        //     stopElevator();
-        //     elevatorMotor1.setPosition(0);
-        // }
-        // if (L3Top.get()) { //GET THE VLSAUES FOR THIS
-        //     stopElevator();
-        //     elevatorMotor1.setPosition(0);
-        // }
-
         if (clock == 20) {
-            System.out.println(elevatorMotor1.getPosition());
+            System.out.println("ELEVATOR: " + elevatorMotor1.getPosition());
             clock = 0;
         }
 
-        if (pidgey.getRotation3d().getMeasureX().abs(Degrees) > Constants.MAX_TIP_ANGLE || pidgey.getRotation3d().getMeasureY().abs(Degrees) > Constants.MAX_TIP_ANGLE) {
-            lower();
+        if (pidgey.getRotation3d().getMeasureX().abs(Degrees) > Constants.MAX_TIP_ANGLE
+                || pidgey.getRotation3d().getMeasureY().abs(Degrees) > Constants.MAX_TIP_ANGLE) {
+            lowerIfTip();
             System.out.println("Lowering Elevator Due To Tipping");
         }
 
-        // if (elevatorMotor1.getPosition().getValueAsDouble() > 119 || elevatorMotor1.getPosition().getValueAsDouble() < 0.5) {
-        //     elevatorMotor1.stopMotor();
+        // if (elevatorMotor1.getPosition().getValueAsDouble() > 119 ||
+        // elevatorMotor1.getPosition().getValueAsDouble() < 0.5) {
+        // elevatorMotor1.stopMotor();
         // }
     }
 
 }
-  
