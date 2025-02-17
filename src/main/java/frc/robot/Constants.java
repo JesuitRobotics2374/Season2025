@@ -75,12 +75,14 @@ public class Constants {
 
     // SETPOINTS
 
+    public static final double SETPOINT_ELEVATOR_OFFSET = 11.0;
+
     public static final Setpoint SETPOINT_MIN = new Setpoint(5, 0, WRIST_MIN_POSITION);
-    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(20, 0, WRIST_MAX_POSITION);
-    public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(25, 0, WRIST_MIN_POSITION);
-    public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(50, 0, WRIST_MIN_POSITION);
-    public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(75, 0, WRIST_MIN_POSITION);
-    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(100, 0, WRIST_MIN_POSITION);
+    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(20.55, 14.08, WRIST_MAX_POSITION);
+    public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(24.83 + SETPOINT_ELEVATOR_OFFSET, 1.857, WRIST_MAX_POSITION);
+    public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(6.692 + SETPOINT_ELEVATOR_OFFSET, 20.37, WRIST_MIN_POSITION);
+    public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(49.76 + SETPOINT_ELEVATOR_OFFSET, 18.68, WRIST_MIN_POSITION);
+    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(114.2, 17.51, WRIST_MIN_POSITION);
     public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION);
 
 }

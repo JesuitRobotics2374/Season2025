@@ -67,8 +67,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         Slot0Configs slot0Configs = talonFXConfigs.Slot0;
         MotionMagicConfigs motionMagicConfigs = talonFXConfigs.MotionMagic;
 
-        slot0Configs.kG = 0.00; // Output of voltage to overcome gravity
-        slot0Configs.kV = 0.05; // Output per unit target velocity, perhaps not needed
+        slot0Configs.kG = 0.2; // Output of voltage to overcome gravity
+        slot0Configs.kV = 0.1; // Output per unit target velocity, perhaps not needed
         slot0Configs.kA = 0.01; // Output per unit target acceleration, perhaps not needed
         slot0Configs.kP = 0.5; // Controls the response to position error—how much the motor reacts to the
                                // difference between the current position and the target position.

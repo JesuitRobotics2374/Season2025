@@ -27,8 +27,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
   public TalonFX control;
   public SparkMax eject;
 
-  boolean isIntake = true; // false for outtake, true for intake
-  boolean outtaking = false; // to stop motor after outtaking
+  boolean algaeIntake = false;
 
   public ManipulatorSubsystem() {
 
@@ -46,7 +45,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   public void intake() {
     // if (sensor.getRange() > 100) {
-    control.set(-1);
+    control.set(-0.5);
     // }
   }
 
@@ -64,12 +63,25 @@ public class ManipulatorSubsystem extends SubsystemBase {
     eject.stopMotor();
   }
 
- 
+  public void holdAlgae() {
+    algaeIntake = !algaeIntake;
+    clock = 0;
+  }
 
+ 
+int clock = 0;
   @Override
   public void periodic() {
 
+    clock++;
 
+    if (algaeIntake && clock == 12) {
+      intake();
+    }
+    if (algaeIntake && clock == 25) {
+      stop();
+      clock = 0;
+    }
 
     // if (sensor.getRange() <= 100) {
     // control.stopMotor();
