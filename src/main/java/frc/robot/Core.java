@@ -221,6 +221,10 @@ public class Core {
     public void forwardAlign() {
     }
 
+    public void instantFind(int tagId, Alignment alignment) {
+        new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.LEFT);});
+    }
+
     // public Command getAutonomousCommand() {
     //     return autoChooser.getSelected();
     // }
