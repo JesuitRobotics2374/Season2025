@@ -39,7 +39,7 @@ public class Constants {
     // Limelight
 
     public static final LimelightObject[] LIMELIGHTS_ON_BOARD = {
-        new LimelightObject("limelight-left", 1.4, LLType.kLeft),
+        new LimelightObject("limelight", 1.4, LLType.kLeft),
         // new LimelightObject("limelight-right", 1.1, LLType.kRight),
         // new LimelightObject("limelight-back", 1.4, LLType.kBack)
     };
@@ -58,7 +58,7 @@ public class Constants {
 
     public static final double GENERIC_DISTANCE_THRESHOLD = 0.2;
     public static final double GENERIC_ROTATION_THRESHOLD = 1;
-    public static final double ALIGN_MOVE_SPEED = 0.1;
+    public static final double ALIGN_MOVE_SPEED = 0.3;
     public static final double ALIGN_ROTATE_SPEED = 0.01;
     public static final double ALIGN_ROTATIONAL_FEED_FORWARD = 0.8;
 

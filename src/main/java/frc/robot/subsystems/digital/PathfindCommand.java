@@ -141,7 +141,7 @@ public class PathfindCommand {
         Pose2d target = target3d.toPose2d();
 
         System.out.println(target);
-        drivetrain.setLabel(target, "main");
+        // drivetrain.setLabel(target, "main");
 
         // Since AutoBuilder is configured, we can use it to build pathfinding commands
         Command pathfindingCommand = AutoBuilder.pathfindToPose(

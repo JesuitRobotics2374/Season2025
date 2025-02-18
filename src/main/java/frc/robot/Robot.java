@@ -20,7 +20,7 @@ public class Robot extends TimedRobot {
     public Robot() {
         m_core = new Core();
 
-        Pathfinding.setPathfinder(new AStar());
+        // Pathfinding.setPathfinder(new AStar());
 
         // PathfindingCommand.warmupCommand().schedule();
     }

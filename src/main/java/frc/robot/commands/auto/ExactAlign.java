@@ -1,6 +1,12 @@
 package frc.robot.commands.auto;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -28,7 +34,7 @@ public class ExactAlign extends Command {
     private boolean doneMoving;
     private boolean doneRotating;
 
-    public ExactAlign(CommandSwerveDrivetrain drivetrain, Pose2d targetPose) {
+    public ExactAlign(CommandSwerveDrivetrain drivetrain, Pose2d targetPose)  {
         this.drivetrain = drivetrain;
         this.targetPose = targetPose;
         
@@ -48,13 +54,14 @@ public class ExactAlign extends Command {
     @Override
     public void execute() {
         Translation2d robotPosition = drivetrain.getState().Pose.getTranslation();
-        double robotRotation = drivetrain.getState().Pose.getRotation().getDegrees();
+        double robotRotation = drivetrain.getState().Pose.getRotation().getRadians();
         
         double distanceToTarget = robotPosition.getDistance(new Translation2d(targetX, targetY));
         if (distanceToTarget < Constants.GENERIC_DISTANCE_THRESHOLD) {doneMoving = true;}
 
         double rotationToTarget = Math.abs(robotRotation - targetRotation);
         if (rotationToTarget < Constants.GENERIC_ROTATION_THRESHOLD) {doneRotating = true;}
+
 
 
         double velocityX = 0;
@@ -65,29 +72,33 @@ public class ExactAlign extends Command {
             double deltaX = targetX - robotPosition.getX();
             double deltaY = targetY - robotPosition.getY();
             double magnitude = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            velocityX = (deltaX / magnitude) * Constants.ALIGN_MOVE_SPEED;
-            velocityY = (deltaY / magnitude) * Constants.ALIGN_MOVE_SPEED;
+
+            //System.out.println("DELTA: "+deltaX +", "+ deltaY + "Target: " + targetX + ", " + targetY  + "Robot: " + robotPosition.getX() + ", " + robotPosition.getY());
+            velocityX = deltaX * Constants.ALIGN_MOVE_SPEED;
+            velocityY = deltaY * Constants.ALIGN_MOVE_SPEED;
+            System.out.println(deltaX + " " + deltaY + " " + robotPosition.getX() + " " + robotPosition.getY());
+
         }
         if (!doneRotating) {
-          double rotationError = targetRotation - robotRotation;
-          double RESign = rotationError / Math.abs(rotationError);
-          rotationalRate = rotationError * Constants.ALIGN_ROTATE_SPEED
-          + (RESign * Constants.ALIGN_ROTATIONAL_FEED_FORWARD);
+            double rotationError = targetRotation - robotRotation;
+            double RESign = rotationError / Math.abs(rotationError);
+            rotationalRate = rotationError * Constants.ALIGN_ROTATE_SPEED
+            + (RESign * Constants.ALIGN_ROTATIONAL_FEED_FORWARD);
         }
 
         // Use this code if there is not a problem with sending a rotation request w/ 0 velocity
-        if (!(doneMoving && doneRotating)) {
-          drivetrain.setControl(driveRequest.withVelocityX(-velocityX).withVelocityY(-velocityY).withRotationalRate(-rotationalRate));
-        }
-
-        // if (!doneMoving) {
-        //     drivetrain.setControl(
-        //             driveRequest.withVelocityX(-velocityX).withVelocityY(-velocityY)
-        //                     .withRotationalRate(-rotationalRate));
-        // } else if (!doneRotating) {
-        //     drivetrain.setControl(
-        //             driveRequest.withRotationalRate(-rotationalRate));
+        // if (!(doneMoving && doneRotating)) {
+        //   drivetrain.setControl(driveRequest.withVelocityX(-velocityX).withVelocityY(-velocityY).withRotationalRate(-rotationalRate));
         // }
+
+        if (!doneMoving) {
+            drivetrain.setControl(
+                    driveRequest.withVelocityX(velocityX).withVelocityY(velocityY)
+                            .withRotationalRate(-rotationalRate));
+        } else if (!doneRotating) {
+            drivetrain.setControl(
+                    driveRequest.withRotationalRate(-rotationalRate));
+        }
     }
 
     @Override
