@@ -343,7 +343,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
             var displayCounter = 1;
             for (LimelightObject llo : Constants.LIMELIGHTS_ON_BOARD) {
-                PoseEstimate fp = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(llo.name);
+                PoseEstimate fp = LimelightHelpers.getBotPoseEstimate_wpiBlue(llo.name);
                 if (fp != null) {
                     // field.getObject("Vision" + displayCounter).setPose(fp.pose);
                     alignToVision(llo, fp.pose, false);
@@ -395,7 +395,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         boolean doRejectUpdate = false;
         LimelightHelpers.SetRobotOrientation(ll.name,
                 estimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ll.name);
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue(ll.name);
 
         if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2 * Math.PI) {
             doRejectUpdate = true;
@@ -452,6 +452,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getRobotR() {
         return estimator.getEstimatedPosition().getRotation().getDegrees();
+    }
+
+    public Pose2d getEstimator() {
+        return estimator.getEstimatedPosition();
     }
 
     public double getForwardRange() {

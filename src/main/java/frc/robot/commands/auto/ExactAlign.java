@@ -47,8 +47,8 @@ public class ExactAlign extends Command {
 
     @Override
     public void execute() {
-        Translation2d robotPosition = drivetrain.getState().Pose.getTranslation();
-        double robotRotation = drivetrain.getState().Pose.getRotation().getDegrees();
+        Translation2d robotPosition = drivetrain.getEstimator().getTranslation();
+        double robotRotation = drivetrain.getEstimator().getRotation().getRadians();
         
         double distanceToTarget = robotPosition.getDistance(new Translation2d(targetX, targetY));
         if (distanceToTarget < Constants.GENERIC_DISTANCE_THRESHOLD) {doneMoving = true;}
@@ -65,8 +65,8 @@ public class ExactAlign extends Command {
             double deltaX = targetX - robotPosition.getX();
             double deltaY = targetY - robotPosition.getY();
             double magnitude = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            velocityX = (deltaX / magnitude) * Constants.ALIGN_MOVE_SPEED;
-            velocityY = (deltaY / magnitude) * Constants.ALIGN_MOVE_SPEED;
+            velocityX = deltaX * Constants.ALIGN_MOVE_SPEED;
+            velocityY = deltaY * Constants.ALIGN_MOVE_SPEED;
         }
         if (!doneRotating) {
           double rotationError = targetRotation - robotRotation;
@@ -77,7 +77,7 @@ public class ExactAlign extends Command {
 
         // Use this code if there is not a problem with sending a rotation request w/ 0 velocity
         if (!(doneMoving && doneRotating)) {
-          drivetrain.setControl(driveRequest.withVelocityX(-velocityX).withVelocityY(-velocityY).withRotationalRate(-rotationalRate));
+          drivetrain.setControl(driveRequest.withVelocityX(velocityX).withVelocityY(velocityY).withRotationalRate(rotationalRate));
         }
 
         // if (!doneMoving) {

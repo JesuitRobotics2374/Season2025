@@ -153,6 +153,11 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor1.setControl(m_request);
     }
 
+    public void armChangeBy(double pos) {
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor1.getPosition().getValueAsDouble() + pos);
+        armMotor1.setControl(m_request);
+    }
+
     public void zeroSystem() {
         wristEncoder.setPosition(0.0);
         armMotor1.setPosition(0.0);

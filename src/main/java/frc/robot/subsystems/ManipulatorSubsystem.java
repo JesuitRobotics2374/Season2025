@@ -55,7 +55,11 @@ public class ManipulatorSubsystem extends SubsystemBase {
   }
 
   public void eject() {
-    control.set(1);
+    control.set(0.5);
+  }
+
+  public void spinAt(double speed) {
+    control.set(-speed);
   }
 
   public void stop() {

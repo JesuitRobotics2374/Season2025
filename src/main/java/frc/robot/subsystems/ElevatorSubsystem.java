@@ -89,13 +89,14 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         elevatorMotor2.setControl(new Follower(elevatorMotor1.getDeviceID(), true));
 
+        shaftEncoder.setPosition(0);
         elevatorMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble() * Constants.ELEVATOR_RATIO);
         // MotionMagicVoltage m_request = new MotionMagicVoltage(0);
         // elevatorMotor1.setControl(m_request);
     }
 
     public void zeroSystem() { // Should happen automatically
-        // shaftEncoder.setPosition(0.0);
+        shaftEncoder.setPosition(0.0);
         elevatorMotor1.setPosition(0.0);
 
         MotionMagicVoltage m_request = new MotionMagicVoltage(0);
@@ -203,6 +204,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         // elevatorMotor1.getPosition().getValueAsDouble() < 0.5) {
         // elevatorMotor1.stopMotor();
         // }
+    }
+
+    public void changeBy(double d) {
+        elevatorGoToDouble(d + elevatorMotor1.getPosition().getValueAsDouble());
     }
 
 }

@@ -11,7 +11,7 @@ public class Constants {
 
     // Critical Generic Constants
 
-    public static final double MAX_SPEED = 0.5; // kSpeedAt12Volts desired top speed
+    public static final double MAX_SPEED = 0.2; // kSpeedAt12Volts desired top speed
     public static final double MAX_ANGULAR_RATE = 0.3; // 3/4 of a rotation per second max angular velocity
 
     public static final double FIELD_X_MIDPOINT = 8.779; // meters
@@ -53,12 +53,13 @@ public class Constants {
     public static final double PATHFINDING_MAX_ROTATIONAL_ACCELERATION = Units.degreesToRadians(720);
     
     public static final double PATHFINDING_PRE_BUFFER = -2.14116; // meters
+    public static final double PATHFINDING_POST_BUFFER = -0.48; // meters
     public static final double PATHFINDING_FRONT_BUFFER = -0.72; // meters
     public static final double PATHFINDING_SHIFT_FACTOR = 0.1951; // meters
 
     public static final double GENERIC_DISTANCE_THRESHOLD = 0.2;
-    public static final double GENERIC_ROTATION_THRESHOLD = 1;
-    public static final double ALIGN_MOVE_SPEED = 0.1;
+    public static final double GENERIC_ROTATION_THRESHOLD = 3 * Math.PI / 180;
+    public static final double ALIGN_MOVE_SPEED = 0.6;
     public static final double ALIGN_ROTATE_SPEED = 0.01;
     public static final double ALIGN_ROTATIONAL_FEED_FORWARD = 0.8;
 
@@ -75,14 +76,16 @@ public class Constants {
 
     // SETPOINTS
 
-    public static final double SETPOINT_ELEVATOR_OFFSET = 11.0;
+    public static final double RETRACT_ELEVATOR_DOWNSHIFT = 45.0;
 
-    public static final Setpoint SETPOINT_MIN = new Setpoint(5, 0, WRIST_MIN_POSITION);
-    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(20.55, 14.08, WRIST_MAX_POSITION);
-    public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(24.83 + SETPOINT_ELEVATOR_OFFSET, 1.857, WRIST_MAX_POSITION);
-    public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(6.692 + SETPOINT_ELEVATOR_OFFSET, 20.37, WRIST_MIN_POSITION);
-    public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(49.76 + SETPOINT_ELEVATOR_OFFSET, 18.68, WRIST_MIN_POSITION);
-    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(114.2, 17.51, WRIST_MIN_POSITION);
-    public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION);
+    public static final double SETPOINT_ELEVATOR_OFFSET = 0;
 
-}
+    public static final Setpoint SETPOINT_MIN = new Setpoint(5, 22.4, WRIST_MIN_POSITION, "none");
+    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(20.55, 14.08, WRIST_MAX_POSITION, "none");
+    public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(24.83, 1.857, WRIST_MAX_POSITION, "none");
+    public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(12.51, 20.37, WRIST_MIN_POSITION, "tiltAndDown");
+    public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(60.76, 18.68, WRIST_MIN_POSITION, "backAndDown");
+    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(123.2, 19.42, WRIST_MIN_POSITION, "wristAndBackAndDown");
+    public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION, "none");
+
+} // 19.42

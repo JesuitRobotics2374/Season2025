@@ -109,7 +109,7 @@ public class PathfindCommand {
                 Constants.PATHFINDING_MAX_ROTATIONAL_ACCELERATION);
 
         System.out.println(pretarget);
-        drivetrain.setLabel(pretarget, "pre");
+        // drivetrain.setLabel(pretarget, "pre");
 
         // Since AutoBuilder is configured, we can use it to build pathfinding commands
         Command prepathfindingCommand = AutoBuilder.pathfindToPose(
@@ -141,7 +141,7 @@ public class PathfindCommand {
         Pose2d target = target3d.toPose2d();
 
         System.out.println(target);
-        drivetrain.setLabel(target, "main");
+        // drivetrain.setLabel(target, "main");
 
         // Since AutoBuilder is configured, we can use it to build pathfinding commands
         Command pathfindingCommand = AutoBuilder.pathfindToPose(
@@ -149,9 +149,32 @@ public class PathfindCommand {
                 constraints,
                 0);
 
+        ///// FINAL PATHFIND
+
+        Pose3d finaltarget3d = new Pose3d(
+                tagTarget.getX() + Constants.PATHFINDING_POST_BUFFER * Math.cos(tagRotation.getZ())
+                        + Constants.PATHFINDING_SHIFT_FACTOR * Math.sin(tagRotation.getZ()) * modifier
+                        + Constants.FIELD_X_MIDPOINT,
+                tagTarget.getY() + Constants.PATHFINDING_POST_BUFFER * Math.sin(tagRotation.getZ())
+                        - Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ()) * modifier
+                        + Constants.FIELD_Y_MIDPOINT,
+                tagTarget.getZ(),
+                tagRotation);
+
+        Pose2d finaltarget = finaltarget3d.toPose2d();
+
+        System.out.println(finaltarget);
+        drivetrain.setLabel(finaltarget, "final");
+
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        Command finalpathfindingCommand = AutoBuilder.pathfindToPose(
+            finaltarget,
+                constraints,
+                0.8);
+
         // pathfindingCommand.schedule();
 
-        Command exactAlign = new ExactAlign(drivetrain, pretarget);
+        Command exactAlign = new ExactAlign(drivetrain, target);
 
         Command driveBackDynamic = new DriveDynamicX(drivetrain, 0.6, -0.5);
         Command driveDynamic = new DriveDynamicX(drivetrain, 0.297, 0.3);
@@ -166,9 +189,9 @@ public class PathfindCommand {
         //     addCommands(new WaitCommand(1), pathfindingCommand, driveDynamic);
         // }
 
-        // Command organizedPathfind = new SequentialCommandGroup(prepathfindingCommand, pathfindingCommand);
+        Command organizedPathfind = new SequentialCommandGroup(finalpathfindingCommand);
         // Command organizedPathfind =
-        exactAlign.schedule();
+        organizedPathfind.schedule();
         // organizedPathfind.schedule();
 
         wasAligned = true;
