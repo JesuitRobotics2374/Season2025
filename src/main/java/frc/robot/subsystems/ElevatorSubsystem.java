@@ -190,7 +190,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         clock++;
         if (clock == 20) {
-            System.out.println("ELEVATOR: " + elevatorMotor1.getPosition());
+            // System.out.println("ELEVATOR: " + elevatorMotor1.getPosition());
             clock = 0;
         }
 

@@ -185,3 +185,7 @@ compile_commands.json
 
 # Eclipse generated file for annotation processors
 .factorypath
+
+# Custom
+bin/main/frc/robot/Core.class
+bin/main/frc/robot/Robot.class

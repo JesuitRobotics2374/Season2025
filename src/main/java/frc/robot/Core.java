@@ -268,59 +268,36 @@ public class Core {
         // reset the field-centric heading on left bumper press
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        // driveController.a().onTrue(new InstantCommand(() -> {new
-        // PathfindCommand(drivetrain, 17, Alignment.LEFT);}));
-
+         driveController.a().onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.LEFT);}));
+        
         // drivetrain.registerTelemetry(logger::telemeterize);
 
-        // Reef controller inputs for Teleop alignments + elevator positions
-        new JoystickButton(navControllerA, 1).onTrue(new InstantCommand(() -> {
-            new PathfindCommand(drivetrain, 18, Alignment.LEFT);
-        }));
-        new JoystickButton(navControllerA, 2).onTrue(new InstantCommand(() -> {
-            new PathfindCommand(drivetrain, 18, Alignment.RIGHT);
-        }));
-        new JoystickButton(navControllerA, 3).onTrue(new InstantCommand(() -> {
-            new PathfindCommand(drivetrain, 17, Alignment.LEFT);
-        }));
-        new JoystickButton(navControllerA, 4).onTrue(new InstantCommand(() -> {
-            new PathfindCommand(drivetrain, 17, Alignment.RIGHT);
-        }));
-        new JoystickButton(navControllerA, 5).onTrue(new InstantCommand(() -> {
-            new PathfindCommand(drivetrain, 22, Alignment.LEFT);
-        }));
-        new JoystickButton(navControllerA, 6).onTrue(new InstantCommand(() -> {
-            new PathfindCommand(drivetrain, 22, Alignment.RIGHT);
-        }));
-        new JoystickButton(navControllerA, 7).onTrue(new InstantCommand(() -> {
-            new PathfindCommand(drivetrain, 21, Alignment.LEFT);
-        }));
-        new JoystickButton(navControllerA, 8).onTrue(new InstantCommand(() -> {
-            new PathfindCommand(drivetrain, 21, Alignment.RIGHT);
-        }));
-        new JoystickButton(navControllerA, 9).onTrue(new InstantCommand(() -> {
-            new PathfindCommand(drivetrain, 20, Alignment.LEFT);
-        }));
-        new JoystickButton(navControllerA, 10).onTrue(new InstantCommand(() -> {
-            new PathfindCommand(drivetrain, 20, Alignment.RIGHT);
-        }));
-        new JoystickButton(navControllerA, 11).onTrue(new InstantCommand(() -> {
-            new PathfindCommand(drivetrain, 19, Alignment.LEFT);
-        }));
-        new JoystickButton(navControllerA, 12).onTrue(new InstantCommand(() -> {
-            new PathfindCommand(drivetrain, 19, Alignment.RIGHT);
-        }));
-        // new JoystickButton(navController, 13).onTrue(elevatorSubsystem.runOnce(() ->
-        // elevatorSubsystem.elevatorGoTo(4)));
-        // new JoystickButton(navController, 14).onTrue(elevatorSubsystem.runOnce(() ->
-        // elevatorSubsystem.elevatorGoTo(3)));
-        // new JoystickButton(navController, 15).onTrue(elevatorSubsystem.runOnce(() ->
-        // elevatorSubsystem.elevatorGoTo(2)));
-        // new JoystickButton(navController, 16).onTrue(elevatorSubsystem.runOnce(() ->
-        // elevatorSubsystem.elevatorGoTo(1)));
+        //Reef controller inputs for Teleop alignments + elevator positions
+        new JoystickButton(navControllerA, 1).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.LEFT);}));
+        new JoystickButton(navControllerA, 2).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.RIGHT);}));
+        new JoystickButton(navControllerA, 3).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.LEFT);}));
+        new JoystickButton(navControllerA, 4).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.RIGHT);}));
+        new JoystickButton(navControllerA, 5).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 22, Alignment.LEFT);}));
+        new JoystickButton(navControllerA, 6).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 22, Alignment.RIGHT);}));
+        new JoystickButton(navControllerA, 7).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 21, Alignment.LEFT);}));
+        new JoystickButton(navControllerA, 8).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 21, Alignment.RIGHT);}));
+        new JoystickButton(navControllerA, 9).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 20, Alignment.LEFT);}));
+        new JoystickButton(navControllerA, 10).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 20, Alignment.RIGHT);}));
+        new JoystickButton(navControllerA, 11).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 19, Alignment.LEFT);}));
+        new JoystickButton(navControllerA, 12).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 19, Alignment.RIGHT);}));
+        // new JoystickButton(navController, 13).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
+        // new JoystickButton(navController, 14).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
+        // new JoystickButton(navController, 15).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
+        // new JoystickButton(navController, 16).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
+
+        
     }
 
     public void forwardAlign() {
+    }
+
+    public void instantFind(int tagId, Alignment alignment) {
+        new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.LEFT);});
     }
 
     // public Command getAutonomousCommand() {

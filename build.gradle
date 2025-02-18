@@ -3,6 +3,11 @@ plugins {
     id "edu.wpi.first.GradleRIO" version "2025.2.1"
 }
 
+configurations.all {
+    exclude module: 'com.ariesninjadev.astar' // moved to codebase
+    exclude module: 'com.pathplanner.lib.AutoBuilder'
+}
+
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17

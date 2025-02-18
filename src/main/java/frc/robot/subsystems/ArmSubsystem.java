@@ -219,8 +219,8 @@ public class ArmSubsystem extends SubsystemBase {
 
         clock++;
         if (clock == 20) {
-            System.out.println("     ARM: " + armMotor1.getPosition());
-            System.out.println("   WRIST: " + wristMotor.getPosition());
+            // System.out.println("     ARM: " + armMotor1.getPosition());
+            // System.out.println("   WRIST: " + wristMotor.getPosition());
             clock = 0;
         }
 
