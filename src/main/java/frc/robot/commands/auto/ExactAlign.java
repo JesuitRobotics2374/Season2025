@@ -72,8 +72,8 @@ public class ExactAlign extends Command {
             double deltaX = targetX - robotPosition.getX();
             double deltaY = targetY - robotPosition.getY();
             double magnitude = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            velocityX = deltaX * Constants.ALIGN_MOVE_SPEED;
-            velocityY = deltaY * Constants.ALIGN_MOVE_SPEED;
+            velocityX = Math.sqrt(deltaX/2) * Constants.ALIGN_MOVE_SPEED + 0.1; // Smoother function
+            velocityY = Math.sqrt(deltaY/2) * Constants.ALIGN_MOVE_SPEED + 0.1;
         }
         if (!doneRotating) {
             double rotationError = targetRotation - robotRotation;

@@ -58,7 +58,7 @@ public class Constants {
     public static final double PATHFINDING_SHIFT_FACTOR = 0.1951; // meters
 
     public static final double GENERIC_DISTANCE_THRESHOLD = 0.2;
-    public static final double GENERIC_ROTATION_THRESHOLD = 3 * Math.PI / 180;
+    public static final double GENERIC_ROTATION_THRESHOLD = 1 * Math.PI / 180;
     public static final double ALIGN_MOVE_SPEED = 0.6;
     public static final double ALIGN_ROTATE_SPEED = 0.01;
     public static final double ALIGN_ROTATIONAL_FEED_FORWARD = 0.8;
@@ -83,9 +83,9 @@ public class Constants {
     public static final Setpoint SETPOINT_MIN = new Setpoint(5, 22.4, WRIST_MIN_POSITION, "none");
     public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(20.55, 14.08, WRIST_MAX_POSITION, "none");
     public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(24.83, 1.857, WRIST_MAX_POSITION, "none");
-    public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(12.51, 20.37, WRIST_MIN_POSITION, "tiltAndDown");
-    public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(60.76, 18.68, WRIST_MIN_POSITION, "backAndDown");
-    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(123.2, 19.42, WRIST_MIN_POSITION, "wristAndBackAndDown");
+    public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(12.51, 20.37, WRIST_MIN_POSITION, "t2");
+    public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(60.76, 18.68, WRIST_MIN_POSITION, "t3");
+    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(123.2, 19.42, WRIST_MIN_POSITION, "t4");
     public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION, "none");
 
 } // 19.42

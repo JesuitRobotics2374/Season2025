@@ -9,7 +9,7 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.digital.PathfindCommand.Alignment;
+import frc.robot.subsystems.digital.PathfinderSubsystem.Alignment;
 import frc.robot.utils.AStar;
 
 public class Robot extends TimedRobot {
@@ -50,7 +50,7 @@ public class Robot extends TimedRobot {
         // m_autonomousCommand.schedule();
         // }
 
-        m_core.instantFind(18, Alignment.LEFT);
+        // m_core.instantFind(18, Alignment.LEFT);
 
         // m_robotContainer.getPath("Prec-BLUE-TOP").schedule();
 

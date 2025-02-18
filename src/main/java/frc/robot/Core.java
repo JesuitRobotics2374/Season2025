@@ -37,8 +37,8 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.digital.NavInterfaceSubsystem;
-import frc.robot.subsystems.digital.PathfindCommand;
-import frc.robot.subsystems.digital.PathfindCommand.Alignment;
+import frc.robot.subsystems.digital.PathfinderSubsystem;
+import frc.robot.subsystems.digital.PathfinderSubsystem.Alignment;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.utils.Setpoint;
@@ -82,8 +82,9 @@ public class Core {
     public final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
 
-    // public final NavInterfaceSubsystem navInterfaceSubsystem = new
-    // NavInterfaceSubsystem(drivetrain);
+    public final PathfinderSubsystem pathfinderSubsystem = new PathfinderSubsystem(this);
+
+    public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem();
 
     // private final SendableChooser<Command> autoChooser;
 
@@ -101,19 +102,22 @@ public class Core {
         // 180))));
     }
 
+    // A setpoint is a "macro" state. Find its definition in utils folder.
     public void moveToSetpoint(Setpoint setpoint) {
-        queuedRetractAction = setpoint.getRetractAction();
+        queuedRetractAction = setpoint.getRetractAction(); // Store what we just did for when we retract
         elevatorSubsystem.elevatorGoToDouble(setpoint.getElevator());
         armSubsystem.armGoTo(setpoint.getArm());
         armSubsystem.wristGoTo(setpoint.getWrist());
     }
 
-    private void performRetract() {
+    // Based on the last setpoint we aligned to, retract using a very specific set
+    // of hardward movements
+    public void performRetract() {
         if (queuedRetractAction != null) {
             switch (queuedRetractAction) {
                 case "none":
                     break;
-                case "wristAndBackAndDown":
+                case "t4":
                     // primary steps
                     System.out.println("Running retract macro: backAndDown");
                     armSubsystem.armChangeBy(-18);
@@ -129,7 +133,7 @@ public class Core {
                             new StaticBackCommand(drivetrain, -0.4, -0.4));
                     waitAndBack.schedule();
                     break;
-                case "backAndDown":
+                case "t3":
                     // primary steps
                     System.out.println("Running retract macro: backAndDown");
                     elevatorSubsystem.changeBy(-Constants.RETRACT_ELEVATOR_DOWNSHIFT);
@@ -141,7 +145,7 @@ public class Core {
                             new StaticBackCommand(drivetrain, -0.4, -1));
                     waitAndBack3.schedule();
                     break;
-                case "tiltAndDown":
+                case "t2":
                     // primary steps
                     System.out.println("Running retract macro: backAndDown");
                     elevatorSubsystem.changeBy(-10);
@@ -240,11 +244,15 @@ public class Core {
 
         driveController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
 
-        driveController.x().onTrue(new InstantCommand(() -> performRetract()));
+        // driveController.x().onTrue(new InstantCommand(() -> performRetract()));
 
-        // driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.zeroSystem()));
+        // driveController.y().onTrue(elevatorSubsystem.runOnce(() ->
+        // elevatorSubsystem.zeroSystem()));
 
-        driveController.y().onTrue(new InstantCommand(() -> new PathfindCommand(drivetrain, 19, Alignment.LEFT)));
+        driveController.y().onTrue(
+                new InstantCommand(() -> pathfinderSubsystem.queueFind(19, Alignment.LEFT)));
+        driveController.x().onTrue(
+                new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3)));
 
         driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
         driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
@@ -268,36 +276,56 @@ public class Core {
         // reset the field-centric heading on left bumper press
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-         driveController.a().onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.LEFT);}));
-        
+        // driveController.a().onTrue(new InstantCommand(() -> {new
+        // PathfinderSubsystem(drivetrain, 17, Alignment.LEFT);}));
+
         // drivetrain.registerTelemetry(logger::telemeterize);
 
-        //Reef controller inputs for Teleop alignments + elevator positions
-        new JoystickButton(navControllerA, 1).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.LEFT);}));
-        new JoystickButton(navControllerA, 2).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.RIGHT);}));
-        new JoystickButton(navControllerA, 3).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.LEFT);}));
-        new JoystickButton(navControllerA, 4).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.RIGHT);}));
-        new JoystickButton(navControllerA, 5).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 22, Alignment.LEFT);}));
-        new JoystickButton(navControllerA, 6).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 22, Alignment.RIGHT);}));
-        new JoystickButton(navControllerA, 7).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 21, Alignment.LEFT);}));
-        new JoystickButton(navControllerA, 8).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 21, Alignment.RIGHT);}));
-        new JoystickButton(navControllerA, 9).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 20, Alignment.LEFT);}));
-        new JoystickButton(navControllerA, 10).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 20, Alignment.RIGHT);}));
-        new JoystickButton(navControllerA, 11).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 19, Alignment.LEFT);}));
-        new JoystickButton(navControllerA, 12).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 19, Alignment.RIGHT);}));
-        // new JoystickButton(navController, 13).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
-        // new JoystickButton(navController, 14).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
-        // new JoystickButton(navController, 15).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
-        // new JoystickButton(navController, 16).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
+        // Reef controller inputs for Teleop alignments + elevator positions
+        new JoystickButton(navControllerA, 1)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(18, Alignment.LEFT)));
+        new JoystickButton(navControllerA, 2)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(18, Alignment.RIGHT)));
+        new JoystickButton(navControllerA, 3)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(17, Alignment.LEFT)));
+        new JoystickButton(navControllerA, 4)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(17, Alignment.RIGHT)));
+        new JoystickButton(navControllerA, 5)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(22, Alignment.LEFT)));
+        new JoystickButton(navControllerA, 6)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(22, Alignment.RIGHT)));
+        new JoystickButton(navControllerA, 7)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(21, Alignment.LEFT)));
+        new JoystickButton(navControllerA, 8)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(21, Alignment.RIGHT)));
+        new JoystickButton(navControllerA, 9)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(20, Alignment.LEFT)));
+        new JoystickButton(navControllerA, 10)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(20, Alignment.RIGHT)));
+        new JoystickButton(navControllerA, 11)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(19, Alignment.LEFT)));
+        new JoystickButton(navControllerA, 12)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(19, Alignment.RIGHT)));
+        new JoystickButton(navControllerA, 13)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T4)));
+        new JoystickButton(navControllerA, 14)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3)));
+        new JoystickButton(navControllerA, 15)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T2)));
+        new JoystickButton(navControllerA, 16)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T1)));
 
-        
     }
 
     public void forwardAlign() {
     }
 
-    public void instantFind(int tagId, Alignment alignment) {
-        new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.LEFT);});
+    public CommandSwerveDrivetrain getDrivetrain() {
+        return drivetrain;
+    }
+
+    public NavInterfaceSubsystem getNavInterfaceSubsystem() {
+        return navInterfaceSubsystem;
     }
 
     // public Command getAutonomousCommand() {
