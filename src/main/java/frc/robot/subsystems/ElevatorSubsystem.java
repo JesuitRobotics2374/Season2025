@@ -121,10 +121,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void lower() {
-        if (!limitSwitch.get()) {
+        // if (!limitSwitch.get()) {
             MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - 1);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
-        }
+        // }
 
         // Since the new request is based on the current position, there is not stacking
         // of lower requests
@@ -179,9 +179,8 @@ public class ElevatorSubsystem extends SubsystemBase {
             System.out.println("Lowering Elevator Due To Tipping");
         }
 
-        // if (limitSwitch.get()) {
-        //     zeroSystem();
-        // }
+       
+        
         
     }
 
