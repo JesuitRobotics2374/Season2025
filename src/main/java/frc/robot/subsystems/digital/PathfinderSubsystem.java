@@ -31,6 +31,7 @@ public class PathfinderSubsystem {
     private boolean locationLoaded = false; // Have we inputted a location?
     private int tagId; // The tag ID to navigate to
     private Alignment alignment; // The alignment of the robot to the tag (left/right)
+    private boolean isRed; // Assumes blue side
 
     private boolean heightLoaded = false; // Have we inputted a height?
     private Setpoint reefHeight; // What setpoint should we move to? (T1/2/3/4)
@@ -55,12 +56,11 @@ public class PathfinderSubsystem {
         }
 
         public static Alignment parseTopology(boolean isReef, int loc) {
-            if (loc < 0 || loc > 7) {
+            if (isReef && (loc < 0 || loc > 7)) {
                 throw new IllegalArgumentException("Invalid topology");
             }
             return isReef ? ((loc % 2 == 0) ? LEFT : RIGHT) : CENTER;
         }
-
     }
 
     // Subsystem is now constructed just once, at the top of Core with other subsystems
@@ -70,8 +70,8 @@ public class PathfinderSubsystem {
     }
 
     // Queue a pathfind; done by clicking a button on the panel
-    public void queueFind(int tagId, Alignment alignment) {
-        this.tagId = tagId;
+    public void queueFind(int posCode, Alignment alignment) {
+        this.tagId = translateToTagId(posCode);
         this.alignment = alignment;
         this.locationLoaded = true;
         if (heightLoaded) {
@@ -119,19 +119,6 @@ public class PathfinderSubsystem {
 
     // Once both pathfind and align are queued, execute the sequence
     public void executeSequence() {
-
-        if (runningCommand != null) {
-            runningCommand.cancel(); // Cancel the previously running command
-        }
-
-        System.out.println(tagId);
-
-        if (tagId == -1) {
-            System.out.println("NO TAG VISIBLE");
-            updateGUI(1000);
-            return;
-        }
-
         Pose3d tagTarget = FMapConstant.getFMapPosition(tagId); // Get the tag's position from FMap
 
         if (tagTarget == null) {
@@ -247,6 +234,70 @@ public class PathfinderSubsystem {
         runningCommand.schedule();
 
         updateGUI(4);
+    }
 
+    public void setSide(boolean isRed) {
+        this.isRed = isRed;
+    }
+    
+    public int translateToTagId(int posCode) {
+        int tagId = -1;
+        if (isRed) {
+            switch (posCode) {
+                case 1:
+                    tagId = 10;
+                    break;
+                case 2:
+                    tagId = 11;
+                    break;
+                case 3:
+                    tagId = 6;
+                    break;
+                case 4:
+                    tagId = 7;
+                    break;
+                case 5:
+                    tagId = 8;
+                    break;
+                case 6:
+                    tagId = 9;
+                    break;
+                case 10:
+                    tagId = 1;
+                    break;
+                case 11:
+                    tagId = 2;
+                    break;
+            }
+        } else {
+            switch (posCode) {
+                case 1:
+                    tagId = 18;
+                    break;
+                case 2:
+                    tagId = 17;
+                    break;
+                case 3:
+                    tagId = 22;
+                    break;
+                case 4:
+                    tagId = 21;
+                    break;
+                case 5:
+                    tagId = 20;
+                    break;
+                case 6:
+                    tagId = 19;
+                    break;
+                case 10:
+                    tagId = 12;
+                    break;
+                case 11:
+                    tagId = 13;
+                    break;
+            }
+        }
+
+        return tagId;
     }
 }
