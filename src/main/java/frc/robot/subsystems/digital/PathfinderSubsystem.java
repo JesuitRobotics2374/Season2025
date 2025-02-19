@@ -4,12 +4,16 @@
 
 package frc.robot.subsystems.digital;
 
+import java.util.Optional;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -20,7 +24,7 @@ import frc.robot.commands.auto.DriveDynamicX;
 import frc.robot.commands.auto.ExactAlign;
 import frc.robot.commands.auto.StaticBackCommand;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
-import frc.robot.utils.FMapConstant;
+import frc.robot.utils.Apriltags;
 import frc.robot.utils.Setpoint;
 
 public class PathfinderSubsystem {
@@ -31,7 +35,6 @@ public class PathfinderSubsystem {
     private boolean locationLoaded = false; // Have we inputted a location?
     private int tagId; // The tag ID to navigate to
     private Alignment alignment; // The alignment of the robot to the tag (left/right)
-    private boolean isRed; // Assumes blue side
 
     private boolean heightLoaded = false; // Have we inputted a height?
     private Setpoint reefHeight; // What setpoint should we move to? (T1/2/3/4)
@@ -119,7 +122,7 @@ public class PathfinderSubsystem {
 
     // Once both pathfind and align are queued, execute the sequence
     public void executeSequence() {
-        Pose3d tagTarget = FMapConstant.getFMapPosition(tagId); // Get the tag's position from FMap
+        Pose3d tagTarget = Apriltags.getWeldedPosition(tagId); // Get the tag's position from welded map
 
         if (tagTarget == null) {
             System.out.println("TARGET IS NULL");
@@ -235,12 +238,13 @@ public class PathfinderSubsystem {
 
         updateGUI(4);
     }
-
-    public void setSide(boolean isRed) {
-        this.isRed = isRed;
-    }
     
     public int translateToTagId(int posCode) {
+        final Optional<DriverStation.Alliance> dsa = DriverStation.getAlliance();
+        if (!dsa.isPresent()) {
+            return -1;
+        }
+        final boolean isRed = dsa.get() == Alliance.Red;
         int tagId = -1;
         if (isRed) {
             switch (posCode) {

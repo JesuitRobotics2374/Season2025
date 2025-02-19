@@ -101,10 +101,6 @@ public class Core {
 
         // drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI /
         // 180))));
-
-        if (DriverStation.getAlliance().isPresent()) {
-            pathfinderSubsystem.setSide(DriverStation.getAlliance().get() == Alliance.Red);
-        }
     }
 
     // A setpoint is a "macro" state. Find its definition in utils folder.

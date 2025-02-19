@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.digital.PathfinderSubsystem.Alignment;
 import frc.robot.utils.AStar;
+import frc.robot.utils.Apriltags;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
@@ -19,10 +20,7 @@ public class Robot extends TimedRobot {
 
     public Robot() {
         m_core = new Core();
-
-        // Pathfinding.setPathfinder(new AStar());
-
-        // PathfindingCommand.warmupCommand().schedule();
+        Apriltags.loadField();
     }
 
     @Override
