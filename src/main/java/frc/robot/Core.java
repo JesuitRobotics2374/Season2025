@@ -133,13 +133,13 @@ public class Core {
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed) // Drive
+                drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed * getAxisMovementScale()) // Drive
                                                                                                           // forward
                                                                                                           // with
                                                                                                           // negative Y
                                                                                                           // (forward)
-                        .withVelocityY(-driveController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate) // Drive counterclockwise
+                        .withVelocityY(-driveController.getLeftX() * MaxSpeed * getAxisMovementScale()) // Drive left with negative X (left)
+                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale()) // Drive counterclockwise
                                                                                            // with negative X (left)
                 ));
 
@@ -232,5 +232,9 @@ public class Core {
             DriverStation.reportError("Pathing failed: " + e.getMessage(), e.getStackTrace());
             return Commands.none();
         }
+    }
+
+    public double getAxisMovementScale() {
+       return (1 - (driveController.getRightTriggerAxis() * 0.5));
     }
 }
