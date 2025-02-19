@@ -26,57 +26,71 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.commands.auto.ExactAlign;
+import frc.robot.commands.auto.StaticBackCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.digital.NavInterfaceSubsystem;
-import frc.robot.subsystems.digital.PathfindCommand;
-import frc.robot.subsystems.digital.PathfindCommand.Alignment;
+import frc.robot.subsystems.digital.PathfinderSubsystem;
+import frc.robot.subsystems.digital.PathfinderSubsystem.Alignment;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
+import frc.robot.utils.Setpoint;
 
 public class Core {
+
     public double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED; // kSpeedAt12Volts
-                                                                                                        // desired top
-                                                                                                        // speed
+                                                                                                       // desired top
+                                                                                                       // speed
     public double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE; // 3/4
-                                                                                                                   // of
-                                                                                                                   // a
-                                                                                                                   // rotation                                                                                            // per
-                                                                                                                   // second
-                                                                                                                   // max
-                                                                                                                   // angular
-                                                                                                                   // velocity
+                                                                                                                  // of
+                                                                                                                  // a
+                                                                                                                  // rotation
+                                                                                                                  // //
+                                                                                                                  // per
+                                                                                                                  // second
+                                                                                                                  // max
+                                                                                                                  // angular
+                                                                                                                  // velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.02) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    // private final SwerveRequest.SwerveDriveBrake brake = new
+    // SwerveRequest.SwerveDriveBrake();
+    // private final SwerveRequest.PointWheelsAt point = new
+    // SwerveRequest.PointWheelsAt();
 
     // private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driveController = new CommandXboxController(0);
     private final CommandXboxController operatorController = new CommandXboxController(1);
 
-    // private final Joystick navController = new Joystick(2);
-    private final Joystick navController = new Joystick(2);
-    
+    private final Joystick navControllerA = new Joystick(2);
+    private final Joystick navControllerB = new Joystick(3);
+
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     public final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
 
-    // public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem(drivetrain);
+    public final PathfinderSubsystem pathfinderSubsystem = new PathfinderSubsystem(this);
+
+    public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem();
 
     // private final SendableChooser<Command> autoChooser;
 
     private Command pathfindingCommand;
+
+    private String queuedRetractAction;
 
     public Core() {
         registerAutoCommands();
@@ -84,11 +98,75 @@ public class Core {
         configureBindings();
         configureShuffleBoard();
 
-        // drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
+        // drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI /
+        // 180))));
+    }
+
+    // A setpoint is a "macro" state. Find its definition in utils folder.
+    public void moveToSetpoint(Setpoint setpoint) {
+        queuedRetractAction = setpoint.getRetractAction(); // Store what we just did for when we retract
+        elevatorSubsystem.elevatorGoToDouble(setpoint.getElevator());
+        armSubsystem.armGoTo(setpoint.getArm());
+        armSubsystem.wristGoTo(setpoint.getWrist());
+    }
+
+    // Based on the last setpoint we aligned to, retract using a very specific set
+    // of hardward movements
+    public void performRetract() {
+        if (queuedRetractAction != null) {
+            switch (queuedRetractAction) {
+                case "none":
+                    break;
+                case "t4":
+                    // primary steps
+                    System.out.println("Running retract macro: backAndDown");
+                    armSubsystem.armChangeBy(-18);
+                    SequentialCommandGroup waitAndEle = new SequentialCommandGroup(new WaitCommand(2),
+                            new InstantCommand(
+                                    () -> elevatorSubsystem.changeBy(-Constants.RETRACT_ELEVATOR_DOWNSHIFT)));
+                    waitAndEle.schedule();
+                    SequentialCommandGroup waitAndOuttake = new SequentialCommandGroup(new WaitCommand(3.2),
+                            new InstantCommand(() -> manipulatorSubsystem.spinAt(-0.2)), new WaitCommand(1),
+                            new InstantCommand(() -> manipulatorSubsystem.stop()));
+                    waitAndOuttake.schedule();
+                    SequentialCommandGroup waitAndBack = new SequentialCommandGroup(new WaitCommand(3),
+                            new StaticBackCommand(drivetrain, -0.4, -0.4));
+                    waitAndBack.schedule();
+                    break;
+                case "t3":
+                    // primary steps
+                    System.out.println("Running retract macro: backAndDown");
+                    elevatorSubsystem.changeBy(-Constants.RETRACT_ELEVATOR_DOWNSHIFT);
+                    SequentialCommandGroup waitAndOuttake3 = new SequentialCommandGroup(new WaitCommand(0.3),
+                            new InstantCommand(() -> manipulatorSubsystem.spinAt(-0.2)), new WaitCommand(0.7),
+                            new InstantCommand(() -> manipulatorSubsystem.stop()));
+                    waitAndOuttake3.schedule();
+                    SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new WaitCommand(0.6),
+                            new StaticBackCommand(drivetrain, -0.4, -1));
+                    waitAndBack3.schedule();
+                    break;
+                case "t2":
+                    // primary steps
+                    System.out.println("Running retract macro: backAndDown");
+                    elevatorSubsystem.changeBy(-10);
+                    armSubsystem.armChangeBy(-17);
+                    SequentialCommandGroup waitAndOuttake2 = new SequentialCommandGroup(new WaitCommand(0.2),
+                            new InstantCommand(() -> manipulatorSubsystem.spinAt(-0.32)), new WaitCommand(3),
+                            new InstantCommand(() -> manipulatorSubsystem.stop()));
+                    waitAndOuttake2.schedule();
+                    SequentialCommandGroup waitAndBack2 = new SequentialCommandGroup(new WaitCommand(1.5),
+                            new StaticBackCommand(drivetrain, -0.4, -1));
+                    waitAndBack2.schedule();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     public void registerAutoCommands() {
-        // NamedCommands.registerCommand("OuttakeCommand", new Outtake(outtakeSubsystem));
+        // NamedCommands.registerCommand("OuttakeCommand", new
+        // Outtake(outtakeSubsystem));
         // NamedCommands.registerCommand("Test Pathfind", new PathfindBasic(drivetrain,
         // Constants.TEST_PATHFIND_TARGET));
 
@@ -135,14 +213,18 @@ public class Core {
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed) // Drive
-                                                                                                          // forward
-                                                                                                          // with
-                                                                                                          // negative Y
-                                                                                                          // (forward)
-                        .withVelocityY(-driveController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate) // Drive counterclockwise
-                                                                                           // with negative X (left)
+                drivetrain.applyRequest(() -> drive
+                        .withVelocityX(-driveController.getLeftY() * MaxSpeed * getAxisMovementScale()) // Drive
+                        // forward
+                        // with
+                        // negative Y
+                        // (forward)
+                        .withVelocityY(-driveController.getLeftX() * MaxSpeed * getAxisMovementScale()) // Drive left
+                                                                                                        // with negative
+                                                                                                        // X (left)
+                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale()) // Drive
+                                                                                                                    // counterclockwise
+                // with negative X (left)
                 ));
 
         // driveController.a().whileTrue(drivetrain.applyRequest(() -> brake));
@@ -151,72 +233,103 @@ public class Core {
         // -driveController.getLeftX()))
         // ));
 
+        driveController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T1)));
+        driveController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T2)));
+        driveController.povUp().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T3)));
+        driveController.povRight().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T4)));
 
-        driveController.povDown().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
-        driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
-        driveController.povUp().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
-        driveController.povRight().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
-        driveController.a().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(0)));
-        driveController.b().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(5)));
-        
-        driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.zeroSystem()));
+        driveController.a().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_MIN)));
+        // driveController.y().onTrue(new InstantCommand(() ->
+        // moveToSetpoint(Constants.SETPOINT_MAX)));
+
+        driveController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
+
+        // driveController.x().onTrue(new InstantCommand(() -> performRetract()));
+
+        // driveController.y().onTrue(elevatorSubsystem.runOnce(() ->
+        // elevatorSubsystem.zeroSystem()));
+
+        driveController.y().onTrue(
+                new InstantCommand(() -> pathfinderSubsystem.queueFind(19, Alignment.LEFT)));
+        driveController.x().onTrue(
+                new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3)));
 
         driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
         driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
 
-
-
-
         operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
         operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
 
-        operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake()));
-        operatorController.b().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake()));
+        operatorController.y().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake()));
+        operatorController.x().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake()));
 
+        operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.wristCCW()));
+        operatorController.b().onTrue(armSubsystem.runOnce(() -> armSubsystem.wristCW()));
 
-        operatorController.y().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
-        operatorController.x().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
+        operatorController.povUp().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
+        operatorController.povDown().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
+        operatorController.povLeft().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.stop()));
+        operatorController.povRight().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.eject()));
 
-        operatorController.povUp().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.stop()));
+        operatorController.start().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.holdAlgae()));
 
-
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        // driveController.back().and(driveController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        // driveController.back().and(driveController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        // driveController.start().and(driveController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        // driveController.start().and(driveController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-        // driveController.a().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.getDistance()));
-        
         // reset the field-centric heading on left bumper press
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        
+
+        // driveController.a().onTrue(new InstantCommand(() -> {new
+        // PathfinderSubsystem(drivetrain, 17, Alignment.LEFT);}));
+
         // drivetrain.registerTelemetry(logger::telemeterize);
 
-        //Reef controller inputs for Teleop alignments + elevator positions
-        new JoystickButton(navController, 1).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.LEFT);}));
-        new JoystickButton(navController, 2).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 17, Alignment.RIGHT);}));
-        new JoystickButton(navController, 3).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 22, Alignment.LEFT);}));
-        new JoystickButton(navController, 4).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 22, Alignment.RIGHT);}));
-        new JoystickButton(navController, 5).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 21, Alignment.LEFT);}));
-        new JoystickButton(navController, 6).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 21, Alignment.RIGHT);}));
-        new JoystickButton(navController, 7).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 20, Alignment.LEFT);}));
-        new JoystickButton(navController, 8).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 20, Alignment.RIGHT);}));
-        new JoystickButton(navController, 9).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 19, Alignment.LEFT);}));
-        new JoystickButton(navController, 10).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 19, Alignment.RIGHT);}));
-        new JoystickButton(navController, 11).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.LEFT);}));
-        new JoystickButton(navController, 12).onTrue(new InstantCommand(() -> {new PathfindCommand(drivetrain, 18, Alignment.RIGHT);}));
-        // new JoystickButton(navController, 13).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(4)));
-        // new JoystickButton(navController, 14).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(3)));
-        // new JoystickButton(navController, 15).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(2)));
-        // new JoystickButton(navController, 16).onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.elevatorGoTo(1)));
+        // Reef controller inputs for Teleop alignments + elevator positions
+        new JoystickButton(navControllerA, 1)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(18, Alignment.LEFT)));
+        new JoystickButton(navControllerA, 2)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(18, Alignment.RIGHT)));
+        new JoystickButton(navControllerA, 3)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(17, Alignment.LEFT)));
+        new JoystickButton(navControllerA, 4)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(17, Alignment.RIGHT)));
+        new JoystickButton(navControllerA, 5)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(22, Alignment.LEFT)));
+        new JoystickButton(navControllerA, 6)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(22, Alignment.RIGHT)));
+        new JoystickButton(navControllerA, 7)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(21, Alignment.LEFT)));
+        new JoystickButton(navControllerA, 8)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(21, Alignment.RIGHT)));
+        new JoystickButton(navControllerA, 9)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(20, Alignment.LEFT)));
+        new JoystickButton(navControllerA, 10)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(20, Alignment.RIGHT)));
+        new JoystickButton(navControllerA, 11)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(19, Alignment.LEFT)));
+        new JoystickButton(navControllerA, 12)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(19, Alignment.RIGHT)));
+        new JoystickButton(navControllerA, 13)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T4)));
+        new JoystickButton(navControllerA, 14)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3)));
+        new JoystickButton(navControllerA, 15)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T2)));
+        new JoystickButton(navControllerA, 16)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T1)));
+
     }
 
     public void forwardAlign() {
     }
 
+    public CommandSwerveDrivetrain getDrivetrain() {
+        return drivetrain;
+    }
+
+    public NavInterfaceSubsystem getNavInterfaceSubsystem() {
+        return navInterfaceSubsystem;
+    }
+
     // public Command getAutonomousCommand() {
-    //     return autoChooser.getSelected();
+    // return autoChooser.getSelected();
     // }
 
     public void doPathfind(Pose2d target) {
@@ -275,5 +388,9 @@ public class Core {
             DriverStation.reportError("Pathing failed: " + e.getMessage(), e.getStackTrace());
             return Commands.none();
         }
+    }
+
+    public double getAxisMovementScale() {
+        return (1 - (driveController.getRightTriggerAxis() * 0.9));
     }
 }

@@ -2,6 +2,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.playingwithfusion.TimeOfFlight;
@@ -21,18 +23,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ManipulatorSubsystem extends SubsystemBase {
 
-  //TimeOfFlight sensor;
-  TalonFX control;
-  SparkMax eject;
+  // public TimeOfFlight sensor;
+  public TalonFX control;
+  public SparkMax eject;
 
-  boolean isIntake = true;  //false for outtake, true for intake
-  boolean outtaking = false; //to stop motor after outtaking
+  boolean algaeIntake = false;
 
   public ManipulatorSubsystem() {
-    
+
     this.eject = new SparkMax(33, MotorType.kBrushless);
     this.control = new TalonFX(21, "rio");
-    //this.sensor = new TimeOfFlight(22);
+    // this.sensor = new TimeOfFlight(22);
 
     SparkMaxConfig config = new SparkMaxConfig();
     config.idleMode(IdleMode.kBrake);
@@ -43,17 +44,22 @@ public class ManipulatorSubsystem extends SubsystemBase {
   }
 
   public void intake() {
-    //if (sensor.getRange() > 100) {
-      control.set(-0.25);
-    //}
-  }
-  
-  public void outtake() {
-    eject.setVoltage(3);
+    // if (sensor.getRange() > 100) {
+    control.set(-0.5);
+    // }
   }
 
-  public void outtakeAlgae() {
-    control.set(0.25);
+  public void outtake() {
+    control.set(-0.15);
+    eject.setVoltage(10);
+  }
+
+  public void eject() {
+    control.set(0.5);
+  }
+
+  public void spinAt(double speed) {
+    control.set(-speed);
   }
 
   public void stop() {
@@ -61,12 +67,30 @@ public class ManipulatorSubsystem extends SubsystemBase {
     eject.stopMotor();
   }
 
-  // @Override
-  // public void periodic() {
-  //   if (sensor.getRange() <= 100) {
-  //     control.stopMotor();
-  //   } else {
-  //     eject.stopMotor();
-  //   }
-  // }
+  public void holdAlgae() {
+    algaeIntake = !algaeIntake;
+    clock = 0;
+  }
+
+ 
+int clock = 0;
+  @Override
+  public void periodic() {
+
+    clock++;
+
+    if (algaeIntake && clock == 12) {
+      intake();
+    }
+    if (algaeIntake && clock == 25) {
+      stop();
+      clock = 0;
+    }
+
+    // if (sensor.getRange() <= 100) {
+    // control.stopMotor();
+    // } else {
+    // eject.stopMotor();
+    // }
+  }
 }

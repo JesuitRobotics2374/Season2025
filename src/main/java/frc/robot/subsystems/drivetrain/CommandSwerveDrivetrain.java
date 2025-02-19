@@ -334,16 +334,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         // // Limelight not available in sim env
         if (!Utils.isSimulation()) {
-
         //     // Update graphics
         //     field.getObject("Vision1").setPose(
         //             LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left").pose);
         //     field.getObject("Vision2").setPose(
         //             LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
 
-            var displayCounter = 1;
             for (LimelightObject llo : Constants.LIMELIGHTS_ON_BOARD) {
-                PoseEstimate fp = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(llo.name);
+                PoseEstimate fp = LimelightHelpers.getBotPoseEstimate_wpiBlue(llo.name);
                 if (fp != null) {
                     // field.getObject("Vision" + displayCounter).setPose(fp.pose);
                     alignToVision(llo, fp.pose, false);
@@ -395,7 +393,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         boolean doRejectUpdate = false;
         LimelightHelpers.SetRobotOrientation(ll.name,
                 estimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ll.name);
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue(ll.name);
 
         if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2 * Math.PI) {
             doRejectUpdate = true;
@@ -417,10 +415,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             doRejectUpdate = true; // at null zone
         }
         counter++;
-        if (counter > 50) {
+        if (counter > 50) { 
             //System.out.println(detPose);
             counter = 0;
         }
+
+        System.out.println(doRejectUpdate + " " + detPose);
 
         if (!doRejectUpdate) {
             if (snap) {
@@ -428,9 +428,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             } else {
                 estimator.setVisionMeasurementStdDevs(VecBuilder.fill(ll.trust, ll.trust, 9999999));
             }
+            System.out.println("SDLFKSDFJ");
             estimator.addVisionMeasurement(
                     mt2.pose,
                     mt2.timestampSeconds);
+            // REMOVE
+            var updatedPose = estimator.update(getGyroscopeRotation(), getSwerveModulePositions());
+            System.out.println("Updated pose: " + updatedPose);
+            // REMOVE
         }
     }
 
@@ -452,6 +457,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getRobotR() {
         return estimator.getEstimatedPosition().getRotation().getDegrees();
+    }
+
+    public Pose2d getEstimator() {
+        return estimator.getEstimatedPosition();
     }
 
     public double getForwardRange() {
