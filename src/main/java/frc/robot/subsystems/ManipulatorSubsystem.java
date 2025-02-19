@@ -25,7 +25,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   public TimeOfFlight sensor;
   public TalonFX control;
-  public SparkMax eject;
+  //public SparkMax eject;
 
   private boolean isHolding = false;
 
@@ -33,14 +33,14 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   public ManipulatorSubsystem() {
 
-    this.eject = new SparkMax(33, MotorType.kBrushless);
+    //this.eject = new SparkMax(33, MotorType.kBrushless);
     this.control = new TalonFX(21, "rio");
     this.sensor = new TimeOfFlight(22);
 
     SparkMaxConfig config = new SparkMaxConfig();
     config.idleMode(IdleMode.kBrake);
     config.signals.primaryEncoderPositionPeriodMs(5);
-    eject.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    //eject.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     control.setNeutralMode(NeutralModeValue.Brake);
   }
@@ -51,7 +51,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   public void outtake() {
     control.set(-0.15);
-    eject.setVoltage(10);
+    //eject.setVoltage(10);
   }
 
   public void eject() {
@@ -64,7 +64,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   public void stop() {
     control.stopMotor();
-    eject.stopMotor();
+    //eject.stopMotor();
   }
 
   // public void holdAlgae() {
@@ -93,8 +93,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
     if (clock == 10) {
       clock = 0;
     }
-    
-    // clock++;
+  
 
     // if (algaeIntake && clock == 12) {
     //   intake();
