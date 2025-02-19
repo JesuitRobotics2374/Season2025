@@ -23,9 +23,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ManipulatorSubsystem extends SubsystemBase {
 
-  // public TimeOfFlight sensor;
+  public TimeOfFlight sensor;
   public TalonFX control;
   public SparkMax eject;
+
+  private boolean isHolding = false;
 
   boolean algaeIntake = false;
 
@@ -33,7 +35,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
     this.eject = new SparkMax(33, MotorType.kBrushless);
     this.control = new TalonFX(21, "rio");
-    // this.sensor = new TimeOfFlight(22);
+    this.sensor = new TimeOfFlight(22);
 
     SparkMaxConfig config = new SparkMaxConfig();
     config.idleMode(IdleMode.kBrake);
@@ -44,9 +46,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
   }
 
   public void intake() {
-    // if (sensor.getRange() > 100) {
-    control.set(-0.5);
-    // }
+      control.set(-0.5);
   }
 
   public void outtake() {
@@ -67,30 +67,41 @@ public class ManipulatorSubsystem extends SubsystemBase {
     eject.stopMotor();
   }
 
-  public void holdAlgae() {
-    algaeIntake = !algaeIntake;
-    clock = 0;
-  }
+  // public void holdAlgae() {
+  //   algaeIntake = !algaeIntake;
+  //   clock = 0;
+  // }
 
  
-int clock = 0;
+  int clock = 0;
+
   @Override
   public void periodic() {
 
     clock++;
 
-    if (algaeIntake && clock == 12) {
-      intake();
-    }
-    if (algaeIntake && clock == 25) {
-      stop();
-      clock = 0;
+    if (sensor.getRange() <= 100) {
+      isHolding = true;
+    } else {
+      isHolding = false;
     }
 
-    // if (sensor.getRange() <= 100) {
-    // control.stopMotor();
-    // } else {
-    // eject.stopMotor();
+    if (isHolding && clock == 5) {
+      stop();
+    }
+
+    if (clock == 10) {
+      clock = 0;
+    }
+    
+    // clock++;
+
+    // if (algaeIntake && clock == 12) {
+    //   intake();
+    // }
+    // if (algaeIntake && clock == 25) {
+    //   stop();
+    //   clock = 0;
     // }
   }
 }
