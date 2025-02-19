@@ -48,7 +48,7 @@ public class ExactAlign extends Command {
     @Override
     public void execute() {
         Translation2d robotPosition = drivetrain.getState().Pose.getTranslation();
-        double robotRotation = drivetrain.getState().Pose.getRotation().getDegrees();
+        double robotRotation = drivetrain.getState().Pose.getRotation().getRadians();
         
         double distanceToTarget = robotPosition.getDistance(new Translation2d(targetX, targetY));
         if (distanceToTarget < Constants.GENERIC_DISTANCE_THRESHOLD) {doneMoving = true;}

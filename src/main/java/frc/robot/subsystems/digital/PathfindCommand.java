@@ -92,10 +92,10 @@ public class PathfindCommand {
 
         Pose3d pretarget3d = new Pose3d(
                 tagTarget.getX() + Constants.PATHFINDING_PRE_BUFFER * Math.cos(tagRotation.getZ())
-                        + Constants.PATHFINDING_SHIFT_FACTOR * Math.sin(tagRotation.getZ()) * modifier
+                        //+ Constants.PATHFINDING_SHIFT_FACTOR * Math.sin(tagRotation.getZ()) * modifier
                         + Constants.FIELD_X_MIDPOINT,
                 tagTarget.getY() + Constants.PATHFINDING_PRE_BUFFER * Math.sin(tagRotation.getZ())
-                        - Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ()) * modifier
+                        //- Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ()) * modifier
                         + Constants.FIELD_Y_MIDPOINT,
                 tagTarget.getZ(),
                 tagRotation);
