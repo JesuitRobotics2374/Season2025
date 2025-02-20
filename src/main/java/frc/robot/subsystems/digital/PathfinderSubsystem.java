@@ -44,9 +44,17 @@ public class PathfinderSubsystem {
     private Command runningCommand; // Keep track of the currently running command so we can override it later
 
     // Pathfind sequence command queue for DEBUGGING TODO: REMOVE
-    Deque<Command> commandQueue = new ArrayDeque<Command>();
+    private Deque<Command> commandQueue = new ArrayDeque<Command>();
+    private Command prevComand = null;
     public void executeCommandQueue() {
-        if (!commandQueue.isEmpty()) {commandQueue.poll().schedule();}
+        if (prevComand != null && !prevComand.isFinished() && !commandQueue.isEmpty()) {
+            return;
+        }
+        
+        if (!commandQueue.isEmpty()) {
+            prevComand = commandQueue.poll();
+            prevComand.schedule();
+        }
     }
 
     // Alignment data structure
@@ -184,6 +192,7 @@ public class PathfinderSubsystem {
         // pathfindSequence.schedule();
 
         commandQueue.clear();
+        prevComand = null;
         commandQueue.add(pathfindCommand);
         commandQueue.add(exactAlignCommand);
         commandQueue.add(driveForward);
