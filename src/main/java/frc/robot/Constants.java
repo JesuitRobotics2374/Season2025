@@ -14,8 +14,8 @@ public class Constants {
     public static final double MAX_SPEED = 0.2; // kSpeedAt12Volts desired top speed
     public static final double MAX_ANGULAR_RATE = 0.3; // 3/4 of a rotation per second max angular velocity
 
-    public static final double FIELD_X_MIDPOINT = 8.779; // meters
-    public static final double FIELD_Y_MIDPOINT = 4.026; // meters
+    public static final double FIELD_X_MIDPOINT = 0; // 8.779; // meters
+    public static final double FIELD_Y_MIDPOINT = 0; // 4.026; // meters
 
     // Elevator
 
@@ -39,7 +39,7 @@ public class Constants {
     // Limelight
 
     public static final LimelightObject[] LIMELIGHTS_ON_BOARD = {
-        new LimelightObject("limelight", 1.4, LLType.kLeft),
+        new LimelightObject("limelight-left", 1.4, LLType.kLeft),
         // new LimelightObject("limelight-right", 1.1, LLType.kRight),
         // new LimelightObject("limelight-back", 1.4, LLType.kBack)
     };
@@ -52,10 +52,10 @@ public class Constants {
     public static final double PATHFINDING_MAX_ROTATIONAL_VELOCITY = Units.degreesToRadians(540);
     public static final double PATHFINDING_MAX_ROTATIONAL_ACCELERATION = Units.degreesToRadians(720);
     
-    public static final double PATHFINDING_PRE_BUFFER = -2.14116; // meters
-    public static final double PATHFINDING_POST_BUFFER = -0.48; // meters
-    public static final double PATHFINDING_FRONT_BUFFER = -0.72; // meters
-    public static final double PATHFINDING_SHIFT_FACTOR = 0.1951; // meters
+    public static final double PATHFINDING_PRE_BUFFER = -1.60116; // meters
+    public static final double PATHFINDING_POST_BUFFER = -0.279; // meters
+    public static final double PATHFINDING_FRONT_BUFFER = -1.02; // meters
+    public static final double PATHFINDING_SHIFT_FACTOR = 0.2351; // meters
 
     public static final double GENERIC_DISTANCE_THRESHOLD = 0.2;
     public static final double GENERIC_ROTATION_THRESHOLD = 1 * Math.PI / 180;

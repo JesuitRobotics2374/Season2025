@@ -41,6 +41,41 @@ public class PathfinderSubsystem {
 
     private Command runningCommand; // Keep track of the currently running command so we can override it later
 
+    // INDIVIDUAL TEST STRUCTURE
+    private Command cmdA;
+    private Command cmdB;
+    private Command cmdC;
+    private Command cmdD;
+    private Command cmdE;
+    private Command cmdF;
+    private Command cmdG;
+
+    public void runOne(char c) {
+        switch (c) {
+            case 'a':
+                cmdA.schedule();
+                break;
+            case 'b':
+                cmdB.schedule();
+                break;
+            case 'c':
+                cmdC.schedule();
+                break;
+            case 'd':
+                cmdD.schedule();
+                break;
+            case 'e':
+                cmdE.schedule();
+                break;
+            case 'f':
+                cmdF.schedule();
+                break;
+            case 'g':
+                cmdG.schedule();
+                break;
+        }
+    }
+
     // Alignment data structure
     public enum Alignment {
 
@@ -164,7 +199,7 @@ public class PathfinderSubsystem {
         Command prepathfindingCommand = AutoBuilder.pathfindToPose(
                 pretarget,
                 constraints,
-                0.8);
+                0);
 
         ///// MAIN PATHFIND
 
@@ -219,8 +254,8 @@ public class PathfinderSubsystem {
 
         ///// STRUCTURING
 
-        Command exactAlignFirst = new ExactAlign(drivetrain, target); // A precise alignment that is done before we raise the elevator (since we need clearance)
-        Command exactAlignFinal = new ExactAlign(drivetrain, finalTarget); // A precise alignment that is done after we raise the elevator and align the arm
+        Command exactAlignFirst = new ExactAlign(drivetrain, tagId, Constants.PATHFINDING_SHIFT_FACTOR * modifier, Constants.PATHFINDING_FRONT_BUFFER); // A precise alignment that is done before we raise the elevator (since we need clearance)
+        Command exactAlignFinal = new ExactAlign(drivetrain, tagId, Constants.PATHFINDING_SHIFT_FACTOR * modifier, Constants.PATHFINDING_POST_BUFFER).withTimeout(5); // A precise alignment that is done after we raise the elevator and align the arm
 
         Command driveBackDynamic = new DriveDynamicX(drivetrain, 0.6, -0.5);
         Command driveDynamic = new DriveDynamicX(drivetrain, 0.297, 0.3);
@@ -231,10 +266,20 @@ public class PathfinderSubsystem {
 
         Command resetNavPilot = new InstantCommand(() -> updateGUI(0)); // For my GUI, ignore but leave in the sequential pls
 
-        runningCommand = new SequentialCommandGroup(prepathfindingCommand, pathfindingCommand, exactAlignFirst,
-                alignComponents, exactAlignFinal, retractComponents, resetNavPilot);
+        // runningCommand = new SequentialCommandGroup(prepathfindingCommand, exactAlignFirst,
+        //         alignComponents, exactAlignFinal, retractComponents, resetNavPilot);
+
+        runningCommand = new SequentialCommandGroup(exactAlignFinal);
 
         runningCommand.schedule();
+
+        cmdA = prepathfindingCommand;
+        cmdB = pathfindingCommand;
+        cmdC = exactAlignFirst;
+        cmdD = alignComponents;
+        cmdE = exactAlignFinal;
+        cmdF = retractComponents;
+        cmdG = resetNavPilot;
 
         updateGUI(4);
     }

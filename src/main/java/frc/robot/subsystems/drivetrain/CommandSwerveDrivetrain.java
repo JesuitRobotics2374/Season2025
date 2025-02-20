@@ -420,7 +420,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             counter = 0;
         }
 
-        System.out.println(doRejectUpdate + " " + detPose);
+        // System.out.println(doRejectUpdate + " " + detPose);
 
         if (!doRejectUpdate) {
             if (snap) {
@@ -428,13 +428,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             } else {
                 estimator.setVisionMeasurementStdDevs(VecBuilder.fill(ll.trust, ll.trust, 9999999));
             }
-            System.out.println("SDLFKSDFJ");
             estimator.addVisionMeasurement(
                     mt2.pose,
                     mt2.timestampSeconds);
             // REMOVE
-            var updatedPose = estimator.update(getGyroscopeRotation(), getSwerveModulePositions());
-            System.out.println("Updated pose: " + updatedPose);
+            // var updatedPose = estimator.update(getGyroscopeRotation(), getSwerveModulePositions());
+            // System.out.println("Updated pose: " + updatedPose);
             // REMOVE
         }
     }

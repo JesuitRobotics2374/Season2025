@@ -251,7 +251,7 @@ public class Core {
         // elevatorSubsystem.zeroSystem()));
 
         driveController.y().onTrue(
-                new InstantCommand(() -> pathfinderSubsystem.queueFind(19, Alignment.LEFT)));
+                new InstantCommand(() -> pathfinderSubsystem.queueFind(6, Alignment.LEFT)));
         driveController.x().onTrue(
                 new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3)));
 
@@ -271,6 +271,14 @@ public class Core {
         operatorController.povDown().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
         operatorController.povLeft().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.stop()));
         operatorController.povRight().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.eject()));
+
+        // operatorController.povDown().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('a')));
+        // operatorController.povLeft().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('b')));
+        // operatorController.povUp().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('c')));
+        // operatorController.povRight().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('d')));
+        // operatorController.a().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('e')));
+        // operatorController.x().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('f')));
+        // operatorController.y().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('g')));
 
         // reset the field-centric heading on left bumper press
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));

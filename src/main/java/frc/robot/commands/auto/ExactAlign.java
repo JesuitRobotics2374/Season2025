@@ -4,37 +4,44 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
-
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
 public class ExactAlign extends Command {
 
-    private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
+    private final SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final CommandSwerveDrivetrain drivetrain;
-    private final Pose2d targetPose;
+    private final int tag_id;
+    private Pose2d targetPose;
 
     private double relativeDistanceMeters;
     private double targetPositionMeters;
 
-    private double targetX;
-    private double targetY;
-    private double targetRotation;
+    // private double targetX;
+    // private double targetY;
+    // private double targetRotation;
 
     private boolean doneMoving;
     private boolean doneRotating;
 
-    public ExactAlign(CommandSwerveDrivetrain drivetrain, Pose2d targetPose) {
+    public ExactAlign(CommandSwerveDrivetrain drivetrain, int tag_id, double xShift, double yShift) {
         this.drivetrain = drivetrain;
-        this.targetPose = targetPose;
+        this.tag_id = tag_id;
+
+        double[] raw = NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("targetpose_robotspace").getDoubleArray(new double[6]);
+
+        targetPose = new Pose3d(raw[0] + xShift, raw[1] + yShift, raw[2], new Rotation3d(raw[4], raw[5], raw[3])).toPose2d();
         
-        this.targetX = targetPose.getX();
-        this.targetY = targetPose.getY();
-        this.targetRotation = targetPose.getRotation().getRadians();
+        // this.targetX = targetPose.getX();
+        // this.targetY = targetPose.getY();
+        // this.targetRotation = targetPose.getRotation().getRadians();
 
         addRequirements(drivetrain);
     }
@@ -47,13 +54,13 @@ public class ExactAlign extends Command {
 
     @Override
     public void execute() {
-        Translation2d robotPosition = drivetrain.getState().Pose.getTranslation();
-        double robotRotation = drivetrain.getState().Pose.getRotation().getRadians();
+        Translation2d robotPosition = drivetrain.getEstimator().getTranslation();
+        double robotRotation = drivetrain.getEstimator().getRotation().getRadians();
         
-        double distanceToTarget = robotPosition.getDistance(new Translation2d(targetX, targetY));
+        double distanceToTarget = (new Translation2d(0, 0)).getDistance(targetPose.getTranslation());
         if (distanceToTarget < Constants.GENERIC_DISTANCE_THRESHOLD) {doneMoving = true;}
 
-        double rotationToTarget = Math.abs(robotRotation - targetRotation);
+        double rotationToTarget = Math.abs(targetPose.getRotation().getRadians());
         if (rotationToTarget < Constants.GENERIC_ROTATION_THRESHOLD) {doneRotating = true;}
 
 
@@ -62,18 +69,18 @@ public class ExactAlign extends Command {
         double rotationalRate = 0;
 
         if (!doneMoving) {
-            double deltaX = targetX - robotPosition.getX();
-            double deltaY = targetY - robotPosition.getY();
-            double magnitude = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            velocityX = (deltaX / magnitude) * Constants.ALIGN_MOVE_SPEED;
-            velocityY = (deltaY / magnitude) * Constants.ALIGN_MOVE_SPEED;
+            velocityX = targetPose.getX() * Constants.ALIGN_MOVE_SPEED;
+            velocityY = targetPose.getY() * Constants.ALIGN_MOVE_SPEED;
         }
         if (!doneRotating) {
-          double rotationError = targetRotation - robotRotation;
+          double rotationError = targetPose.getRotation().getRadians();
           double RESign = rotationError / Math.abs(rotationError);
           rotationalRate = rotationError * Constants.ALIGN_ROTATE_SPEED
           + (RESign * Constants.ALIGN_ROTATIONAL_FEED_FORWARD);
         }
+
+        System.out.println(velocityX + " " + velocityY);
+
 
         // Use this code if there is not a problem with sending a rotation request w/ 0 velocity
         if (!(doneMoving && doneRotating)) {

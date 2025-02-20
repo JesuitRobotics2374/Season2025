@@ -9,6 +9,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -51,16 +52,8 @@ public class Apriltags {
     }
 
     public static void loadField() {
-        try {
-            fieldLayout = AprilTagFieldLayout
-                    .loadFromResource(Filesystem.getDeployDirectory() + "reefscape/2025-reefscape-welded.json");
-        } catch (IOException e) {
-            System.out.println(" !!!!! CRITICAL ERROR: CANNOT LOAD FIELD MAP !!!!! ");
-            System.out.println(" !!!!! CRITICAL ERROR: CANNOT LOAD FIELD MAP !!!!! ");
-            System.out.println(" !!!!! CRITICAL ERROR: CANNOT LOAD FIELD MAP !!!!! ");
-            System.out.println(" !!!!! CRITICAL ERROR: CANNOT LOAD FIELD MAP !!!!! ");
-            System.out.println(" !!!!! CRITICAL ERROR: CANNOT LOAD FIELD MAP !!!!! ");
-        }
+        fieldLayout = AprilTagFieldLayout
+                .loadField(AprilTagFields.k2025ReefscapeWelded);
     }
 
     public static Pose3d getWeldedPosition(int tagId) { // Note: The welded map is used because all events 2374 will
