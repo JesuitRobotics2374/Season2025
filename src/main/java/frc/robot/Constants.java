@@ -3,9 +3,9 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.seafinder.utils.Setpoint;
 import frc.robot.utils.LimelightObject;
 import frc.robot.utils.LimelightObject.LLType;
-import frc.robot.utils.Setpoint;
 
 public class Constants {
 

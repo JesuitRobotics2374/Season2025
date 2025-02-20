@@ -1,4 +1,4 @@
-package frc.robot.commands.auto;
+package frc.robot.seafinder.commands;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 

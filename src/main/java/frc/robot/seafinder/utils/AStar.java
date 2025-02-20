@@ -5,7 +5,7 @@
  * com.ariesninjadev.astar:astar:1.0.0.
  */
 
-package frc.robot.utils;
+package frc.robot.seafinder.utils;
 
 import com.pathplanner.lib.path.*;
 import com.pathplanner.lib.pathfinding.Pathfinder;

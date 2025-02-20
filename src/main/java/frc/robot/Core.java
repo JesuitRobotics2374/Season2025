@@ -14,6 +14,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.pathfinding.Pathfinder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -32,17 +33,18 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.commands.auto.ExactAlign;
-import frc.robot.commands.auto.StaticBackCommand;
+import frc.robot.seafinder.PathfinderSubsystem;
+import frc.robot.seafinder.PathfinderSubsystem.Alignment;
+import frc.robot.seafinder.commands.ExactAlign;
+import frc.robot.seafinder.commands.StaticBackCommand;
+import frc.robot.seafinder.interfaces.NavInterfaceSubsystem;
+import frc.robot.seafinder.interfaces.PanelSubsystem;
+import frc.robot.seafinder.utils.Setpoint;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
-import frc.robot.subsystems.digital.NavInterfaceSubsystem;
-import frc.robot.subsystems.digital.PathfinderSubsystem;
-import frc.robot.subsystems.digital.PathfinderSubsystem.Alignment;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
-import frc.robot.utils.Setpoint;
 
 public class Core {
 
@@ -74,9 +76,6 @@ public class Core {
     private final CommandXboxController driveController = new CommandXboxController(0);
     private final CommandXboxController operatorController = new CommandXboxController(1);
 
-    private final Joystick navControllerA = new Joystick(2);
-    private final Joystick navControllerB = new Joystick(3);
-
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
@@ -85,6 +84,7 @@ public class Core {
 
     public final PathfinderSubsystem pathfinderSubsystem = new PathfinderSubsystem(this);
 
+    public final PanelSubsystem panelSubsystem = new PanelSubsystem(pathfinderSubsystem);
     public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem();
 
     // private final SendableChooser<Command> autoChooser;
@@ -252,7 +252,6 @@ public class Core {
 
         driveController.y().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(6, Alignment.LEFT)));
         driveController.x().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3)));
-        driveController.b().onTrue(new InstantCommand(() -> pathfinderSubsystem.executeCommandQueue()));
 
         driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
         driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
@@ -281,44 +280,6 @@ public class Core {
 
         // drivetrain.registerTelemetry(logger::telemeterize);
 
-        // Reef controller inputs for Teleop alignments + elevator positions
-        new JoystickButton(navControllerA, 1)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(1, Alignment.LEFT)));
-        new JoystickButton(navControllerA, 2)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(1, Alignment.RIGHT)));
-        new JoystickButton(navControllerA, 3)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(2, Alignment.LEFT)));
-        new JoystickButton(navControllerA, 4)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(2, Alignment.RIGHT)));
-        new JoystickButton(navControllerA, 5)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(3, Alignment.LEFT)));
-        new JoystickButton(navControllerA, 6)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(3, Alignment.RIGHT)));
-        new JoystickButton(navControllerA, 7)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(4, Alignment.LEFT)));
-        new JoystickButton(navControllerA, 8)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(4, Alignment.RIGHT)));
-        new JoystickButton(navControllerA, 9)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(5, Alignment.LEFT)));
-        new JoystickButton(navControllerA, 10)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(5, Alignment.RIGHT)));
-        new JoystickButton(navControllerA, 11)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(6, Alignment.LEFT)));
-        new JoystickButton(navControllerA, 12)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(6, Alignment.RIGHT)));
-        new JoystickButton(navControllerA, 17)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(10, Alignment.CENTER)));
-        new JoystickButton(navControllerA, 18)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(11, Alignment.CENTER)));
-        new JoystickButton(navControllerA, 13)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T4)));
-        new JoystickButton(navControllerA, 14)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3)));
-        new JoystickButton(navControllerA, 15)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T2)));
-        new JoystickButton(navControllerA, 16)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T1)));
-
 
     }
 
@@ -327,6 +288,10 @@ public class Core {
 
     public CommandSwerveDrivetrain getDrivetrain() {
         return drivetrain;
+    }
+
+    public PathfinderSubsystem getPathfinderSubsystem() {
+        return pathfinderSubsystem;
     }
 
     public NavInterfaceSubsystem getNavInterfaceSubsystem() {
