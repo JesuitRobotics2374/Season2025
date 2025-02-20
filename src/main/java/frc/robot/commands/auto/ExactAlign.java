@@ -18,30 +18,26 @@ public class ExactAlign extends Command {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final CommandSwerveDrivetrain drivetrain;
-    private final int tag_id;
     private Pose2d targetPose;
 
-    private double relativeDistanceMeters;
-    private double targetPositionMeters;
-
-    // private double targetX;
-    // private double targetY;
-    // private double targetRotation;
+    private double xShift;
+    private double yShift;
 
     private boolean doneMoving;
     private boolean doneRotating;
 
-    public ExactAlign(CommandSwerveDrivetrain drivetrain, int tag_id, double xShift, double yShift) {
+    public ExactAlign(CommandSwerveDrivetrain drivetrain) {
         this.drivetrain = drivetrain;
-        this.tag_id = tag_id;
 
-        double[] raw = NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("targetpose_robotspace").getDoubleArray(new double[6]);
+        this.xShift = Constants.MIN_CAMERA_DISTANCE;
+        this.yShift = 0.0;
+    }
 
-        targetPose = new Pose3d(raw[0] + xShift, raw[1] + yShift, raw[2], new Rotation3d(raw[4], raw[5], raw[3])).toPose2d();
-        
-        // this.targetX = targetPose.getX();
-        // this.targetY = targetPose.getY();
-        // this.targetRotation = targetPose.getRotation().getRadians();
+    public ExactAlign(CommandSwerveDrivetrain drivetrain, double xShift, double yShift) {
+        this.drivetrain = drivetrain;
+
+        this.xShift = xShift;
+        this.yShift = yShift;
 
         addRequirements(drivetrain);
     }
@@ -54,9 +50,10 @@ public class ExactAlign extends Command {
 
     @Override
     public void execute() {
-        Translation2d robotPosition = drivetrain.getEstimator().getTranslation();
-        double robotRotation = drivetrain.getEstimator().getRotation().getRadians();
-        
+        double[] raw = NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("targetpose_robotspace").getDoubleArray(new double[6]);
+        targetPose = new Pose3d(raw[0] + xShift, raw[1] + yShift, raw[2], new Rotation3d(raw[4], raw[5], raw[3])).toPose2d();
+
+
         double distanceToTarget = (new Translation2d(0, 0)).getDistance(targetPose.getTranslation());
         if (distanceToTarget < Constants.GENERIC_DISTANCE_THRESHOLD) {doneMoving = true;}
 
@@ -79,22 +76,11 @@ public class ExactAlign extends Command {
           + (RESign * Constants.ALIGN_ROTATIONAL_FEED_FORWARD);
         }
 
-        System.out.println(velocityX + " " + velocityY);
+        System.out.println(targetPose.getX() + " " + targetPose.getY() + " " + targetPose.getRotation().getRadians());
 
-
-        // Use this code if there is not a problem with sending a rotation request w/ 0 velocity
         if (!(doneMoving && doneRotating)) {
           drivetrain.setControl(driveRequest.withVelocityX(-velocityX).withVelocityY(-velocityY).withRotationalRate(-rotationalRate));
         }
-
-        // if (!doneMoving) {
-        //     drivetrain.setControl(
-        //             driveRequest.withVelocityX(-velocityX).withVelocityY(-velocityY)
-        //                     .withRotationalRate(-rotationalRate));
-        // } else if (!doneRotating) {
-        //     drivetrain.setControl(
-        //             driveRequest.withRotationalRate(-rotationalRate));
-        // }
     }
 
     @Override

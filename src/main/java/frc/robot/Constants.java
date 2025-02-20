@@ -17,9 +17,20 @@ public class Constants {
     public static final double FIELD_X_MIDPOINT = 0; // 8.779; // meters
     public static final double FIELD_Y_MIDPOINT = 0; // 4.026; // meters
 
-    // Elevator
+    // Other
 
-    public static final double ELEVATOR_RATIO = 20;
+    public static final int SENSOR_PORT = 18;
+    public static final String DRIVER_READOUT_TAB_NAME = "Driver Readout";
+
+    // Limelight
+
+    public static final double MIN_CAMERA_DISTANCE = 0; // meters TODO
+    public static final LimelightObject[] LIMELIGHTS_ON_BOARD = {
+            new LimelightObject("limelight-left", 1.4, LLType.kLeft),
+            // new LimelightObject("limelight-right", 1.1, LLType.kRight),
+            // new LimelightObject("limelight-back", 1.4, LLType.kBack)
+    };
+    public static final Pose2d TEST_PATHFIND_TARGET = new Pose2d(1.199, 7.028, new Rotation2d(128.581 * (Math.PI / 180)));
 
     // Arm
 
@@ -29,21 +40,12 @@ public class Constants {
     public static final double WRIST_PID_I = 0.0; // TODO
     public static final double WRIST_PID_D = 0.0; // TODO
 
-    public static final double WRIST_MIN_POSITION = 0.0; // TODO: Verify (I think theres a built in encoder)
-    public static final double WRIST_MAX_POSITION = 0.235; // TODO: Verify (I think theres a built in encoder)
+    public static final double WRIST_MIN_POSITION = 0.0;
+    public static final double WRIST_MAX_POSITION = 0.235;
 
     public static final double WRIST_INCREMENT = 0.8; // TODO
-    public static final double WRIST_MAX_SPEED = 0.2; // TODO
+    public static final double WRIST_MAX_SPEED = 0.3; // TODO
     public static final double WRIST_RATIO = 64;
-
-    // Limelight
-
-    public static final LimelightObject[] LIMELIGHTS_ON_BOARD = {
-        new LimelightObject("limelight-left", 1.4, LLType.kLeft),
-        // new LimelightObject("limelight-right", 1.1, LLType.kRight),
-        // new LimelightObject("limelight-back", 1.4, LLType.kBack)
-    };
-    public static final Pose2d TEST_PATHFIND_TARGET = new Pose2d(1.199, 7.028, new Rotation2d(128.581 * (Math.PI / 180)));
 
     // Pathfinding
 
@@ -62,15 +64,11 @@ public class Constants {
     public static final double ALIGN_MOVE_SPEED = 0.6;
     public static final double ALIGN_ROTATE_SPEED = 0.01;
     public static final double ALIGN_ROTATIONAL_FEED_FORWARD = 0.8;
-
-    // Other
-    
-    public static final int SENSOR_PORT = 18;
-    public static final String DRIVER_READOUT_TAB_NAME = "Driver Readout";
     
 
     // Elevator
 
+    public static final double ELEVATOR_RATIO = 20;
     public static final int PIGEON_ID = 0;
     public static final double MAX_TIP_ANGLE = 8.0;
 
@@ -87,5 +85,4 @@ public class Constants {
     public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(60.76, 18.68, WRIST_MIN_POSITION, "t3");
     public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(123.2, 19.42, WRIST_MIN_POSITION, "t4");
     public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION, "none");
-
 } // 19.42

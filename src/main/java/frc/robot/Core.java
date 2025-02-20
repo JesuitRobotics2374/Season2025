@@ -250,10 +250,9 @@ public class Core {
         // driveController.y().onTrue(elevatorSubsystem.runOnce(() ->
         // elevatorSubsystem.zeroSystem()));
 
-        driveController.y().onTrue(
-                new InstantCommand(() -> pathfinderSubsystem.queueFind(6, Alignment.LEFT)));
-        driveController.x().onTrue(
-                new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3)));
+        driveController.y().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(6, Alignment.LEFT)));
+        driveController.x().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3)));
+        driveController.b().onTrue(new InstantCommand(() -> pathfinderSubsystem.executeCommandQueue()));
 
         driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
         driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
@@ -272,13 +271,7 @@ public class Core {
         operatorController.povLeft().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.stop()));
         operatorController.povRight().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.eject()));
 
-        // operatorController.povDown().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('a')));
-        // operatorController.povLeft().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('b')));
-        // operatorController.povUp().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('c')));
-        // operatorController.povRight().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('d')));
-        // operatorController.a().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('e')));
-        // operatorController.x().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('f')));
-        // operatorController.y().onTrue(new InstantCommand(() -> pathfinderSubsystem.runOne('g')));
+        
 
         // reset the field-centric heading on left bumper press
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));

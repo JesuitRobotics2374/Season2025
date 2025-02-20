@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.digital;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Optional;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -41,46 +43,15 @@ public class PathfinderSubsystem {
 
     private Command runningCommand; // Keep track of the currently running command so we can override it later
 
-    // INDIVIDUAL TEST STRUCTURE
-    private Command cmdA;
-    private Command cmdB;
-    private Command cmdC;
-    private Command cmdD;
-    private Command cmdE;
-    private Command cmdF;
-    private Command cmdG;
-
-    public void runOne(char c) {
-        switch (c) {
-            case 'a':
-                cmdA.schedule();
-                break;
-            case 'b':
-                cmdB.schedule();
-                break;
-            case 'c':
-                cmdC.schedule();
-                break;
-            case 'd':
-                cmdD.schedule();
-                break;
-            case 'e':
-                cmdE.schedule();
-                break;
-            case 'f':
-                cmdF.schedule();
-                break;
-            case 'g':
-                cmdG.schedule();
-                break;
-        }
+    // Pathfind sequence command queue for DEBUGGING TODO: REMOVE
+    Deque<Command> commandQueue = new ArrayDeque<Command>();
+    public void executeCommandQueue() {
+        if (!commandQueue.isEmpty()) {commandQueue.poll().schedule();}
     }
 
     // Alignment data structure
     public enum Alignment {
-
         LEFT, RIGHT, CENTER;
-
         private int modif;
 
         static {
@@ -113,7 +84,7 @@ public class PathfinderSubsystem {
         this.alignment = alignment;
         this.locationLoaded = true;
         if (heightLoaded) {
-            executeSequence();
+            newExecuteSequence();
             locationLoaded = false;
             heightLoaded = false;
         } else {
@@ -126,7 +97,7 @@ public class PathfinderSubsystem {
         this.reefHeight = reefHeight;
         this.heightLoaded = true;
         if (locationLoaded) {
-            executeSequence();
+            newExecuteSequence();
             locationLoaded = false;
             heightLoaded = false;
         } else {
@@ -155,8 +126,7 @@ public class PathfinderSubsystem {
         updateGUI(90);
     }
 
-    // Once both pathfind and align are queued, execute the sequence
-    public void executeSequence() {
+    public void newExecuteSequence() {
         Pose3d tagTarget = Apriltags.getWeldedPosition(tagId); // Get the tag's position from welded map
 
         if (tagTarget == null) {
@@ -167,13 +137,13 @@ public class PathfinderSubsystem {
 
         updateGUI(3);
 
-        ///// PRE PATHFIND
+        // PATHFIND
 
         Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
 
         int modifier = alignment.getModif();
 
-        Pose3d pretarget3d = new Pose3d(
+        Pose3d pathfindTarget3d = new Pose3d(
                 tagTarget.getX() + Constants.PATHFINDING_PRE_BUFFER * Math.cos(tagRotation.getZ())
                         + Constants.PATHFINDING_SHIFT_FACTOR * Math.sin(tagRotation.getZ())
                                 * modifier
@@ -185,7 +155,7 @@ public class PathfinderSubsystem {
                 tagTarget.getZ(),
                 tagRotation);
 
-        Pose2d pretarget = pretarget3d.toPose2d();
+        Pose2d pathfindTarget = pathfindTarget3d.toPose2d();
 
         PathConstraints constraints = new PathConstraints(
                 Constants.PATHFINDING_MAX_VELOCITY,
@@ -193,158 +163,187 @@ public class PathfinderSubsystem {
                 Constants.PATHFINDING_MAX_ROTATIONAL_VELOCITY,
                 Constants.PATHFINDING_MAX_ROTATIONAL_ACCELERATION);
 
-        System.out.println(pretarget);
-        // drivetrain.setLabel(pretarget, "pre");
+        System.out.println(pathfindTarget);
+        drivetrain.setLabel(pathfindTarget, "pathfind_target");
 
-        Command prepathfindingCommand = AutoBuilder.pathfindToPose(
-                pretarget,
+        Command pathfindCommand = AutoBuilder.pathfindToPose(
+                pathfindTarget,
                 constraints,
                 0);
 
-        ///// MAIN PATHFIND
+        ExactAlign exactAlignCommand = new ExactAlign(drivetrain);
 
-        System.out.println(" --- TAG DATA --- ");
-        System.out.println(tagTarget.getX());
-        System.out.println(tagTarget.getY());
-        System.out.println(tagTarget.getZ());
-        System.out.println(tagTarget.getRotation().getX());
-        System.out.println(tagTarget.getRotation().getY());
-        System.out.println(tagTarget.getRotation().getZ());
+        DriveDynamicX driveForward = new DriveDynamicX(drivetrain, Constants.MIN_CAMERA_DISTANCE, 0.1); // TODO: Tune speed of drive
 
-        Pose3d target3d = new Pose3d(
-                tagTarget.getX() + Constants.PATHFINDING_FRONT_BUFFER * Math.cos(tagRotation.getZ())
-                        + Constants.PATHFINDING_SHIFT_FACTOR * Math.sin(tagRotation.getZ())
-                                * modifier
-                        + Constants.FIELD_X_MIDPOINT,
-                tagTarget.getY() + Constants.PATHFINDING_FRONT_BUFFER * Math.sin(tagRotation.getZ())
-                        - Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ())
-                                * modifier
-                        + Constants.FIELD_Y_MIDPOINT,
-                tagTarget.getZ(),
-                tagRotation);
+        Command alignComponents = new InstantCommand(() -> core.moveToSetpoint(reefHeight));
+        Command retractComponents = new InstantCommand(() -> core.performRetract());
 
-        Pose2d target = target3d.toPose2d();
+        Command resetNavPilot = new InstantCommand(() -> updateGUI(0));
 
-        System.out.println(target);
-        // drivetrain.setLabel(target, "main");
+        SequentialCommandGroup pathfindSequence = new SequentialCommandGroup(pathfindCommand, exactAlignCommand, driveForward, alignComponents, retractComponents, resetNavPilot);
+        // pathfindSequence.schedule();
 
-        Command pathfindingCommand = AutoBuilder.pathfindToPose(
-                target,
-                constraints,
-                0);
-
-        ///// FINAL PATHFIND
-
-        Pose3d finaltarget3d = new Pose3d(
-                tagTarget.getX() + Constants.PATHFINDING_POST_BUFFER * Math.cos(tagRotation.getZ())
-                        + Constants.PATHFINDING_SHIFT_FACTOR * Math.sin(tagRotation.getZ())
-                                * modifier
-                        + Constants.FIELD_X_MIDPOINT,
-                tagTarget.getY() + Constants.PATHFINDING_POST_BUFFER * Math.sin(tagRotation.getZ())
-                        - Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ())
-                                * modifier
-                        + Constants.FIELD_Y_MIDPOINT,
-                tagTarget.getZ(),
-                tagRotation);
-
-        Pose2d finalTarget = finaltarget3d.toPose2d();
-
-        System.out.println(finalTarget);
-        drivetrain.setLabel(finalTarget, "final");
-
-        ///// STRUCTURING
-
-        Command exactAlignFirst = new ExactAlign(drivetrain, tagId, Constants.PATHFINDING_SHIFT_FACTOR * modifier, Constants.PATHFINDING_FRONT_BUFFER); // A precise alignment that is done before we raise the elevator (since we need clearance)
-        Command exactAlignFinal = new ExactAlign(drivetrain, tagId, Constants.PATHFINDING_SHIFT_FACTOR * modifier, Constants.PATHFINDING_POST_BUFFER).withTimeout(5); // A precise alignment that is done after we raise the elevator and align the arm
-
-        Command driveBackDynamic = new DriveDynamicX(drivetrain, 0.6, -0.5);
-        Command driveDynamic = new DriveDynamicX(drivetrain, 0.297, 0.3);
-
-        Command alignComponents = new InstantCommand(() -> core.moveToSetpoint(reefHeight)); // I documented this method if you need more info, but aligns ele/arm/wrist
-
-        Command retractComponents = new InstantCommand(() -> core.performRetract()); // Retract sequences. Also documented. Selected automatically based on what setpoint was last used.
-
-        Command resetNavPilot = new InstantCommand(() -> updateGUI(0)); // For my GUI, ignore but leave in the sequential pls
-
-        // runningCommand = new SequentialCommandGroup(prepathfindingCommand, exactAlignFirst,
-        //         alignComponents, exactAlignFinal, retractComponents, resetNavPilot);
-
-        runningCommand = new SequentialCommandGroup(exactAlignFinal);
-
-        runningCommand.schedule();
-
-        cmdA = prepathfindingCommand;
-        cmdB = pathfindingCommand;
-        cmdC = exactAlignFirst;
-        cmdD = alignComponents;
-        cmdE = exactAlignFinal;
-        cmdF = retractComponents;
-        cmdG = resetNavPilot;
-
-        updateGUI(4);
+        commandQueue.clear();
+        commandQueue.add(pathfindCommand);
+        commandQueue.add(exactAlignCommand);
+        commandQueue.add(driveForward);
+        commandQueue.add(alignComponents);
+        commandQueue.add(retractComponents);
+        commandQueue.add(resetNavPilot);
     }
+
+    // // Once both pathfind and align are queued, execute the sequence
+    // public void executeSequence() {
+    //     Pose3d tagTarget = Apriltags.getWeldedPosition(tagId); // Get the tag's position from welded map
+
+    //     if (tagTarget == null) {
+    //         System.out.println("TARGET IS NULL");
+    //         updateGUI(1000);
+    //         return;
+    //     }
+
+    //     updateGUI(3);
+
+    //     ///// PRE PATHFIND
+
+    //     Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
+
+    //     int modifier = alignment.getModif();
+
+    //     Pose3d pretarget3d = new Pose3d(
+    //             tagTarget.getX() + Constants.PATHFINDING_PRE_BUFFER * Math.cos(tagRotation.getZ())
+    //                     + Constants.PATHFINDING_SHIFT_FACTOR * Math.sin(tagRotation.getZ())
+    //                             * modifier
+    //                     + Constants.FIELD_X_MIDPOINT,
+    //             tagTarget.getY() + Constants.PATHFINDING_PRE_BUFFER * Math.sin(tagRotation.getZ())
+    //                     - Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ())
+    //                             * modifier
+    //                     + Constants.FIELD_Y_MIDPOINT,
+    //             tagTarget.getZ(),
+    //             tagRotation);
+
+    //     Pose2d pretarget = pretarget3d.toPose2d();
+
+    //     PathConstraints constraints = new PathConstraints(
+    //             Constants.PATHFINDING_MAX_VELOCITY,
+    //             Constants.PATHFINDING_MAX_ACCELERATION,
+    //             Constants.PATHFINDING_MAX_ROTATIONAL_VELOCITY,
+    //             Constants.PATHFINDING_MAX_ROTATIONAL_ACCELERATION);
+
+    //     System.out.println(pretarget);
+    //     // drivetrain.setLabel(pretarget, "pre");
+
+    //     Command prepathfindingCommand = AutoBuilder.pathfindToPose(
+    //             pretarget,
+    //             constraints,
+    //             0);
+
+    //     ///// MAIN PATHFIND
+
+    //     System.out.println(" --- TAG DATA --- ");
+    //     System.out.println(tagTarget.getX());
+    //     System.out.println(tagTarget.getY());
+    //     System.out.println(tagTarget.getZ());
+    //     System.out.println(tagTarget.getRotation().getX());
+    //     System.out.println(tagTarget.getRotation().getY());
+    //     System.out.println(tagTarget.getRotation().getZ());
+
+    //     Pose3d target3d = new Pose3d(
+    //             tagTarget.getX() + Constants.PATHFINDING_FRONT_BUFFER * Math.cos(tagRotation.getZ())
+    //                     + Constants.PATHFINDING_SHIFT_FACTOR * Math.sin(tagRotation.getZ())
+    //                             * modifier
+    //                     + Constants.FIELD_X_MIDPOINT,
+    //             tagTarget.getY() + Constants.PATHFINDING_FRONT_BUFFER * Math.sin(tagRotation.getZ())
+    //                     - Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ())
+    //                             * modifier
+    //                     + Constants.FIELD_Y_MIDPOINT,
+    //             tagTarget.getZ(),
+    //             tagRotation);
+
+    //     Pose2d target = target3d.toPose2d();
+
+    //     System.out.println(target);
+    //     // drivetrain.setLabel(target, "main");
+
+    //     Command pathfindingCommand = AutoBuilder.pathfindToPose(
+    //             target,
+    //             constraints,
+    //             0);
+
+    //     ///// FINAL PATHFIND
+
+    //     Pose3d finaltarget3d = new Pose3d(
+    //             tagTarget.getX() + Constants.PATHFINDING_POST_BUFFER * Math.cos(tagRotation.getZ())
+    //                     + Constants.PATHFINDING_SHIFT_FACTOR * Math.sin(tagRotation.getZ())
+    //                             * modifier
+    //                     + Constants.FIELD_X_MIDPOINT,
+    //             tagTarget.getY() + Constants.PATHFINDING_POST_BUFFER * Math.sin(tagRotation.getZ())
+    //                     - Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ())
+    //                             * modifier
+    //                     + Constants.FIELD_Y_MIDPOINT,
+    //             tagTarget.getZ(),
+    //             tagRotation);
+
+    //     Pose2d finalTarget = finaltarget3d.toPose2d();
+
+    //     System.out.println(finalTarget);
+    //     drivetrain.setLabel(finalTarget, "final");
+
+    //     ///// STRUCTURING
+
+    //     Command exactAlignFirst = new ExactAlign(drivetrain, tagId, Constants.PATHFINDING_SHIFT_FACTOR * modifier, Constants.PATHFINDING_FRONT_BUFFER); // A precise alignment that is done before we raise the elevator (since we need clearance)
+    //     Command exactAlignFinal = new ExactAlign(drivetrain, tagId, Constants.PATHFINDING_SHIFT_FACTOR * modifier, Constants.PATHFINDING_POST_BUFFER).withTimeout(5); // A precise alignment that is done after we raise the elevator and align the arm
+
+    //     Command driveBackDynamic = new DriveDynamicX(drivetrain, 0.6, -0.5);
+    //     Command driveDynamic = new DriveDynamicX(drivetrain, 0.297, 0.3);
+
+    //     Command alignComponents = new InstantCommand(() -> core.moveToSetpoint(reefHeight)); // I documented this method if you need more info, but aligns ele/arm/wrist
+
+    //     Command retractComponents = new InstantCommand(() -> core.performRetract()); // Retract sequences. Also documented. Selected automatically based on what setpoint was last used.
+
+    //     Command resetNavPilot = new InstantCommand(() -> updateGUI(0)); // For my GUI, ignore but leave in the sequential pls
+
+    //     // runningCommand = new SequentialCommandGroup(prepathfindingCommand, exactAlignFirst,
+    //     //         alignComponents, exactAlignFinal, retractComponents, resetNavPilot);
+
+    //     runningCommand = new SequentialCommandGroup(exactAlignFinal);
+
+    //     runningCommand.schedule();
+
+    //     updateGUI(4);
+    // }
     
     public int translateToTagId(int posCode) {
-        final Optional<DriverStation.Alliance> dsa = DriverStation.getAlliance();
-        if (!dsa.isPresent()) {
-            return -1;
-        }
-        final boolean isRed = dsa.get() == Alliance.Red;
+        final Optional<DriverStation.Alliance> driverStationAlliance = DriverStation.getAlliance();
+        if (!driverStationAlliance.isPresent()) { return -1; }
+        final boolean isRed = driverStationAlliance.get() == Alliance.Red;
+        
         int tagId = -1;
-        if (isRed) {
-            switch (posCode) {
-                case 1:
-                    tagId = 10;
-                    break;
-                case 2:
-                    tagId = 11;
-                    break;
-                case 3:
-                    tagId = 6;
-                    break;
-                case 4:
-                    tagId = 7;
-                    break;
-                case 5:
-                    tagId = 8;
-                    break;
-                case 6:
-                    tagId = 9;
-                    break;
-                case 10:
-                    tagId = 1;
-                    break;
-                case 11:
-                    tagId = 2;
-                    break;
-            }
-        } else {
-            switch (posCode) {
-                case 1:
-                    tagId = 18;
-                    break;
-                case 2:
-                    tagId = 17;
-                    break;
-                case 3:
-                    tagId = 22;
-                    break;
-                case 4:
-                    tagId = 21;
-                    break;
-                case 5:
-                    tagId = 20;
-                    break;
-                case 6:
-                    tagId = 19;
-                    break;
-                case 10:
-                    tagId = 12;
-                    break;
-                case 11:
-                    tagId = 13;
-                    break;
-            }
+        switch (posCode) {
+            case 1:
+                tagId = isRed ? 10 : 18;
+                break;
+            case 2:
+                tagId = isRed ? 11 : 17;
+                break;
+            case 3:
+                tagId = isRed ? 6 : 22;
+                break;
+            case 4:
+                tagId = isRed ? 7 : 21;
+                break;
+            case 5:
+                tagId = isRed ? 8 : 20;
+                break;
+            case 6:
+                tagId = isRed ? 9 : 19;
+                break;
+            case 10:
+                tagId = isRed ? 1 : 12;
+                break;
+            case 11:
+                tagId = isRed ? 2 : 13;
+                break;
         }
 
         return tagId;
