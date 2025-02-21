@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Core;
+import frc.robot.seafinder.commands.CanRangeDynamicForward;
 import frc.robot.seafinder.commands.DriveDynamicX;
 import frc.robot.seafinder.commands.ExactAlign;
 import frc.robot.seafinder.commands.StaticBackCommand;
@@ -188,8 +189,9 @@ public class PathfinderSubsystem {
                 0);
 
         ExactAlign exactAlignCommand = new ExactAlign(drivetrain, tagId);
+        CanRangeDynamicForward dynamicForwardCommand = new CanRangeDynamicForward(drivetrain);
 
-        DriveDynamicX driveForward = new DriveDynamicX(drivetrain, Constants.MIN_CAMERA_DISTANCE, 0.1); // TODO: Tune speed of drive
+        // DriveDynamicX driveForward = new DriveDynamicX(drivetrain, Constants.MIN_CAMERA_DISTANCE, 0.1); // TODO: Tune speed of drive
 
         Command alignComponents = new InstantCommand(() -> core.moveToSetpoint(reefHeight));
         Command retractComponents = new InstantCommand(() -> core.performRetract());
@@ -213,7 +215,8 @@ public class PathfinderSubsystem {
         // commandQueue.add(retractComponents);
         // commandQueue.add(resetNavPilot);
 
-        exactAlignCommand.schedule();
+        SequentialCommandGroup testCommandGroup = new SequentialCommandGroup(exactAlignCommand, dynamicForwardCommand);
+        testCommandGroup.schedule();
     }
 
     public int translateToTagId(int posCode) {

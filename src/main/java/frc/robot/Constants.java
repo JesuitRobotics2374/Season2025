@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.seafinder.utils.Setpoint;
 import frc.robot.utils.LimelightObject;
 import frc.robot.utils.LimelightObject.LLType;
@@ -64,6 +65,11 @@ public class Constants {
     public static final double ALIGN_MOVE_SPEED = 0.3;
     public static final double ALIGN_ROTATE_SPEED = 0.0006;
     public static final double ALIGN_ROTATIONAL_FEED_FORWARD = 0.8;
+
+    // Dynamic Forward
+
+    public static final double DYNAMIC_FORWARD_SPEED = 0.6;
+    public static final double DYNAMIC_FORWARD_DISTANCE = 0.0;
     
 
     // Elevator

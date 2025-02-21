@@ -280,6 +280,8 @@ public class Core {
 
         // drivetrain.registerTelemetry(logger::telemeterize);
 
+        
+        // new JoystickButton(navController, 1).onTrue(new InstantCommand(() -> {System.out.println("SLKDSSF:LKJDSFLDSFDSF");}));
 
     }
 

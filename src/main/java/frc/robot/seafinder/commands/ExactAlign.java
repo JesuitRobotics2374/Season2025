@@ -58,6 +58,8 @@ public class ExactAlign extends Command {
 
     @Override
     public void execute() {
+        doneRotating = true; // TODO: REMOVE
+
         if (NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1) != tag_id) {
             System.out.println("No target found: " + tag_id + " vs " + NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1));
             System.out.println("No taret found");
@@ -103,7 +105,7 @@ public class ExactAlign extends Command {
         System.out.println((new Translation2d(0, 0)).getDistance(targetPose.getTranslation()));
         System.out.println("DIS" + distanceToTarget + " VELX: " + velocityX + " VELY: " + velocityY + " ROT: " + rotationalRate);
 
-        // velY (velX)
+        // + Y is Forard on dr 
         if (!(doneMoving && doneRotating)) {
           drivetrain.setControl(driveRequest.withVelocityX(velocityY).withVelocityY(-velocityX)); //.withRotationalRate(-rotationalRate));
         }
@@ -111,12 +113,13 @@ public class ExactAlign extends Command {
 
     @Override
     public boolean isFinished() {
+        System.out.println("--" + doneMoving + " " + doneRotating + "--");
         return doneMoving && doneRotating;
     }
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("ExactAlign ended");
+        System.out.println("ExactAlign ended" + interrupted);
         drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
     }
 
