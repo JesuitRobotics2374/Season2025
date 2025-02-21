@@ -28,7 +28,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   public ManipulatorSubsystem() {
 
-    this.control = new TalonFX(21, "rio");
+    this.control = new TalonFX(39, "rio");
     this.sensor = new TimeOfFlight(22);
 
     SparkMaxConfig config = new SparkMaxConfig();
