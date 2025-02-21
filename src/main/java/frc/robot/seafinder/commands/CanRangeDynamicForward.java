@@ -29,7 +29,7 @@ public class CanRangeDynamicForward extends Command{
     public void execute() {
         System.out.println("Range " + drivetrain.getForwardRange());
         if (drivetrain.getForwardRange() > Constants.DYNAMIC_FORWARD_DISTANCE) {
-            drivetrain.setControl(driveRequest.withVelocityY(0.5));
+            drivetrain.setControl(driveRequest.withVelocityX(0.5));
         }
     }
 
@@ -40,7 +40,7 @@ public class CanRangeDynamicForward extends Command{
 
     @Override
     public void end(boolean interrupted) {
-        drivetrain.setControl(driveRequest.withVelocityY(0));
+        drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
         System.out.println("CanRangeDynamicForward Ended");
     }
 }

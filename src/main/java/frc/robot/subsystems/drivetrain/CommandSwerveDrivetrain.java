@@ -68,7 +68,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveDrivePoseEstimator estimator;
     Field2d field = new Field2d();
 
-    public CoreCANrange robotRange = new CoreCANrange(19);
+    public CoreCANrange robotRange = new CoreCANrange(19, "FastFD");
 
     private final SwerveRequest.ApplyRobotSpeeds autoRequest = new SwerveRequest.ApplyRobotSpeeds();
 

@@ -187,8 +187,8 @@ public class PathfinderSubsystem {
                 pathfindTarget,
                 constraints,
                 0);
-
-        ExactAlign exactAlignCommand = new ExactAlign(drivetrain, tagId);
+        
+        ExactAlign exactAlignCommand = new ExactAlign(drivetrain, tagId, Constants.PATHFINDING_SHIFT_FACTOR * modifier);
         CanRangeDynamicForward dynamicForwardCommand = new CanRangeDynamicForward(drivetrain);
 
         // DriveDynamicX driveForward = new DriveDynamicX(drivetrain, Constants.MIN_CAMERA_DISTANCE, 0.1); // TODO: Tune speed of drive

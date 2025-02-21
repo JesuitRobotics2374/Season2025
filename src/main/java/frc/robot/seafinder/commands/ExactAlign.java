@@ -20,8 +20,7 @@ public class ExactAlign extends Command {
     private final CommandSwerveDrivetrain drivetrain;
     private Pose2d targetPose;
 
-    private double xShift;
-    private double yShift;
+    private double alignmentShift;
 
     private boolean doneMoving;
     private boolean doneRotating;
@@ -33,17 +32,15 @@ public class ExactAlign extends Command {
     public ExactAlign(CommandSwerveDrivetrain drivetrain, int tag_id) {
         this.drivetrain = drivetrain;
         
-        this.xShift = 0.0;
-        this.yShift = 0.0;
+        this.alignmentShift = 0.0;
 
         this.tag_id = tag_id;
     }
 
-    public ExactAlign(CommandSwerveDrivetrain drivetrain, int tag_id, double xShift, double yShift) {
+    public ExactAlign(CommandSwerveDrivetrain drivetrain, int tag_id, double alignmentShift) {
         this.drivetrain = drivetrain;
 
-        this.xShift = xShift;
-        this.yShift = yShift;
+        this.alignmentShift = alignmentShift;
 
         this.tag_id = tag_id;
 
@@ -68,16 +65,18 @@ public class ExactAlign extends Command {
             doneRotating = true;
             return;
         }
+
+
         double[] raw = NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("targetpose_robotspace").getDoubleArray(new double[6]);
-        targetPose = new Pose3d(raw[0] + xShift, raw[1] + yShift, raw[2], new Rotation3d(raw[5], raw[3], raw[4])).toPose2d();
+        raw[0] += alignmentShift;
+        
+        targetPose = new Pose3d(raw[0], raw[1], raw[2], new Rotation3d(raw[5], raw[3], raw[4])).toPose2d();
+        // Logging
         System.out.println("XY" + raw[0] + " " + raw[1]);
-
         Pose2d robotPose = drivetrain.getEstimator();
-
         Pose2d targetFieldRelPose2d = robotPose.relativeTo(targetPose);
-
         drivetrain.setLabel(targetFieldRelPose2d, "Target Field Rel Pose");
-
+        // Logging
 
         double distanceToTarget = (new Translation2d(0, 0)).getDistance(targetPose.getTranslation());
         if (distanceToTarget < Constants.GENERIC_DISTANCE_THRESHOLD) {doneMoving = true;}
@@ -88,7 +87,7 @@ public class ExactAlign extends Command {
 
         double velocityX = 0;
         double velocityY = 0;
-        double magnitude = Math.sqrt(Math.pow(raw[0], 2) + Math.pow(raw[1], 2));
+        double magnitude = Math.sqrt(Math.pow(raw[0], 2) + Math.pow(raw[1], 2)); // TODO: Retune after removing magnitude
         double rotationalRate = 0;
 
         if (!doneMoving) {
