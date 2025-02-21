@@ -15,6 +15,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -179,14 +180,14 @@ public class PathfinderSubsystem {
                 Constants.PATHFINDING_MAX_ROTATIONAL_ACCELERATION);
 
         System.out.println(pathfindTarget);
-        drivetrain.setLabel(pathfindTarget, "pathfind_target");
+        // drivetrain.setLabel(pathfindTarget, "pathfind_target");
 
         Command pathfindCommand = AutoBuilder.pathfindToPose(
                 pathfindTarget,
                 constraints,
                 0);
 
-        ExactAlign exactAlignCommand = new ExactAlign(drivetrain);
+        ExactAlign exactAlignCommand = new ExactAlign(drivetrain, tagId);
 
         DriveDynamicX driveForward = new DriveDynamicX(drivetrain, Constants.MIN_CAMERA_DISTANCE, 0.1); // TODO: Tune speed of drive
 
@@ -195,22 +196,24 @@ public class PathfinderSubsystem {
 
         Command resetNavPilot = new InstantCommand(() -> updateGUI(0));
 
-        SequentialCommandGroup pathfindSequence = new SequentialCommandGroup(pathfindCommand, exactAlignCommand, driveForward, alignComponents, retractComponents, resetNavPilot);
+        // SequentialCommandGroup pathfindSequence = new SequentialCommandGroup(pathfindCommand, exactAlignCommand, driveForward, alignComponents, retractComponents, resetNavPilot);
         
-        if (isTeleop) {
-            pathfindSequence.schedule();
-        } else {
-            addToAutoSequence(exactAlignCommand);
-        }
+        // if (isTeleop) {
+        //     pathfindSequence.schedule();
+        // } else {
+        //     addToAutoSequence(exactAlignCommand);
+        // }
 
         commandQueue.clear();
         prevComand = null;
-        commandQueue.add(pathfindCommand);
-        commandQueue.add(exactAlignCommand);
-        commandQueue.add(driveForward);
-        commandQueue.add(alignComponents);
-        commandQueue.add(retractComponents);
-        commandQueue.add(resetNavPilot);
+        // commandQueue.add(pathfindCommand);
+        // commandQueue.add(exactAlignCommand);
+        // commandQueue.add(driveForward);
+        // commandQueue.add(alignComponents);
+        // commandQueue.add(retractComponents);
+        // commandQueue.add(resetNavPilot);
+
+        exactAlignCommand.schedule();
     }
 
     public int translateToTagId(int posCode) {

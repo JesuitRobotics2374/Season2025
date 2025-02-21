@@ -26,18 +26,26 @@ public class ExactAlign extends Command {
     private boolean doneMoving;
     private boolean doneRotating;
 
-    public ExactAlign(CommandSwerveDrivetrain drivetrain) {
-        this.drivetrain = drivetrain;
+    private int tag_id;
 
-        this.xShift = Constants.MIN_CAMERA_DISTANCE;
+    private int clock = 0;
+
+    public ExactAlign(CommandSwerveDrivetrain drivetrain, int tag_id) {
+        this.drivetrain = drivetrain;
+        
+        this.xShift = 0.0;
         this.yShift = 0.0;
+
+        this.tag_id = tag_id;
     }
 
-    public ExactAlign(CommandSwerveDrivetrain drivetrain, double xShift, double yShift) {
+    public ExactAlign(CommandSwerveDrivetrain drivetrain, int tag_id, double xShift, double yShift) {
         this.drivetrain = drivetrain;
 
         this.xShift = xShift;
         this.yShift = yShift;
+
+        this.tag_id = tag_id;
 
         addRequirements(drivetrain);
     }
@@ -50,8 +58,22 @@ public class ExactAlign extends Command {
 
     @Override
     public void execute() {
+        if (NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1) != tag_id) {
+            System.out.println("No target found: " + tag_id + " vs " + NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1));
+            System.out.println("No taret found");
+            System.out.println("No taret found");
+            doneMoving = true;
+            doneRotating = true;
+            return;
+        }
         double[] raw = NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("targetpose_robotspace").getDoubleArray(new double[6]);
-        targetPose = new Pose3d(raw[0] + xShift, raw[1] + yShift, raw[2], new Rotation3d(raw[4], raw[5], raw[3])).toPose2d();
+        targetPose = new Pose3d(raw[0] + xShift, raw[1] + yShift, raw[2], new Rotation3d(raw[5], raw[3], raw[4])).toPose2d();
+
+        Pose2d robotPose = drivetrain.getEstimator();
+
+        Pose2d targetFieldRelPose2d = robotPose.relativeTo(targetPose);
+
+        drivetrain.setLabel(targetFieldRelPose2d, "Target Field Rel Pose");
 
 
         double distanceToTarget = (new Translation2d(0, 0)).getDistance(targetPose.getTranslation());
@@ -66,8 +88,8 @@ public class ExactAlign extends Command {
         double rotationalRate = 0;
 
         if (!doneMoving) {
-            velocityX = targetPose.getX() * Constants.ALIGN_MOVE_SPEED;
-            velocityY = targetPose.getY() * Constants.ALIGN_MOVE_SPEED;
+            velocityX = raw[0] * Constants.ALIGN_MOVE_SPEED;
+            velocityY = raw[1] * Constants.ALIGN_MOVE_SPEED;
         }
         if (!doneRotating) {
           double rotationError = targetPose.getRotation().getRadians();
@@ -76,10 +98,12 @@ public class ExactAlign extends Command {
           + (RESign * Constants.ALIGN_ROTATIONAL_FEED_FORWARD);
         }
 
-        System.out.println(targetPose.getX() + " " + targetPose.getY() + " " + targetPose.getRotation().getRadians());
+        // System.out.println((new Translation2d(0, 0)).getDistance(targetPose.getTranslation()));
+        // System.out.println("VELX: " + velocityX + " VELY: " + velocityY + " ROT: " + rotationalRate);
 
+        // velY (velX)
         if (!(doneMoving && doneRotating)) {
-          drivetrain.setControl(driveRequest.withVelocityX(-velocityX).withVelocityY(-velocityY).withRotationalRate(-rotationalRate));
+          drivetrain.setControl(driveRequest.withVelocityX(velocityY).withVelocityY(-velocityX).withRotationalRate(-rotationalRate));
         }
     }
 
@@ -90,7 +114,6 @@ public class ExactAlign extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("Alignment complete!");
         drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
     }
 

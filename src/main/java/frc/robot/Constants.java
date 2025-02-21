@@ -59,9 +59,9 @@ public class Constants {
     public static final double PATHFINDING_FRONT_BUFFER = -1.02; // meters
     public static final double PATHFINDING_SHIFT_FACTOR = 0.2351; // meters
 
-    public static final double GENERIC_DISTANCE_THRESHOLD = 0.2;
+    public static final double GENERIC_DISTANCE_THRESHOLD = 0.05;
     public static final double GENERIC_ROTATION_THRESHOLD = 1 * Math.PI / 180;
-    public static final double ALIGN_MOVE_SPEED = 0.6;
+    public static final double ALIGN_MOVE_SPEED = 2.0;
     public static final double ALIGN_ROTATE_SPEED = 0.01;
     public static final double ALIGN_ROTATIONAL_FEED_FORWARD = 0.8;
     
