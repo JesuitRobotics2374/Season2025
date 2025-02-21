@@ -68,6 +68,7 @@ public class ExactAlign extends Command {
         }
         double[] raw = NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("targetpose_robotspace").getDoubleArray(new double[6]);
         targetPose = new Pose3d(raw[0] + xShift, raw[1] + yShift, raw[2], new Rotation3d(raw[5], raw[3], raw[4])).toPose2d();
+        System.out.println("XY" + raw[0] + " " + raw[1]);
 
         Pose2d robotPose = drivetrain.getEstimator();
 
@@ -85,11 +86,12 @@ public class ExactAlign extends Command {
 
         double velocityX = 0;
         double velocityY = 0;
+        double magnitude = Math.sqrt(Math.pow(raw[0], 2) + Math.pow(raw[1], 2));
         double rotationalRate = 0;
 
         if (!doneMoving) {
-            velocityX = raw[0] * Constants.ALIGN_MOVE_SPEED;
-            velocityY = raw[1] * Constants.ALIGN_MOVE_SPEED;
+            velocityX = raw[0] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
+            velocityY = raw[1] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
         }
         if (!doneRotating) {
           double rotationError = targetPose.getRotation().getRadians();
@@ -98,12 +100,12 @@ public class ExactAlign extends Command {
           + (RESign * Constants.ALIGN_ROTATIONAL_FEED_FORWARD);
         }
 
-        // System.out.println((new Translation2d(0, 0)).getDistance(targetPose.getTranslation()));
-        // System.out.println("VELX: " + velocityX + " VELY: " + velocityY + " ROT: " + rotationalRate);
+        System.out.println((new Translation2d(0, 0)).getDistance(targetPose.getTranslation()));
+        System.out.println("DIS" + distanceToTarget + " VELX: " + velocityX + " VELY: " + velocityY + " ROT: " + rotationalRate);
 
         // velY (velX)
         if (!(doneMoving && doneRotating)) {
-          drivetrain.setControl(driveRequest.withVelocityX(velocityY).withVelocityY(-velocityX).withRotationalRate(-rotationalRate));
+          drivetrain.setControl(driveRequest.withVelocityX(velocityY).withVelocityY(-velocityX)); //.withRotationalRate(-rotationalRate));
         }
     }
 
@@ -114,6 +116,7 @@ public class ExactAlign extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        System.out.println("ExactAlign ended");
         drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
     }
 
