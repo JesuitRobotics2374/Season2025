@@ -55,13 +55,13 @@ public class PanelSubsystem extends SubsystemBase {
         new JoystickButton(navControllerA, 18)
                 .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(11, Alignment.CENTER)));
         new JoystickButton(navControllerA, 13)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T4)));
-        new JoystickButton(navControllerA, 14)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3)));
-        new JoystickButton(navControllerA, 15)
-                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T2)));
-        new JoystickButton(navControllerA, 16)
                 .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T1)));
+        new JoystickButton(navControllerA, 14)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T2)));
+        new JoystickButton(navControllerA, 15)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3)));
+        new JoystickButton(navControllerA, 16)
+                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T4)));
     }
 
 }

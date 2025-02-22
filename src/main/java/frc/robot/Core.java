@@ -35,7 +35,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.seafinder.PathfinderSubsystem;
 import frc.robot.seafinder.PathfinderSubsystem.Alignment;
-import frc.robot.seafinder.commands.ExactAlign;
+import frc.robot.seafinder.commands.ExactAlignRot;
 import frc.robot.seafinder.commands.StaticBackCommand;
 import frc.robot.seafinder.interfaces.NavInterfaceSubsystem;
 import frc.robot.seafinder.interfaces.PanelSubsystem;
@@ -152,7 +152,7 @@ public class Core {
                     elevatorSubsystem.changeBy(-10);
                     armSubsystem.armChangeBy(-17);
                     SequentialCommandGroup waitAndOuttake2 = new SequentialCommandGroup(new WaitCommand(0.2),
-                            new InstantCommand(() -> manipulatorSubsystem.spinAt(-0.32)), new WaitCommand(3),
+                            new InstantCommand(() -> manipulatorSubsystem.spinAt(-0.52)), new WaitCommand(3),
                             new InstantCommand(() -> manipulatorSubsystem.stop()));
                     waitAndOuttake2.schedule();
                     SequentialCommandGroup waitAndBack2 = new SequentialCommandGroup(new WaitCommand(1.5),

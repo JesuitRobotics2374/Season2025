@@ -58,13 +58,14 @@ public class Constants {
     public static final double PATHFINDING_PRE_BUFFER = -1.60116; // meters
     public static final double PATHFINDING_POST_BUFFER = -0.279; // meters
     public static final double PATHFINDING_FRONT_BUFFER = -1.02; // meters
-    public static final double PATHFINDING_SHIFT_FACTOR = 0.2477; // TODO: Retune after tuning limelight // meters
+    public static final double PATHFINDING_LEFT_SHIFT_FACTOR = -0.2727;
+    public static final double PATHFINDING_RIGHT_SHIFT_FACTOR = 0.1077;
 
     public static final double GENERIC_DISTANCE_THRESHOLD = 0.035;
-    public static final double GENERIC_ROTATION_THRESHOLD = 1 * Math.PI / 180;
-    public static final double ALIGN_MOVE_SPEED = 0.5;
+    public static final double GENERIC_ROTATION_THRESHOLD = 0.1 * Math.PI / 180;
+    public static final double ALIGN_MOVE_SPEED = 0.25;
     public static final double ALIGN_ROTATE_SPEED = 0.0006;
-    public static final double ALIGN_ROTATIONAL_FEED_FORWARD = 0.8;
+    public static final double ALIGN_ROTATIONAL_FEED_FORWARD = 0.3;
 
     // Dynamic Forward
 

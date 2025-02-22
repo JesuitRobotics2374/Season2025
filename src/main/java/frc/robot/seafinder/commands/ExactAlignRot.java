@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
-public class ExactAlign extends Command {
+public class ExactAlignRot extends Command {
 
     private final SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -29,7 +29,7 @@ public class ExactAlign extends Command {
 
     private int clock = 0;
 
-    public ExactAlign(CommandSwerveDrivetrain drivetrain, int tag_id) {
+    public ExactAlignRot(CommandSwerveDrivetrain drivetrain, int tag_id) {
         this.drivetrain = drivetrain;
         
         this.alignmentShift = 0.0;
@@ -37,7 +37,7 @@ public class ExactAlign extends Command {
         this.tag_id = tag_id;
     }
 
-    public ExactAlign(CommandSwerveDrivetrain drivetrain, int tag_id, double alignmentShift) {
+    public ExactAlignRot(CommandSwerveDrivetrain drivetrain, int tag_id, double alignmentShift) {
         this.drivetrain = drivetrain;
 
         this.alignmentShift = alignmentShift;
@@ -55,7 +55,6 @@ public class ExactAlign extends Command {
 
     @Override
     public void execute() {
-        doneRotating = true; // TODO: REMOVE
 
         if (NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1) != tag_id) {
             System.out.println("No target found: " + tag_id + " vs " + NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1));
@@ -70,12 +69,10 @@ public class ExactAlign extends Command {
         double[] raw = NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("targetpose_robotspace").getDoubleArray(new double[6]);
         raw[0] += alignmentShift;
         
-        targetPose = new Pose3d(raw[0], raw[1], raw[2], new Rotation3d(raw[5], raw[3], raw[4])).toPose2d();
+        targetPose = new Pose3d(raw[0], raw[1], raw[2], new Rotation3d(raw[5] * Math.PI / 180, raw[3] * Math.PI / 180, raw[4] * Math.PI / 180)).toPose2d();
         // Logging
-        System.out.println("XY" + raw[0] + " " + raw[1]);
-        Pose2d robotPose = drivetrain.getEstimator();
-        Pose2d targetFieldRelPose2d = robotPose.relativeTo(targetPose);
-        drivetrain.setLabel(targetFieldRelPose2d, "Target Field Rel Pose");
+        // System.out.println("XY" + raw[0] + " " + raw[1]);
+        // drivetrain.setLabel(targetFieldRelPose2d, "Target Field Rel Pose");
         // Logging
 
         double distanceToTarget = (new Translation2d(0, 0)).getDistance(targetPose.getTranslation());
@@ -101,19 +98,26 @@ public class ExactAlign extends Command {
           + (RESign * Constants.ALIGN_ROTATIONAL_FEED_FORWARD);
         }
 
-        System.out.println((new Translation2d(0, 0)).getDistance(targetPose.getTranslation()));
-        System.out.println("DIS" + distanceToTarget + " VELX: " + velocityX + " VELY: " + velocityY + " ROT: " + rotationalRate);
+        System.out.println("ROT: " + rotationToTarget);
+        System.out.println("THRESH: " + Constants.GENERIC_ROTATION_THRESHOLD);
+
+        // System.out.println(" 5: " + raw[5] + " 3: " + raw[3] + " 4: " + raw[4]);
+
+
+        // System.out.println((new Translation2d(0, 0)).getDistance(targetPose.getTranslation()));
+        // System.out.println("DIS" + distanceToTarget + " VELX: " + velocityX + " VELY: " + velocityY + " ROT: " + rotationalRate);
 
         // + Y is Forard on dr 
         if (!(doneMoving && doneRotating)) {
-          drivetrain.setControl(driveRequest.withVelocityX(velocityY).withVelocityY(-velocityX)); //.withRotationalRate(-rotationalRate));
+          // drivetrain.setControl(driveRequest.withVelocityX(velocityY).withVelocityY(-velocityX).withRotationalRate(-rotationalRate));
+            drivetrain.setControl(driveRequest.withRotationalRate(-rotationalRate));
         }
     }
 
     @Override
     public boolean isFinished() {
-        System.out.println("--" + doneMoving + " " + doneRotating + "--");
-        return doneMoving && doneRotating;
+        // System.out.println("--" + doneMoving + " " + doneRotating + "--");
+        return doneRotating;
     }
 
     @Override

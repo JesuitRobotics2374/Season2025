@@ -26,7 +26,8 @@ import frc.robot.Constants;
 import frc.robot.Core;
 import frc.robot.seafinder.commands.CanRangeDynamicForward;
 import frc.robot.seafinder.commands.DriveDynamicX;
-import frc.robot.seafinder.commands.ExactAlign;
+import frc.robot.seafinder.commands.ExactAlignRot;
+import frc.robot.seafinder.commands.ExactAlignXY;
 import frc.robot.seafinder.commands.StaticBackCommand;
 import frc.robot.seafinder.utils.Apriltags;
 import frc.robot.seafinder.utils.Setpoint;
@@ -68,15 +69,15 @@ public class PathfinderSubsystem {
     public enum Alignment {
         LEFT, RIGHT, CENTER;
 
-        private int modif;
+        private double modif;
 
         static {
-            LEFT.modif = -1;
-            RIGHT.modif = 1;
-            CENTER.modif = 0;
+            LEFT.modif = Constants.PATHFINDING_LEFT_SHIFT_FACTOR;
+            RIGHT.modif = Constants.PATHFINDING_RIGHT_SHIFT_FACTOR;
+            CENTER.modif = (Constants.PATHFINDING_LEFT_SHIFT_FACTOR + Constants.PATHFINDING_RIGHT_SHIFT_FACTOR) / 2;
         }
 
-        public int getModif() {
+        public double getOffset() {
             return modif;
         }
 
@@ -152,22 +153,20 @@ public class PathfinderSubsystem {
             return;
         }
 
-        updateGUI(3);
+        updateGUI(4);
 
         // PATHFIND
 
         Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
 
-        int modifier = alignment.getModif();
+        double offset = alignment.getOffset();
 
         Pose3d pathfindTarget3d = new Pose3d(
                 tagTarget.getX() + Constants.PATHFINDING_PRE_BUFFER * Math.cos(tagRotation.getZ())
-                        + Constants.PATHFINDING_SHIFT_FACTOR * Math.sin(tagRotation.getZ())
-                                * modifier
+                        + Math.sin(tagRotation.getZ()) * offset
                         + Constants.FIELD_X_MIDPOINT,
                 tagTarget.getY() + Constants.PATHFINDING_PRE_BUFFER * Math.sin(tagRotation.getZ())
-                        - Constants.PATHFINDING_SHIFT_FACTOR * Math.cos(tagRotation.getZ())
-                                * modifier
+                        - Math.cos(tagRotation.getZ()) * offset
                         + Constants.FIELD_Y_MIDPOINT,
                 tagTarget.getZ(),
                 tagRotation);
@@ -187,23 +186,34 @@ public class PathfinderSubsystem {
                 pathfindTarget,
                 constraints,
                 0);
-        
-        ExactAlign exactAlignCommand = new ExactAlign(drivetrain, tagId, Constants.PATHFINDING_SHIFT_FACTOR * modifier);
+
+        ExactAlignRot exactAlignCommandRot = new ExactAlignRot(drivetrain, tagId, offset);
+        ExactAlignXY exactAlignCommandXY = new ExactAlignXY(drivetrain, tagId, offset);
+
         CanRangeDynamicForward dynamicForwardCommand = new CanRangeDynamicForward(drivetrain);
 
-        // DriveDynamicX driveForward = new DriveDynamicX(drivetrain, Constants.MIN_CAMERA_DISTANCE, 0.1); // TODO: Tune speed of drive
+        // DriveDynamicX driveForward = new DriveDynamicX(drivetrain,
+        // Constants.MIN_CAMERA_DISTANCE, 0.1); // TODO: Tune speed of drive
 
         Command alignComponents = new InstantCommand(() -> core.moveToSetpoint(reefHeight));
         Command retractComponents = new InstantCommand(() -> core.performRetract());
 
+        Command pilotStateAlign = new InstantCommand(() -> updateGUI(5));
+        Command pilotStateRot = new InstantCommand(() -> updateGUI(6));
+        Command pilotStateXY = new InstantCommand(() -> updateGUI(7));
+        Command pilotStateDynamic = new InstantCommand(() -> updateGUI(8));
+        Command pilotStateRetract = new InstantCommand(() -> updateGUI(9));
+
         Command resetNavPilot = new InstantCommand(() -> updateGUI(0));
 
-        // SequentialCommandGroup pathfindSequence = new SequentialCommandGroup(pathfindCommand, exactAlignCommand, driveForward, alignComponents, retractComponents, resetNavPilot);
-        
+        // SequentialCommandGroup pathfindSequence = new
+        // SequentialCommandGroup(pathfindCommand, exactAlignCommand, driveForward,
+        // alignComponents, retractComponents, resetNavPilot);
+
         // if (isTeleop) {
-        //     pathfindSequence.schedule();
+        // pathfindSequence.schedule();
         // } else {
-        //     addToAutoSequence(exactAlignCommand);
+        // addToAutoSequence(exactAlignCommand);
         // }
 
         commandQueue.clear();
@@ -215,7 +225,12 @@ public class PathfinderSubsystem {
         // commandQueue.add(retractComponents);
         // commandQueue.add(resetNavPilot);
 
-        SequentialCommandGroup testCommandGroup = new SequentialCommandGroup(exactAlignCommand, dynamicForwardCommand);
+        // SequentialCommandGroup testCommandGroup = new
+        // SequentialCommandGroup(exactAlignCommand, dynamicForwardCommand,
+        // resetNavPilot);
+        SequentialCommandGroup testCommandGroup = new SequentialCommandGroup(pathfindCommand, pilotStateAlign,
+                alignComponents, pilotStateRot, exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
+                pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, retractComponents, resetNavPilot);
         testCommandGroup.schedule();
     }
 

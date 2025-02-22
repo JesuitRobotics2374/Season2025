@@ -27,7 +27,6 @@ public class CanRangeDynamicForward extends Command{
 
     @Override
     public void execute() {
-        System.out.println("Range " + drivetrain.getForwardRange());
         if (drivetrain.getForwardRange() > Constants.DYNAMIC_FORWARD_DISTANCE) {
             drivetrain.setControl(driveRequest.withVelocityX(0.5));
         }
