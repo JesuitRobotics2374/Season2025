@@ -244,28 +244,28 @@ public class PathfinderSubsystem {
         int tagId = -1;
         switch (posCode) {
             case 1:
-                tagId = isRed ? 10 : 18;
+                tagId = isRed ? 7 : 18;
                 break;
             case 2:
-                tagId = isRed ? 11 : 17;
+                tagId = isRed ? 8 : 17;
                 break;
             case 3:
-                tagId = isRed ? 6 : 22;
+                tagId = isRed ? 9 : 22;
                 break;
             case 4:
-                tagId = isRed ? 7 : 21;
+                tagId = isRed ? 10 : 21;
                 break;
             case 5:
-                tagId = isRed ? 8 : 20;
+                tagId = isRed ? 11 : 20;
                 break;
             case 6:
-                tagId = isRed ? 9 : 19;
+                tagId = isRed ? 6 : 19;
                 break;
             case 10:
-                tagId = isRed ? 1 : 12;
+                tagId = isRed ? 1 : 13;
                 break;
             case 11:
-                tagId = isRed ? 2 : 13;
+                tagId = isRed ? 2 : 12;
                 break;
         }
 
