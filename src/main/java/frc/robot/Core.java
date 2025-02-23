@@ -37,6 +37,7 @@ import frc.robot.seafinder.PathfinderSubsystem;
 import frc.robot.seafinder.PathfinderSubsystem.Alignment;
 import frc.robot.seafinder.commands.ExactAlignRot;
 import frc.robot.seafinder.commands.StaticBackCommand;
+import frc.robot.seafinder.commands.StationAlign;
 import frc.robot.seafinder.interfaces.NavInterfaceSubsystem;
 import frc.robot.seafinder.interfaces.PanelSubsystem;
 import frc.robot.seafinder.utils.Setpoint;
@@ -262,8 +263,10 @@ public class Core {
         operatorController.y().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake()));
         operatorController.x().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake()));
 
-        operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.wristCCW()));
-        operatorController.b().onTrue(armSubsystem.runOnce(() -> armSubsystem.wristCW()));
+        // operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.wristCCW()));
+        // operatorController.b().onTrue(armSubsystem.runOnce(() -> armSubsystem.wristCW()));
+
+        operatorController.b().onTrue(new InstantCommand(() -> new StationAlign(drivetrain).schedule()));
 
         operatorController.povUp().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
         operatorController.povDown().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
@@ -298,6 +301,14 @@ public class Core {
 
     public NavInterfaceSubsystem getNavInterfaceSubsystem() {
         return navInterfaceSubsystem;
+    }
+
+    public ManipulatorSubsystem getManipulatorSubsystem() {
+        return manipulatorSubsystem;
+    }
+
+    public ArmSubsystem getArmSubsystem() {
+        return armSubsystem;
     }
 
     // public Command getAutonomousCommand() {

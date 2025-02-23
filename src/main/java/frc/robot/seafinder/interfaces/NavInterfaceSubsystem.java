@@ -18,6 +18,16 @@ public class NavInterfaceSubsystem extends SubsystemBase {
 
     private final NetworkTable navTable;
 
+    private int[][] decodeRaw(long[] raw) {
+        // Split each number where 4 bits (A) are the point and 4 bits (B) are the alignment: AAAABBBB
+        int[][] decoded = new int[raw.length][2];
+        for (int i = 0; i < raw.length; i++) {
+            decoded[i][0] = (int) (raw[i] >> 4);
+            decoded[i][1] = (int) (raw[i] & 0b1111);
+        }
+        return decoded;
+    }
+
     public NavInterfaceSubsystem() {
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         navTable = inst.getTable("NavGUI");
@@ -26,6 +36,14 @@ public class NavInterfaceSubsystem extends SubsystemBase {
 
     public void sendReadData(int data) {
         navTable.getEntry("Embedded").setInteger(data);
+    }
+
+    public int[][] loadPathData() {
+
+        NetworkTableEntry pathEntry = navTable.getEntry("kAutoSequence");
+        long[] pathDataRaw = pathEntry.getIntegerArray(new long[0]);
+        int[][] pathData = decodeRaw(pathDataRaw);
+        return pathData;
     }
     
 }

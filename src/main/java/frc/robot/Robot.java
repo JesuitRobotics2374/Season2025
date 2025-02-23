@@ -42,17 +42,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        // m_autonomousCommand = m_core.getAutonomousCommand();
-
-        // if (m_autonomousCommand != null) {
-        // m_autonomousCommand.schedule();
-        // }
-
-        // m_core.instantFind(18, Alignment.LEFT);
-
-        // m_robotContainer.getPath("Prec-BLUE-TOP").schedule();
-
-        // m_robotContainer.doPathfindToPath("Prec-BLUE-TOP");
+        
+        m_core.getPathfinderSubsystem().clearSequence();
+        int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
+        System.out.println("Path loaded: " + path.length);
+        m_core.getPathfinderSubsystem().executePath(path);
 
     }
 

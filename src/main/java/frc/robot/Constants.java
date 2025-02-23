@@ -41,8 +41,9 @@ public class Constants {
     public static final double WRIST_PID_I = 0.0; // TODO
     public static final double WRIST_PID_D = 0.0; // TODO
 
-    public static final double WRIST_MIN_POSITION = 0.0;
-    public static final double WRIST_MAX_POSITION = 0.235;
+    public static final double WRIST_MIN_POSITION = 0.312533
+    ;
+    public static final double WRIST_MAX_POSITION = 0.570801;
 
     public static final double WRIST_INCREMENT = 0.8; // TODO
     public static final double WRIST_MAX_SPEED = 0.3; // TODO
@@ -59,7 +60,7 @@ public class Constants {
     public static final double PATHFINDING_POST_BUFFER = -0.279; // meters
     public static final double PATHFINDING_FRONT_BUFFER = -1.02; // meters
     public static final double PATHFINDING_LEFT_SHIFT_FACTOR = -0.2727;
-    public static final double PATHFINDING_RIGHT_SHIFT_FACTOR = 0.1077;
+    public static final double PATHFINDING_RIGHT_SHIFT_FACTOR = 0.1037;
 
     public static final double GENERIC_DISTANCE_THRESHOLD = 0.035;
     public static final double GENERIC_ROTATION_THRESHOLD = 0.1 * Math.PI / 180;
@@ -70,8 +71,11 @@ public class Constants {
     // Dynamic Forward
 
     public static final double DYNAMIC_FORWARD_SPEED = 0.6;
-    public static final double DYNAMIC_FORWARD_DISTANCE = 0.45;
-    
+    public static final double DYNAMIC_FORWARD_DISTANCE = 0.47;
+
+    public static final double SA_RIGHT_BUFFER = -0.0;
+    public static final double SA_TARGET_DISTANCE = 0.668;
+    public static final double SA_ROTATIONAL_RATE_THRESHOLD = 0.04;
 
     // Elevator
 
@@ -86,10 +90,11 @@ public class Constants {
     public static final double SETPOINT_ELEVATOR_OFFSET = 0;
 
     public static final Setpoint SETPOINT_MIN = new Setpoint(5, 22.4, WRIST_MIN_POSITION, "none");
-    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(20.55, 14.08, WRIST_MAX_POSITION, "none");
+    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(18.55, 14.08, WRIST_MAX_POSITION, "none");
     public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(24.83, 1.857, WRIST_MAX_POSITION, "none");
     public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(12.51, 20.37, WRIST_MIN_POSITION, "t2");
     public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(60.76, 18.68, WRIST_MIN_POSITION, "t3");
     public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(123.2, 19.42, WRIST_MIN_POSITION, "t4");
     public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION, "none");
-} // 19.42
+    
+}

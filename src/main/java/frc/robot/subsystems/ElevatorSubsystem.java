@@ -47,6 +47,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     private Pigeon2 pidgey;
     private DigitalInput limitSwitch;
 
+    private boolean currentlyMovingDown = false;
+
     private static final double POSITION_0 = 2; // Lowest Height
     private static final double POSITION_1 = 25; // Position of the lowest reef level
     private static final double POSITION_2 = 50; // Position of lowest branch
@@ -63,7 +65,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         this.elevatorMotor2 = new TalonFX(32, "FastFD");
         this.pidgey = new Pigeon2(Constants.PIGEON_ID, "FastFD");
         this.shaftEncoder = new CANcoder(30, "FastFD");
-        limitSwitch = new DigitalInput(0);
+        limitSwitch = new DigitalInput(1);
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
         Slot0Configs slot0Configs = talonFXConfigs.Slot0;
@@ -110,18 +112,28 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void elevatorGoTo(int newPos) {
         double posGoTo = convertPos(newPos);
-
+        if (posGoTo < elevatorMotor1.getPosition().getValueAsDouble()) {
+            currentlyMovingDown = true;
+        } else {
+            currentlyMovingDown = false;
+        }
         MotionMagicVoltage m_request = new MotionMagicVoltage(posGoTo);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
     }
 
     public void elevatorGoToDouble(double pos) {
+        if (pos < elevatorMotor1.getPosition().getValueAsDouble()) {
+            currentlyMovingDown = true;
+        } else {
+            currentlyMovingDown = false;
+        }
         MotionMagicVoltage m_request = new MotionMagicVoltage(pos);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
     }
 
     public void lower() {
         // if (!limitSwitch.get()) {
+        currentlyMovingDown = true;
             MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - 1);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
         // }
@@ -132,6 +144,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void raise() {
+        currentlyMovingDown = false;
         MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() + 1);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
 
@@ -179,7 +192,11 @@ public class ElevatorSubsystem extends SubsystemBase {
             System.out.println("Lowering Elevator Due To Tipping");
         }
 
-       
+       if (currentlyMovingDown && !limitSwitch.get()) {
+            elevatorMotor1.stopMotor();
+            zeroSystem();
+            currentlyMovingDown = false;
+       }
         
         
     }
