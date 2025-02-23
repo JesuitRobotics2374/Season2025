@@ -4,6 +4,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.playingwithfusion.TimeOfFlight;
@@ -23,13 +24,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ManipulatorSubsystem extends SubsystemBase {
 
-  public TimeOfFlight sensor;
+  public CANrange sensor;
   public TalonFX control;
 
   public ManipulatorSubsystem() {
 
     this.control = new TalonFX(39, "rio");
-    this.sensor = new TimeOfFlight(22);
+    this.sensor = new CANrange(22, "rio");
 
     SparkMaxConfig config = new SparkMaxConfig();
     config.idleMode(IdleMode.kBrake);
@@ -64,9 +65,11 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   public void periodic() {
 
+    System.out.println(sensor.getDistance().getValueAsDouble());
+
     clock++;
 
-    boolean withinRange = sensor.getRange() <= 100;
+    boolean withinRange = sensor.getDistance().getValueAsDouble() <= 100;
 
     if (clock > 10 && withinRange) {
         clock = 0;
