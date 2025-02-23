@@ -58,20 +58,20 @@ public class ExactAlignRot extends Command {
 
         if (NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1) != tag_id) {
             System.out.println("No target found: " + tag_id + " vs " + NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1));
-            System.out.println("No taret found");
-            System.out.println("No taret found");
+            System.out.println("No target found");
+            System.out.println("No target found");
             doneMoving = true;
             doneRotating = true;
             return;
         }
 
-
+        // raw[0] x coor, raw[1] y coor
         double[] raw = NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("targetpose_robotspace").getDoubleArray(new double[6]);
         raw[0] += alignmentShift;
         
         targetPose = new Pose3d(raw[0], raw[1], raw[2], new Rotation3d(raw[5] * Math.PI / 180, raw[3] * Math.PI / 180, raw[4] * Math.PI / 180)).toPose2d();
         // Logging
-        // System.out.println("XY" + raw[0] + " " + raw[1]);
+        System.out.println("XY" + raw[0] + " " + raw[1] + " from exact align rot command");
         // drivetrain.setLabel(targetFieldRelPose2d, "Target Field Rel Pose");
         // Logging
 
@@ -87,7 +87,7 @@ public class ExactAlignRot extends Command {
         double magnitude = Math.sqrt(Math.pow(raw[0], 2) + Math.pow(raw[1], 2)); // TODO: Retune after removing magnitude
         double rotationalRate = 0;
 
-        if (!doneMoving) {
+        if (!doneMoving) { // weird moving command that shimmies
             velocityX = raw[0] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
             velocityY = raw[1] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
         }

@@ -59,8 +59,8 @@ public class ExactAlignXY extends Command {
         if (NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1) != tag_id) {
             System.out.println("No target found: " + tag_id + " vs "
                     + NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1));
-            System.out.println("No taret found");
-            System.out.println("No taret found");
+            System.out.println("No target found");
+            System.out.println("No target found");
             doneMoving = true;
             doneRotating = true;
             return;
@@ -73,7 +73,7 @@ public class ExactAlignXY extends Command {
         targetPose = new Pose3d(raw[0], raw[1], raw[2],
                 new Rotation3d(raw[5] * Math.PI / 180, raw[3] * Math.PI / 180, raw[4] * Math.PI / 180)).toPose2d();
         // Logging
-        System.out.println("XY" + raw[0] + " " + raw[1]);
+        System.out.println("XY" + raw[0] + " " + raw[1]+ " from exact align xy command");
         Pose2d robotPose = drivetrain.getEstimator();
         Pose2d targetFieldRelPose2d = robotPose.relativeTo(targetPose);
         // drivetrain.setLabel(targetFieldRelPose2d, "Target Field Rel Pose");

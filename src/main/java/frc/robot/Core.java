@@ -251,8 +251,8 @@ public class Core {
         // driveController.y().onTrue(elevatorSubsystem.runOnce(() ->
         // elevatorSubsystem.zeroSystem()));
 
-        driveController.y().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(6, Alignment.LEFT)));
-        driveController.x().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3)));
+        driveController.y().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(6, Alignment.LEFT))); // DO NOT TOUCH MOVES ROBOT TO PATH
+        driveController.x().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3))); // REST LOCATION GOOD
 
         driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
         driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
@@ -276,7 +276,7 @@ public class Core {
         
 
         // reset the field-centric heading on left bumper press
-        driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
 
         // driveController.a().onTrue(new InstantCommand(() -> {new
         // PathfinderSubsystem(drivetrain, 17, Alignment.LEFT);}));

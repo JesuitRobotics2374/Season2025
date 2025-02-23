@@ -250,18 +250,29 @@ public class PathfinderSubsystem {
         // testCommandGroup = new SequentialCommandGroup(alignComponents);
 
         if (addToAutoQueue) {
-            if (isReef) {
-                autoCommandSequence.addCommands(pathfindCommand, exactAlignCommandRot, exactAlignCommandXY, dynamicForwardCommand);
+            if (!reefHeight.equals(Constants.SETPOINT_HP_INTAKE)) {
+                // autoCommandSequence.addCommands(pathfindCommand, exactAlignCommandRot, exactAlignCommandXY, dynamicForwardCommand);
+                autoCommandSequence.addCommands(pathfindCommand);
+
+                /*good code, commenting out bc queue for auto doesnt wanna clear (aries did smthn), has deleted all elevator commands out of fear of breaking
+                // autoCommandSequence.addCommands(pathfindCommand, pilotStateAlign,
+                //  pilotStateRot, exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
+                // pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, resetNavPilot);
+                */
+
                 // finalCommandGroup = new SequentialCommandGroup(pathfindCommand,
                 // pilotStateAlign,
                 // exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
                 // pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, resetNavPilot);
             } else {
+                System.out.print("we are not in the reef??????????");
                 Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
                 Command stationAlignCommand = new StationAlign(drivetrain);
                 Command runIntake = new InstantCommand(() -> core.getManipulatorSubsystem().intake());
                 Command moveBack = new StaticBackCommand(drivetrain, 0.3, 0.3);
-                autoCommandSequence.addCommands(pathfindCommand, stationAlignCommand);
+                autoCommandSequence.addCommands(pathfindCommand);
+
+                // autoCommandSequence.addCommands(pathfindCommand, stationAlignCommand); // TEMPORARY, bc we testing auto code path find only, not station align
                
                 // finalCommandGroup = new SequentialCommandGroup(parallelSetup, stationAlignCommand, resetNavPilot);
             }
@@ -272,6 +283,7 @@ public class PathfinderSubsystem {
                         alignComponents, pilotStateRot, exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
                         pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, retractComponents, resetNavPilot);
             } else {
+                System.out.print("we are not in the reef??????????");
                 Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
                 StationAlign stationAlignCommand = new StationAlign(drivetrain);
                 Command runIntake = new InstantCommand(() -> core.getManipulatorSubsystem().intake());
