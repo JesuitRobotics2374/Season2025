@@ -106,13 +106,14 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotor1.setControl(m_request);
     }
 
-    public void zeroElevator() {
+    public void zeroElevator() { // Actual code is in perodic
         zeroingElevator = true;
     }
 
     public void stopElevator() {
         elevatorMotor1.stopMotor();
         elevatorMotor1.setNeutralMode(NeutralModeValue.Brake);
+        currentlyMovingDown = false;
     }
 
     public void elevatorGoTo(int newPos) {
@@ -137,20 +138,24 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void lower() {
-        // if (!limitSwitch.get()) {
-        currentlyMovingDown = true;
-        MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - 1);
-        elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
-        // }
+        if (!limitSwitch.get()) {
+            currentlyMovingDown = true;
+            MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - Constants.ELEVATOR_MOVE_AMOUNT);
+            elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+        }
+    }
 
-        // Since the new request is based on the current position, there is not stacking
-        // of lower requests
-        // The delta essentiallly is the speed of the lower
+    public void lower(double amount) {
+        if (!limitSwitch.get()) {
+            currentlyMovingDown = true;
+            MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - amount);
+            elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+        }
     }
 
     public void raise() {
         currentlyMovingDown = false;
-        MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() + 1);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() + Constants.ELEVATOR_MOVE_AMOUNT);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
 
         // Since the new request is based on the current position, there is not stacking
@@ -166,15 +171,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         // Since the new request is based on the current position, there is not stacking
         // of lower requests
         // The delta essentiallly is the speed of the lower
-    }
-
-    public void lowerIfTip() {
-        if (!limitSwitch.get()) {
-        double posGoTo = convertPos(0);
-
-        MotionMagicVoltage m_request = new MotionMagicVoltage(posGoTo);
-        elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
-        }
     }
 
     private double convertPos(int heightLevel) { // Get values once elevator is finished
@@ -196,14 +192,12 @@ public class ElevatorSubsystem extends SubsystemBase {
             throw new InvalidParameterException("Number is not in accepted height range");
     }
 
-    private int clock = 0;
-
     @Override
     public void periodic() {
         // Robot tilting
         if (pidgey.getRotation3d().getMeasureX().abs(Degrees) > Constants.MAX_TIP_ANGLE
                 || pidgey.getRotation3d().getMeasureY().abs(Degrees) > Constants.MAX_TIP_ANGLE) {
-            lowerIfTip();
+            lower();
             System.out.println("Lowering Elevator Due To Tipping");
         }
 
@@ -213,7 +207,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 zeroingElevator = false;
                 setElevatorZero();
             } else {
-                lower();
+                lower(1.5 * Constants.ELEVATOR_MOVE_AMOUNT);
             }
         }
 

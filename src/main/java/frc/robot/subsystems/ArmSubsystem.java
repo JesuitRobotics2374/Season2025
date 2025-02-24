@@ -92,8 +92,8 @@ public class ArmSubsystem extends SubsystemBase {
         slot0Configs.kD = 0.1; // Responds to the rate of change of the error, damping the motion as the motor
                                // approaches the target. This reduces overshooting and oscillations.
 
-        motionMagicConfigs.MotionMagicCruiseVelocity = 6; // Target velocity in rps
-        motionMagicConfigs.MotionMagicAcceleration = 3; // Target acceleration in rps/s
+        motionMagicConfigs.MotionMagicCruiseVelocity = 8; // Target velocity in rps
+        motionMagicConfigs.MotionMagicAcceleration = 5; // Target acceleration in rps/s
         motionMagicConfigs.MotionMagicJerk = 5; // Target jerk in rps/s/s
 
         armMotor1.getConfigurator().apply(talonFXConfigs);

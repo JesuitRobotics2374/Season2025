@@ -7,14 +7,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
-public class CanRangeDynamicForward extends Command {
+public class CanRangeDynamicBackward extends Command { // Implement in reef sequential command in core later - If we have time to do retuning too
 
     private final SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final CommandSwerveDrivetrain drivetrain;
 
-    public CanRangeDynamicForward(CommandSwerveDrivetrain drivetrain){
+    public CanRangeDynamicBackward(CommandSwerveDrivetrain drivetrain){
         this.drivetrain = drivetrain;
 
         addRequirements(drivetrain);
@@ -22,15 +22,15 @@ public class CanRangeDynamicForward extends Command {
 
     @Override
     public void initialize(){
-        System.out.println("CanRangeDynamicForward Initialized");
+        System.out.println("CAN RANGE Dynamic Backward Initialized");
     }
 
     @Override
     public void execute() {
         double distance = Math.min(drivetrain.getForwardRangeLeft(), drivetrain.getForwardRangeRight() + Constants.RIGHT_CANRANGE_OFFSET);
 
-        if (distance > Constants.CAN_RANGE_FORWARD_DISTANCE) {
-            drivetrain.setControl(driveRequest.withVelocityX(0.5));
+        if (distance < Constants.CAN_RANGE_BACKWARD_DISTANCE) {
+            drivetrain.setControl(driveRequest.withVelocityX(-0.5));
         }
     }
 
@@ -38,12 +38,12 @@ public class CanRangeDynamicForward extends Command {
     public boolean isFinished() {
         double distance = Math.min(drivetrain.getForwardRangeLeft(), drivetrain.getForwardRangeRight() + Constants.RIGHT_CANRANGE_OFFSET);
 
-        return (distance <= Constants.CAN_RANGE_FORWARD_DISTANCE);
+        return (distance >= Constants.CAN_RANGE_FORWARD_DISTANCE);
     }
 
     @Override
     public void end(boolean interrupted) {
         drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
-        System.out.println("CanRangeDynamicForward Ended");
+        System.out.println("CAN RANGE Dynamic Backward Ended");
     }
 }
