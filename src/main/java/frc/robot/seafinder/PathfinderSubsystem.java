@@ -159,7 +159,7 @@ public class PathfinderSubsystem {
 
             // System.out.println("Executing path: " + posCode + " " + alignment + " " +
             // components);
-            teleopExecuteSequence(true, translateToTagId(posCode), alignment, components);
+            autoExecuteSequence(translateToTagId(posCode), alignment, components);
         }
         autoCommandSequence.schedule();
     }
@@ -336,7 +336,6 @@ public class PathfinderSubsystem {
         Command pilotStateRetract = new InstantCommand(() -> updateGUI(9));
 
         Command resetNavPilot = new InstantCommand(() -> updateGUI(0));
-
 
         if (!reefHeight.equals(Constants.SETPOINT_HP_INTAKE)) { // Reef
             double offset = alignment.getOffset();
