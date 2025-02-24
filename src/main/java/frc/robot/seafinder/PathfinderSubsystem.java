@@ -8,6 +8,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
 
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.wpiutils.AutoFeedEnable;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
@@ -120,12 +121,12 @@ public class PathfinderSubsystem {
         if (posCode == 10 || posCode == 11) {
             reefHeight = Constants.SETPOINT_HP_INTAKE;
             isReef = false;
-            newExecuteSequence(false, tagId, alignment, reefHeight);
+            teleopExecuteSequence(false, tagId, alignment, reefHeight);
             locationLoaded = false;
             heightLoaded = false;
         } else if (heightLoaded) {
             isReef = true;
-            newExecuteSequence(false, tagId, alignment, reefHeight);
+            teleopExecuteSequence(false, tagId, alignment, reefHeight);
             locationLoaded = false;
             heightLoaded = false;
         } else {
@@ -139,7 +140,7 @@ public class PathfinderSubsystem {
         this.heightLoaded = true;
         if (locationLoaded) {
             isReef = true;
-            newExecuteSequence(false, tagId, alignment, reefHeight);
+            teleopExecuteSequence(false, tagId, alignment, reefHeight);
             locationLoaded = false;
             heightLoaded = false;
         } else {
@@ -158,7 +159,7 @@ public class PathfinderSubsystem {
 
             // System.out.println("Executing path: " + posCode + " " + alignment + " " +
             // components);
-            newExecuteSequence(true, translateToTagId(posCode), alignment, components);
+            teleopExecuteSequence(true, translateToTagId(posCode), alignment, components);
         }
         autoCommandSequence.schedule();
     }
@@ -182,7 +183,7 @@ public class PathfinderSubsystem {
         }
     }
 
-    public void newExecuteSequence(boolean runAuto, int tagId, Alignment alignment, Setpoint reefHeight) {
+    public void teleopExecuteSequence(boolean runAuto, int tagId, Alignment alignment, Setpoint reefHeight) {
         Pose3d tagTarget = Apriltags.getWeldedPosition(tagId); // Get the tag's position from welded map
         if (tagTarget == null) {
             System.out.println("TARGET IS NULL");
@@ -255,19 +256,23 @@ public class PathfinderSubsystem {
             finalCommandGroup.schedule();
         } else { // Human Station
             Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
-            Command parallelSetup = new ParallelCommandGroup(pathfindCommand, alignComponents);
+            // Command parallelSetup = new ParallelCommandGroup(pathfindCommand, alignComponents);
             StationAlign stationAlignCommand = new StationAlign(drivetrain);
+            InstantCommand applyBreak = new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.SwerveDriveBrake()));
             Command runIntake = new IntakeCommand(core.getManipulatorSubsystem());
             Command moveBack = new CanRangeDynamicBackward(drivetrain);
 
             SequentialCommandGroup testingCommandGroup = new SequentialCommandGroup(
                 lowerRobot,
-                parallelSetup,
-                moveWrist
-                //, stationAlignCommand
-                //, runIntake
-                //, resetNavPilot
-                //, moveBack
+                // moveWrist,
+                pathfindCommand,
+                // parallelSetup, add back
+                applyBreak,
+                stationAlignCommand
+                //,
+                // runIntake,
+                // resetNavPilot,
+                // moveBack
             );
             testingCommandGroup.schedule();
 
@@ -367,7 +372,11 @@ public class PathfinderSubsystem {
             // pilotStateAlign,
             // exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
             // pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, resetNavPilot);
+
         } else { // Human Station
+
+            // --------------COPY CODE FROM TELEOP EXECUTE SEQUENCE INTO HERE AFTER TESTING -------------------
+
             Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
             Command stationAlignCommand = new StationAlign(drivetrain);
             Command runIntake = new IntakeCommand(core.getManipulatorSubsystem());

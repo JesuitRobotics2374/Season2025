@@ -135,6 +135,7 @@ public class Core {
                         new WaitCommand(3),
                         new StaticBackCommand(drivetrain, -0.4, -0.4));
 
+
                     waitAndEle.schedule();
                     waitAndOuttake.schedule();
                     armSubsystem.armChangeBy(-18);
@@ -258,10 +259,10 @@ public class Core {
         driveController.povRight().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T4)));
 
         driveController.a().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_MIN)));
+        driveController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
         // driveController.y().onTrue(new InstantCommand(() ->
         // moveToSetpoint(Constants.SETPOINT_MAX)));
-
-        driveController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
+        driveController.x().onTrue(armSubsystem.runOnce(() -> armSubsystem.setZero()));
 
         // driveController.x().onTrue(new InstantCommand(() -> performRetract()));
 
@@ -294,9 +295,6 @@ public class Core {
         // PathfinderSubsystem(drivetrain, 17, Alignment.LEFT);}));
 
         // drivetrain.registerTelemetry(logger::telemeterize);
-
-        
-        // new JoystickButton(navController, 1).onTrue(new InstantCommand(() -> {System.out.println("SLKDSSF:LKJDSFLDSFDSF");}));
 
     }
 
