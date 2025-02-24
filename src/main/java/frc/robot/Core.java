@@ -112,14 +112,14 @@ public class Core {
         armSubsystem.wristGoTo(setpoint.getWrist());
     }
 
-    // Based on the last setpoint we aligned to, retract using a very specific set
-    // of hardward movements
+    // Based on the last setpoint we aligned to, retract using a very specific set of hardward movements
     public void performRetract() {
+        // NOTE: Only tag 19 is secured to reef so only testing happened on tag 19
         if (queuedRetractAction != null) {
             switch (queuedRetractAction) {
                 case "none":
                     break;
-                case "t4": // Tune
+                case "t4": // Tuned on tag 19 right & left - Note at top
                     System.out.println("Running retract macro: backAndDown");
                     SequentialCommandGroup waitAndEle = new SequentialCommandGroup(
                         new WaitCommand(0.5), 
@@ -141,7 +141,7 @@ public class Core {
                     armSubsystem.armChangeBy(-18);
                     waitAndBack.schedule();
                     break;
-                case "t3": // Tuned on tag 19 right & left
+                case "t3": // Tuned on tag 19 right & left - Note at top
                     System.out.println("Running retract macro: backAndDown");
                     SequentialCommandGroup waitAndOuttake3 = new SequentialCommandGroup(
                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
@@ -159,8 +159,7 @@ public class Core {
                     waitAndOuttake3.schedule();
                     waitAndBack3.schedule();
                     break;
-                case "t2": // Not tuned on tage 19 right & left
-                    // primary steps
+                case "t2": // Tuned on tage 19 right & left - Note at top
                     System.out.println("Running retract macro: backAndDown");
 
                     SequentialCommandGroup waitAndOuttake2 = new SequentialCommandGroup(

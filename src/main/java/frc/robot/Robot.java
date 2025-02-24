@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.seafinder.PathfinderSubsystem.Alignment;
@@ -47,19 +48,29 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        InstantCommand setElevatorZero = new InstantCommand(() -> m_core.getElevatorSubsystem().zeroElevator());
-        setElevatorZero.schedule();
+        // Raising arm a little
+        InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(4));
+        raiseElevator.schedule();
 
+        // Waiting until arm is raise
+        WaitCommand waitCommand = new WaitCommand(0.3);
+        waitCommand.schedule();
+
+        // Creating pathfinder to get out of starting position
         m_core.getPathfinderSubsystem().clearSequence();
         int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
         System.out.println("Path loaded: " + path.length);
         InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
         
+        // Raising arm and zeroing elevator
         InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
         ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
+        SequentialCommandGroup sequentialCommandGroup = new SequentialCommandGroup(moveArm, zeroElevator);
         
-        SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator, pathfinder);
-        commandGroup.schedule();
+        // Running pathfinder and arm raise/elevator zero in parallel
+        ParallelCommandGroup parallelCommandGroup = new ParallelCommandGroup(pathfinder, sequentialCommandGroup);
+        parallelCommandGroup.schedule();
+
     }
 
     @Override
@@ -72,18 +83,19 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        // Raising arm a little
         InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(4));
         raiseElevator.schedule();
 
+        // Waiting until arm is raise
         WaitCommand waitCommand = new WaitCommand(0.3);
         waitCommand.schedule();
 
-        // InstantCommand setElevatorZero = new InstantCommand(() -> m_core.getElevatorSubsystem().zeroElevator());
-        // setElevatorZero.schedule();
-        
+        // Raising arm and zeroing elevator
         InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
         ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
-        
+
+        // Running arm raise and elevator zero
         SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator);
         commandGroup.schedule();
     }
