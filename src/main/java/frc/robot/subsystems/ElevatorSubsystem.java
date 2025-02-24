@@ -45,9 +45,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     public TalonFX elevatorMotor2;
     public CANcoder shaftEncoder;
     private Pigeon2 pidgey;
-    private DigitalInput limitSwitch;
+    public DigitalInput limitSwitch;
 
     private boolean currentlyMovingDown = false;
+    private boolean zeroingElevator = false;
 
     private static final double POSITION_0 = 2; // Lowest Height
     private static final double POSITION_1 = 25; // Position of the lowest reef level
@@ -65,7 +66,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         this.elevatorMotor2 = new TalonFX(32, "FastFD");
         this.pidgey = new Pigeon2(Constants.PIGEON_ID, "FastFD");
         this.shaftEncoder = new CANcoder(30, "FastFD");
-        limitSwitch = new DigitalInput(1);
+        limitSwitch = new DigitalInput(0);
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
         Slot0Configs slot0Configs = talonFXConfigs.Slot0;
@@ -97,12 +98,16 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble() * Constants.ELEVATOR_RATIO);
     }
 
-    public void zeroSystem() {
+    public void setElevatorZero() {
         shaftEncoder.setPosition(0.0);
         elevatorMotor1.setPosition(0.0);
 
         MotionMagicVoltage m_request = new MotionMagicVoltage(0);
         elevatorMotor1.setControl(m_request);
+    }
+
+    public void zeroElevator() {
+        zeroingElevator = true;
     }
 
     public void stopElevator() {
@@ -134,7 +139,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void lower() {
         // if (!limitSwitch.get()) {
         currentlyMovingDown = true;
-            MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - 1);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - 1);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
         // }
 
@@ -146,6 +151,16 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void raise() {
         currentlyMovingDown = false;
         MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() + 1);
+        elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+
+        // Since the new request is based on the current position, there is not stacking
+        // of lower requests
+        // The delta essentiallly is the speed of the lower
+    }
+
+    public void raise(double amount) {
+        currentlyMovingDown = false;
+        MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() + amount);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
 
         // Since the new request is based on the current position, there is not stacking
@@ -185,19 +200,27 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-
+        // Robot tilting
         if (pidgey.getRotation3d().getMeasureX().abs(Degrees) > Constants.MAX_TIP_ANGLE
                 || pidgey.getRotation3d().getMeasureY().abs(Degrees) > Constants.MAX_TIP_ANGLE) {
             lowerIfTip();
             System.out.println("Lowering Elevator Due To Tipping");
         }
 
-       if (currentlyMovingDown && !limitSwitch.get()) {
-            elevatorMotor1.stopMotor();
-            zeroSystem();
-            currentlyMovingDown = false;
-       }
-        
+        if (zeroingElevator) {
+            System.out.println("Zeroing Elevator");
+            if (!limitSwitch.get()) {
+                zeroingElevator = false;
+                setElevatorZero();
+            } else {
+                lower();
+            }
+        }
+
+        // elevatorMotor1.getSupplyCurrent().getValueAsDouble() > 0.8 // But from T4 to Min elevator uses 0.8 amps
+        if (currentlyMovingDown && !limitSwitch.get()) { // limit is reversed
+            setElevatorZero();
+        }
         
     }
 

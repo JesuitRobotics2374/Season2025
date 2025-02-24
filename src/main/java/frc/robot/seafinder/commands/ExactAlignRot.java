@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
+import frc.robot.utils.LimelightObject;
 
 public class ExactAlignRot extends Command {
 
@@ -54,48 +55,41 @@ public class ExactAlignRot extends Command {
     }
 
     @Override
-    public void execute() {
+    public void execute() {        int canSeeCount = 0;
+        double[] total = new double[6];
 
-        if (NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1) != tag_id) {
-            System.out.println("No target found: " + tag_id + " vs " + NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1));
-            System.out.println("No target found");
-            System.out.println("No target found");
+        for (LimelightObject ll : Constants.LIMELIGHTS_ON_BOARD) {
+            if (NetworkTableInstance.getDefault().getTable(ll.name).getEntry("tid").getDouble(-1) == tag_id) {
+                canSeeCount++;
+                double[] raw = NetworkTableInstance.getDefault().getTable(ll.name).getEntry("targetpose_robotspace").getDoubleArray(new double[6]);
+                for (int i = 0; i < 6; i++) {
+                    total[i] += raw[i];
+                }
+            }
+        }
+
+        if (canSeeCount == 0) {
             doneMoving = true;
             doneRotating = true;
             return;
         }
 
-        // raw[0] x coor, raw[1] y coor
-        double[] raw = NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("targetpose_robotspace").getDoubleArray(new double[6]);
-        raw[0] += alignmentShift;
-        
-        targetPose = new Pose3d(raw[0], raw[1], raw[2], new Rotation3d(raw[5] * Math.PI / 180, raw[3] * Math.PI / 180, raw[4] * Math.PI / 180)).toPose2d();
-        // Logging
-        System.out.println("XY" + raw[0] + " " + raw[1] + " from exact align rot command");
-        // drivetrain.setLabel(targetFieldRelPose2d, "Target Field Rel Pose");
-        // Logging
+        for (int i = 0; i < 6; i++) {
+            total[i] /= canSeeCount;
+        }
 
-        double distanceToTarget = (new Translation2d(0, 0)).getDistance(targetPose.getTranslation());
-        if (distanceToTarget < Constants.GENERIC_DISTANCE_THRESHOLD) {doneMoving = true;}
+        targetPose = new Pose3d(total[0], total[1], total[2], new Rotation3d(total[5] * Math.PI / 180, total[3] * Math.PI / 180, total[4] * Math.PI / 180)).toPose2d();
 
         double rotationToTarget = Math.abs(targetPose.getRotation().getRadians());
         if (rotationToTarget < Constants.GENERIC_ROTATION_THRESHOLD) {doneRotating = true;}
 
-
-        double velocityX = 0;
-        double velocityY = 0;
-        double magnitude = Math.sqrt(Math.pow(raw[0], 2) + Math.pow(raw[1], 2)); // TODO: Retune after removing magnitude
         double rotationalRate = 0;
 
-        if (!doneMoving) { // weird moving command that shimmies
-            velocityX = raw[0] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
-            velocityY = raw[1] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
-        }
         if (!doneRotating) {
-          double rotationError = targetPose.getRotation().getRadians();
-          double RESign = rotationError / Math.abs(rotationError);
-          rotationalRate = rotationError * Constants.ALIGN_ROTATE_SPEED
-          + (RESign * Constants.ALIGN_ROTATIONAL_FEED_FORWARD);
+            double rotationError = targetPose.getRotation().getRadians();
+            double RESign = rotationError / Math.abs(rotationError);
+            rotationalRate = rotationError * Constants.ALIGN_ROTATE_SPEED
+            + (RESign * Constants.ALIGN_ROTATIONAL_FEED_FORWARD);
         }
 
         System.out.println("ROT: " + rotationToTarget);
@@ -108,8 +102,7 @@ public class ExactAlignRot extends Command {
         // System.out.println("DIS" + distanceToTarget + " VELX: " + velocityX + " VELY: " + velocityY + " ROT: " + rotationalRate);
 
         // + Y is Forard on dr 
-        if (!(doneMoving && doneRotating)) {
-          // drivetrain.setControl(driveRequest.withVelocityX(velocityY).withVelocityY(-velocityX).withRotationalRate(-rotationalRate));
+        if (!doneRotating) {
             drivetrain.setControl(driveRequest.withRotationalRate(-rotationalRate));
         }
     }

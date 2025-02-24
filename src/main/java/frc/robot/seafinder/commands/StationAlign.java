@@ -29,13 +29,13 @@ public class StationAlign extends Command{
 
     @Override
     public void execute() {
-        double rightRange = drivetrain.getForwardRangeRight() + Constants.SA_RIGHT_BUFFER;
+        double rightRange = drivetrain.getForwardRangeRight() + Constants.RIGHT_CANRANGE_OFFSET;
         double leftRange = drivetrain.getForwardRangeLeft();
         double avgRange = (rightRange + leftRange) / 2;
 
         System.out.println("LEFT: " + leftRange + " RIGHT: " + rightRange + " AVG: " + avgRange);
 
-        double velocityX = (0.3 * (avgRange - Constants.SA_TARGET_DISTANCE) / Constants.SA_TARGET_DISTANCE) + 0.1;
+        double velocityX = (0.3 * (avgRange - Constants.SA_TARGET_DISTANCE) / Constants.SA_TARGET_DISTANCE) + 0.2;
 
         // Check if we are at or past the target distance
         if (avgRange <= Constants.SA_TARGET_DISTANCE) {

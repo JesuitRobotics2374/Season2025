@@ -128,7 +128,7 @@ public class Core {
                                     () -> elevatorSubsystem.changeBy(-Constants.RETRACT_ELEVATOR_DOWNSHIFT)));
                     waitAndEle.schedule();
                     SequentialCommandGroup waitAndOuttake = new SequentialCommandGroup(new WaitCommand(3.2),
-                            new InstantCommand(() -> manipulatorSubsystem.spinAt(-0.2)), new WaitCommand(1),
+                            new InstantCommand(() -> manipulatorSubsystem.outtake()), new WaitCommand(1),
                             new InstantCommand(() -> manipulatorSubsystem.stop()));
                     waitAndOuttake.schedule();
                     SequentialCommandGroup waitAndBack = new SequentialCommandGroup(new WaitCommand(3),
@@ -138,32 +138,40 @@ public class Core {
                 case "t3":
                     // primary steps
                     System.out.println("Running retract macro: backAndDown");
-                    elevatorSubsystem.changeBy(-Constants.RETRACT_ELEVATOR_DOWNSHIFT);
-                    SequentialCommandGroup waitAndOuttake3 = new SequentialCommandGroup(new WaitCommand(0.3),
-                            new InstantCommand(() -> manipulatorSubsystem.spinAt(-0.2)), new WaitCommand(0.7),
-                            new InstantCommand(() -> manipulatorSubsystem.stop()));
-                    waitAndOuttake3.schedule();
-                    SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new WaitCommand(0.6),
+
+                    SequentialCommandGroup waitAndOuttake3 = new SequentialCommandGroup(
+                    new InstantCommand(() -> manipulatorSubsystem.outtake(0.05)), new WaitCommand(0.2),
+                    new InstantCommand(() -> manipulatorSubsystem.stop()));
+                    
+                    SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new WaitCommand(0.8),
                             new StaticBackCommand(drivetrain, -0.4, -1));
+                    
+                    
+                    elevatorSubsystem.changeBy(-60);
+                    waitAndOuttake3.schedule();
+                    armSubsystem.armChangeBy(-15);
                     waitAndBack3.schedule();
                     break;
                 case "t2":
                     // primary steps
                     System.out.println("Running retract macro: backAndDown");
-                    elevatorSubsystem.changeBy(-10);
-                    armSubsystem.armChangeBy(-17);
-                    SequentialCommandGroup waitAndOuttake2 = new SequentialCommandGroup(new WaitCommand(0.2),
-                            new InstantCommand(() -> manipulatorSubsystem.spinAt(-0.52)), new WaitCommand(3),
+
+                    SequentialCommandGroup waitAndOuttake2 = new SequentialCommandGroup(new WaitCommand(1.0),
+                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.3)), new WaitCommand(3),
                             new InstantCommand(() -> manipulatorSubsystem.stop()));
+                        SequentialCommandGroup waitAndBack2 = new SequentialCommandGroup(new WaitCommand(1.5),
+                                new StaticBackCommand(drivetrain, -0.4, -1));
+
+                    elevatorSubsystem.changeBy(-10);
+                    armSubsystem.armChangeBy(-19);
                     waitAndOuttake2.schedule();
-                    SequentialCommandGroup waitAndBack2 = new SequentialCommandGroup(new WaitCommand(1.5),
-                            new StaticBackCommand(drivetrain, -0.4, -1));
                     waitAndBack2.schedule();
                     break;
                 default:
                     break;
             }
         }
+        return;
     }
 
     public void registerAutoCommands() {
@@ -248,11 +256,7 @@ public class Core {
 
         // driveController.x().onTrue(new InstantCommand(() -> performRetract()));
 
-        // driveController.y().onTrue(elevatorSubsystem.runOnce(() ->
-        // elevatorSubsystem.zeroSystem()));
-
-        driveController.y().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(6, Alignment.LEFT))); // DO NOT TOUCH MOVES ROBOT TO PATH
-        driveController.x().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3))); // REST LOCATION GOOD
+        driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.setElevatorZero()));
 
         driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
         driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
@@ -271,7 +275,6 @@ public class Core {
         operatorController.povUp().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
         operatorController.povDown().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
         operatorController.povLeft().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.stop()));
-        operatorController.povRight().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.eject()));
 
         
 
@@ -309,6 +312,10 @@ public class Core {
 
     public ArmSubsystem getArmSubsystem() {
         return armSubsystem;
+    }
+
+    public ElevatorSubsystem getElevatorSubsystem() {
+        return elevatorSubsystem;
     }
 
     // public Command getAutonomousCommand() {

@@ -28,7 +28,7 @@ public class Constants {
     public static final double MIN_CAMERA_DISTANCE = 0; // meters TODO
     public static final LimelightObject[] LIMELIGHTS_ON_BOARD = {
             new LimelightObject("limelight-left", 1.4, LLType.kLeft),
-            // new LimelightObject("limelight-right", 1.1, LLType.kRight),
+            new LimelightObject("limelight-right", 1.4, LLType.kRight),
             // new LimelightObject("limelight-back", 1.4, LLType.kBack)
     };
     public static final Pose2d TEST_PATHFIND_TARGET = new Pose2d(1.199, 7.028, new Rotation2d(128.581 * (Math.PI / 180)));
@@ -36,17 +36,13 @@ public class Constants {
     // Arm
 
     public static final double ARM_RATIO = 125;
+    public static final double ARM_HORIZONTAL = 2.666;
 
-    public static final double WRIST_PID_P = 0.1; // TODO
-    public static final double WRIST_PID_I = 0.0; // TODO
-    public static final double WRIST_PID_D = 0.0; // TODO
-
-    public static final double WRIST_MIN_POSITION = 0.312533
-    ;
+    public static final double WRIST_MIN_POSITION = 0.312533;
     public static final double WRIST_MAX_POSITION = 0.570801;
 
-    public static final double WRIST_INCREMENT = 0.8; // TODO
-    public static final double WRIST_MAX_SPEED = 0.3; // TODO
+    public static final double WRIST_INCREMENT = 0.8;
+    public static final double WRIST_MAX_SPEED = 0.3;
     public static final double WRIST_RATIO = 64;
 
     // Pathfinding
@@ -63,18 +59,20 @@ public class Constants {
     public static final double PATHFINDING_RIGHT_SHIFT_FACTOR = 0.1037;
 
     public static final double GENERIC_DISTANCE_THRESHOLD = 0.035; 
-    public static final double GENERIC_ROTATION_THRESHOLD = 0.1 * Math.PI / 180;
+    public static final double GENERIC_ROTATION_THRESHOLD = 0.8 * Math.PI / 180;
+    public static final double ALIGN_Y_SHIFT = -0.12; //meters limelight
     public static final double ALIGN_MOVE_SPEED = 0.25;
     public static final double ALIGN_ROTATE_SPEED = 0.0006;
-    public static final double ALIGN_ROTATIONAL_FEED_FORWARD = 0.3;
-
+    public static final double ALIGN_ROTATIONAL_FEED_FORWARD = 0.25;
+    
     // Dynamic Forward
-
+    
     public static final double DYNAMIC_FORWARD_SPEED = 0.6;
-    public static final double DYNAMIC_FORWARD_DISTANCE = 0.47;
-
+    public static final double DYNAMIC_FORWARD_DISTANCE = 0.47;//weird unit
+    public static final double RIGHT_CANRANGE_OFFSET = -0.04;
+    
     public static final double SA_RIGHT_BUFFER = -0.0;
-    public static final double SA_TARGET_DISTANCE = 0.668;
+    public static final double SA_TARGET_DISTANCE = 0.738;
     public static final double SA_ROTATIONAL_RATE_THRESHOLD = 0.04;
 
     // Elevator

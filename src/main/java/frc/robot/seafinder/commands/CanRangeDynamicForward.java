@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
-public class CanRangeDynamicForward extends Command{
+public class CanRangeDynamicForward extends Command {
 
     private final SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -27,14 +27,18 @@ public class CanRangeDynamicForward extends Command{
 
     @Override
     public void execute() {
-        if (drivetrain.getForwardRangeLeft() > Constants.DYNAMIC_FORWARD_DISTANCE) {
+        double distance = Math.min(drivetrain.getForwardRangeLeft(), drivetrain.getForwardRangeRight() + Constants.RIGHT_CANRANGE_OFFSET);
+
+        if (distance > Constants.DYNAMIC_FORWARD_DISTANCE) {
             drivetrain.setControl(driveRequest.withVelocityX(0.5));
         }
     }
 
     @Override
     public boolean isFinished() {
-        return (drivetrain.getForwardRangeLeft() <= Constants.DYNAMIC_FORWARD_DISTANCE);
+        double distance = Math.min(drivetrain.getForwardRangeLeft(), drivetrain.getForwardRangeRight() + Constants.RIGHT_CANRANGE_OFFSET);
+
+        return (distance <= Constants.DYNAMIC_FORWARD_DISTANCE);
     }
 
     @Override

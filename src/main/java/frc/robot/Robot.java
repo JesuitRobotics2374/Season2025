@@ -9,7 +9,12 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.seafinder.PathfinderSubsystem.Alignment;
+import frc.robot.seafinder.commands.InitRaiseArm;
+import frc.robot.seafinder.commands.ZeroElevator;
 import frc.robot.seafinder.utils.AStar;
 import frc.robot.seafinder.utils.Apriltags;
 
@@ -42,12 +47,19 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        
+        InstantCommand setElevatorZero = new InstantCommand(() -> m_core.getElevatorSubsystem().zeroElevator());
+        setElevatorZero.schedule();
+
         m_core.getPathfinderSubsystem().clearSequence();
         int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
         System.out.println("Path loaded: " + path.length);
-        m_core.getPathfinderSubsystem().executePath(path);
-
+        InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
+        
+        InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
+        ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
+        
+        SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator, pathfinder);
+        commandGroup.schedule();
     }
 
     @Override
@@ -60,9 +72,20 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        if (m_autonomousCommand != null) {
-            m_autonomousCommand.cancel();
-        }
+        InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(4));
+        raiseElevator.schedule();
+
+        WaitCommand waitCommand = new WaitCommand(0.3);
+        waitCommand.schedule();
+
+        // InstantCommand setElevatorZero = new InstantCommand(() -> m_core.getElevatorSubsystem().zeroElevator());
+        // setElevatorZero.schedule();
+        
+        InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
+        ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
+        
+        SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator);
+        commandGroup.schedule();
     }
 
     @Override

@@ -29,6 +29,7 @@ import frc.robot.seafinder.commands.CanRangeDynamicForward;
 import frc.robot.seafinder.commands.DriveDynamicX;
 import frc.robot.seafinder.commands.ExactAlignRot;
 import frc.robot.seafinder.commands.ExactAlignXY;
+import frc.robot.seafinder.commands.IntakeCommand;
 import frc.robot.seafinder.commands.StaticBackCommand;
 import frc.robot.seafinder.commands.StationAlign;
 import frc.robot.seafinder.utils.Apriltags;
@@ -180,7 +181,7 @@ public class PathfinderSubsystem {
         }
     }
 
-    public void newExecuteSequence(boolean addToAutoQueue, int tagId, Alignment alignment, Setpoint reefHeight) {
+    public void newExecuteSequence(boolean runAuto, int tagId, Alignment alignment, Setpoint reefHeight) {
         Pose3d tagTarget = Apriltags.getWeldedPosition(tagId); // Get the tag's position from welded map
 
         if (tagTarget == null) {
@@ -199,6 +200,17 @@ public class PathfinderSubsystem {
 
         double offset = alignment.getOffset();
         double centerOffset = Alignment.CENTER.getOffset();
+
+        if (reefHeight.equals(Constants.SETPOINT_REEF_T1)) {
+            offset = 0;
+        }
+
+        System.out.println("OFFSET: " + offset);
+        System.out.println("OFFSET: " + offset);
+        System.out.println("OFFSET: " + offset);
+        System.out.println("OFFSET: " + offset);
+        System.out.println("OFFSET: " + offset);
+        System.out.println("OFFSET: " + offset);
 
         Pose3d pathfindTarget3d = new Pose3d(
                 tagTarget.getX() + Constants.PATHFINDING_PRE_BUFFER * Math.cos(tagRotation.getZ())
@@ -234,8 +246,8 @@ public class PathfinderSubsystem {
         // DriveDynamicX driveForward = new DriveDynamicX(drivetrain,
         // Constants.MIN_CAMERA_DISTANCE, 0.1); // TODO: Tune speed of drive
 
-        Command alignComponents = new InstantCommand(() -> core.moveToSetpoint(reefHeight));
-        Command retractComponents = new InstantCommand(() -> core.performRetract());
+        Command alignComponents = new InstantCommand(() -> {core.moveToSetpoint(reefHeight);});
+        Command retractComponents = new InstantCommand(() -> {core.performRetract();});
 
         Command pilotStateAlign = new InstantCommand(() -> updateGUI(5));
         Command pilotStateRot = new InstantCommand(() -> updateGUI(6));
@@ -245,56 +257,64 @@ public class PathfinderSubsystem {
 
         Command resetNavPilot = new InstantCommand(() -> updateGUI(0));
 
-        SequentialCommandGroup finalCommandGroup;
+        SequentialCommandGroup finalCommandGroup = new SequentialCommandGroup(lowerRobot, pathfindCommand, alignComponents, exactAlignCommandRot, exactAlignCommandXY, dynamicForwardCommand, retractComponents, resetNavPilot);
+        finalCommandGroup.schedule();
 
         // testCommandGroup = new SequentialCommandGroup(alignComponents);
 
-        if (addToAutoQueue) {
-            if (!reefHeight.equals(Constants.SETPOINT_HP_INTAKE)) {
-                // autoCommandSequence.addCommands(pathfindCommand, exactAlignCommandRot, exactAlignCommandXY, dynamicForwardCommand);
-                autoCommandSequence.addCommands(pathfindCommand);
+        // if (runAuto) {
+        //     if (!reefHeight.equals(Constants.SETPOINT_HP_INTAKE)) {
+        //         autoCommandSequence.addCommands(lowerRobot, pathfindCommand, pilotStateAlign, alignComponents, 
+        //             pilotStateRot, exactAlignCommandRot, pilotStateXY, exactAlignCommandXY, dynamicForwardCommand,
+        //             pilotStateDynamic, pilotStateRetract, retractComponents, resetNavPilot);
 
-                /*good code, commenting out bc queue for auto doesnt wanna clear (aries did smthn), has deleted all elevator commands out of fear of breaking
-                // autoCommandSequence.addCommands(pathfindCommand, pilotStateAlign,
-                //  pilotStateRot, exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
-                // pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, resetNavPilot);
-                */
 
-                // finalCommandGroup = new SequentialCommandGroup(pathfindCommand,
-                // pilotStateAlign,
-                // exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
-                // pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, resetNavPilot);
-            } else {
-                System.out.print("we are not in the reef??????????");
-                Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
-                Command stationAlignCommand = new StationAlign(drivetrain);
-                Command runIntake = new InstantCommand(() -> core.getManipulatorSubsystem().intake());
-                Command moveBack = new StaticBackCommand(drivetrain, 0.3, 0.3);
-                autoCommandSequence.addCommands(pathfindCommand);
+        //         /*good code, commenting out bc queue for auto doesnt wanna clear (aries did smthn), has deleted all elevator commands out of fear of breaking
+        //         // autoCommandSequence.addCommands(pathfindCommand, pilotStateAlign,
+        //         //  pilotStateRot, exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
+        //         // pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, resetNavPilot);
+        //         */
 
-                // autoCommandSequence.addCommands(pathfindCommand, stationAlignCommand); // TEMPORARY, bc we testing auto code path find only, not station align
+        //         // finalCommandGroup = new SequentialCommandGroup(pathfindCommand,
+        //         // pilotStateAlign,
+        //         // exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
+        //         // pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, resetNavPilot);
+        //     } else {
+        //         System.out.print("we are not in the reef??????????");
+        //         Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
+        //         Command stationAlignCommand = new StationAlign(drivetrain);
+        //         Command runIntake = new IntakeCommand(core.getManipulatorSubsystem());
+        //         Command moveBack = new StaticBackCommand(drivetrain, 0.3, 0.3);
+        //         Command parallelSetup = new ParallelCommandGroup(pathfindCommand, alignComponents);
+        //         autoCommandSequence.addCommands(lowerRobot, parallelSetup, moveWrist, stationAlignCommand,
+        //         runIntake, resetNavPilot, moveBack);
+
+        //         // autoCommandSequence.addCommands(pathfindCommand, stationAlignCommand); // TEMPORARY, bc we testing auto code path find only, not station align
                
-                // finalCommandGroup = new SequentialCommandGroup(parallelSetup, stationAlignCommand, resetNavPilot);
-            }
-        } else {
+        //         // finalCommandGroup = new SequentialCommandGroup(parallelSetup, stationAlignCommand, resetNavPilot);
+        //     }
+        // } else {
 
-            if (isReef) {
-                finalCommandGroup = new SequentialCommandGroup(lowerRobot, pathfindCommand, pilotStateAlign,
-                        alignComponents, pilotStateRot, exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
-                        pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, retractComponents, resetNavPilot);
-            } else {
-                System.out.print("we are not in the reef??????????");
-                Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
-                StationAlign stationAlignCommand = new StationAlign(drivetrain);
-                Command runIntake = new InstantCommand(() -> core.getManipulatorSubsystem().intake());
-                Command parallelSetup = new ParallelCommandGroup(pathfindCommand, alignComponents);
-                Command moveBack = new StaticBackCommand(drivetrain, 0.3, 0.3);
-                finalCommandGroup = new SequentialCommandGroup(lowerRobot, parallelSetup, stationAlignCommand,
-                        runIntake, resetNavPilot);
-            }
+        //     if (isReef) {
+        //         finalCommandGroup = new SequentialCommandGroup(lowerRobot, pathfindCommand, pilotStateAlign, alignComponents,
+        //              pilotStateRot, exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
+        //                 pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, retractComponents, resetNavPilot);
+        //     } else {
+        //         Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
+        //         StationAlign stationAlignCommand = new StationAlign(drivetrain);
+        //         Command runIntake = new IntakeCommand(core.getManipulatorSubsystem());
+        //         Command parallelSetup = new ParallelCommandGroup(pathfindCommand, alignComponents);
+        //         Command moveBack = new StaticBackCommand(drivetrain, 0.3, 0.3);
+        //         finalCommandGroup = new SequentialCommandGroup(lowerRobot, parallelSetup, moveWrist, stationAlignCommand,
+        //                 runIntake, resetNavPilot, moveBack);
+        //     }
 
-            finalCommandGroup.schedule();
-        }
+        //     finalCommandGroup.schedule();
+        // }
+    }
+
+    public void autoExecuteSequence(int tagId, Alignment alignment, Setpoint reefHeight) {
+        
     }
 
     public int translateToTagId(int posCode) {

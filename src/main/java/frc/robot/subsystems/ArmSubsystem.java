@@ -60,7 +60,7 @@ public class ArmSubsystem extends SubsystemBase {
     public CANcoder armEncoder;
     public CANcoder wristEncoder;
 
-    // public double goal;
+    public double armGoal = Integer.MAX_VALUE; // Data storage variable 
 
     // private double wristTarget = Double.NaN;
 
@@ -82,17 +82,17 @@ public class ArmSubsystem extends SubsystemBase {
         Slot0Configs slot0Configs = talonFXConfigs.Slot0;
         MotionMagicConfigs motionMagicConfigs = talonFXConfigs.MotionMagic;
 
-        slot0Configs.kG = 8; // Output of voltage to overcome gravity
-        slot0Configs.kV = 1.6; // Output per unit target velocity, perhaps not needed
+        slot0Configs.kG = 8.5; // Output of voltage to overcome gravity
+        slot0Configs.kV = 2; // Output per unit target velocity, perhaps not needed
         slot0Configs.kA = 0.3; // Output per unit target acceleration, perhaps not needed
-        slot0Configs.kP = 7; // Controls the response to position error—how much the motor reacts to the
+        slot0Configs.kP = 9; // Controls the response to position error—how much the motor reacts to the
                              // difference between the current position and the target position.
         slot0Configs.kI = 1; // Addresses steady-state error, which occurs when the motor doesn’t quite reach
                              // the target position due to forces like gravity or friction.
         slot0Configs.kD = 0.1; // Responds to the rate of change of the error, damping the motion as the motor
                                // approaches the target. This reduces overshooting and oscillations.
 
-        motionMagicConfigs.MotionMagicCruiseVelocity = 4; // Target velocity in rps
+        motionMagicConfigs.MotionMagicCruiseVelocity = 6; // Target velocity in rps
         motionMagicConfigs.MotionMagicAcceleration = 3; // Target acceleration in rps/s
         motionMagicConfigs.MotionMagicJerk = 5; // Target jerk in rps/s/s
 
@@ -135,35 +135,49 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor1.setControl(m_request);
     }
 
+    public boolean armPassedGoal() {
+        return armMotor1.getPosition().getValueAsDouble() >= armGoal;
+    }
+
     public void armUp() {
+        armGoal = armMotor1.getPosition().getValueAsDouble() + 0.7;
+        
         MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor1.getPosition().getValueAsDouble() + 0.7);
 
         armMotor1.setControl(m_request);
     }
 
     public void armDown() {
+        armGoal = armMotor1.getPosition().getValueAsDouble() - 0.7;
+
         MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor1.getPosition().getValueAsDouble() - 0.7);
 
         armMotor1.setControl(m_request);
     }
 
     public void armGoTo(double pos) {
+        armGoal = pos;
+
         MotionMagicVoltage m_request = new MotionMagicVoltage(pos);
 
         armMotor1.setControl(m_request);
     }
 
     public void armChangeBy(double pos) {
+        armGoal = armMotor1.getPosition().getValueAsDouble() + pos;
+
         MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor1.getPosition().getValueAsDouble() + pos);
         armMotor1.setControl(m_request);
     }
 
-    public void zeroSystem() {
+    public void setZero() {
+        armGoal = 0.0;
+
         wristEncoder.setPosition(0.0);
         armMotor1.setPosition(0.0);
 
-        // MotionMagicVoltage m_request = new MotionMagicVoltage(0);
-        // armMotor1.setControl(m_request);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(0);
+        armMotor1.setControl(m_request);
     }
 
     public void stopArm() {

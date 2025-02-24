@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
+import frc.robot.utils.LimelightObject;
 
 public class ExactAlignXY extends Command {
 
@@ -55,29 +56,32 @@ public class ExactAlignXY extends Command {
 
     @Override
     public void execute() {
+        int canSeeCount = 0;
+        double[] total = new double[6];
 
-        if (NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1) != tag_id) {
-            System.out.println("No target found: " + tag_id + " vs "
-                    + NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1));
-            System.out.println("No target found");
-            System.out.println("No target found");
+        for (LimelightObject ll : Constants.LIMELIGHTS_ON_BOARD) {
+            if (NetworkTableInstance.getDefault().getTable(ll.name).getEntry("tid").getDouble(-1) == tag_id) {
+                canSeeCount++;
+                double[] raw = NetworkTableInstance.getDefault().getTable(ll.name).getEntry("targetpose_robotspace").getDoubleArray(new double[6]);
+                for (int i = 0; i < 6; i++) {
+                    total[i] += raw[i];
+                }
+            }
+        }
+
+        if (canSeeCount == 0) {
             doneMoving = true;
             doneRotating = true;
             return;
         }
 
-        double[] raw = NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("targetpose_robotspace")
-                .getDoubleArray(new double[6]);
-        raw[0] += alignmentShift;
+        for (int i = 0; i < 6; i++) {
+            total[i] /= canSeeCount;
+        }
+        total[0] += alignmentShift;
+        total[1] += Constants.ALIGN_Y_SHIFT;
 
-        targetPose = new Pose3d(raw[0], raw[1], raw[2],
-                new Rotation3d(raw[5] * Math.PI / 180, raw[3] * Math.PI / 180, raw[4] * Math.PI / 180)).toPose2d();
-        // Logging
-        System.out.println("XY" + raw[0] + " " + raw[1]+ " from exact align xy command");
-        Pose2d robotPose = drivetrain.getEstimator();
-        Pose2d targetFieldRelPose2d = robotPose.relativeTo(targetPose);
-        // drivetrain.setLabel(targetFieldRelPose2d, "Target Field Rel Pose");
-        // Logging
+        targetPose = new Pose3d(total[0], total[1], total[2], new Rotation3d(total[5] * Math.PI / 180, total[3] * Math.PI / 180, total[4] * Math.PI / 180)).toPose2d();
 
         double distanceToTarget = (new Translation2d(0, 0)).getDistance(targetPose.getTranslation());
         if (distanceToTarget < Constants.GENERIC_DISTANCE_THRESHOLD) {
@@ -91,13 +95,13 @@ public class ExactAlignXY extends Command {
 
         double velocityX = 0;
         double velocityY = 0;
-        double magnitude = Math.sqrt(Math.pow(raw[0], 2) + Math.pow(raw[1], 2)); // TODO: Retune after removing
+        double magnitude = Math.sqrt(Math.pow(total[0], 2) + Math.pow(total[1], 2)); // TODO: Retune after removing
                                                                                  // magnitude
         double rotationalRate = 0;
 
         if (!doneMoving) {
-            velocityX = raw[0] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
-            velocityY = raw[1] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
+            velocityX = total[0] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
+            velocityY = total[1] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
         }
         if (!doneRotating) {
             double rotationError = targetPose.getRotation().getRadians();
@@ -106,7 +110,7 @@ public class ExactAlignXY extends Command {
                     + (RESign * Constants.ALIGN_ROTATIONAL_FEED_FORWARD);
         }
 
-        System.out.println(" 5: " + raw[5] + " 3: " + raw[3] + " 4: " + raw[4]);
+        System.out.println(" 5: " + total[5] + " 3: " + total[3] + " 4: " + total[4]);
 
         // System.out.println((new Translation2d(0,
         // 0)).getDistance(targetPose.getTranslation()));

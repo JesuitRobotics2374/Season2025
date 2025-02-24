@@ -32,6 +32,9 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
     boolean algaeIntake = false;
 
+    private boolean isIntaking = false;
+    public boolean isOuttaking = false;
+
     public ManipulatorSubsystem() {
 
         // this.eject = new SparkMax(33, MotorType.kBrushless);
@@ -48,16 +51,26 @@ public class ManipulatorSubsystem extends SubsystemBase {
     }
 
     public void intake() {
-        control.set(-0.5);
+        isIntaking = true;
+        isOuttaking = false;
+        control.set(-0.75);
     }
 
     public void outtake() {
-        control.set(-0.15);
-        // eject.setVoltage(10);
+        isIntaking = false;
+        isOuttaking = true;
+        control.set(1.0);
     }
 
-    public void eject() {
-        control.set(0.5);
+    public void outtake(double speed) {
+        isIntaking = false;
+        isOuttaking = true;
+        control.set(speed);
+    }
+
+    public void stopOuttake() {
+        isOuttaking = false;    
+        control.set(0);
     }
 
     public void spinAt(double speed) {
@@ -65,8 +78,13 @@ public class ManipulatorSubsystem extends SubsystemBase {
     }
 
     public void stop() {
+        isIntaking = false;
+        isOuttaking = false;
         control.stopMotor();
-        // eject.stopMotor();
+    }
+
+    public boolean getIsIntaking() {
+        return isIntaking;
     }
 
     // public void holdAlgae() {
@@ -87,8 +105,9 @@ public class ManipulatorSubsystem extends SubsystemBase {
             clock = 5;
         }
 
-        if (withinRange && clock == 10) {
+        if (isIntaking && !isOuttaking && withinRange && clock == 10) {
             stop();
+            isIntaking = false;
         }
 
         // if (algaeIntake && clock == 12) {
