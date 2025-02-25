@@ -37,7 +37,7 @@ public class StationAlign extends Command{
 
     @Override
     public void execute() {
-        double rightRange = drivetrain.getForwardRangeRight() + Constants.RIGHT_CANRANGE_OFFSET;
+        double rightRange = drivetrain.getForwardRangeRight() + Constants.RIGHT_CAN_RANGE_OFFSET;
         double leftRange = drivetrain.getForwardRangeLeft();
         double currAvgRange = (rightRange + leftRange) / 2;
         
@@ -56,10 +56,10 @@ public class StationAlign extends Command{
 
         System.out.println("TOTAVG: " + avgRange);
 
-        double velocityX = (0.25 * (avgRange - Constants.SA_TARGET_DISTANCE) / Constants.SA_TARGET_DISTANCE) + 0.35;
+        double velocityX = (0.25 * (avgRange - Constants.STATION_TARGET_DISTANCE) / Constants.STATION_TARGET_DISTANCE) + 0.35;
 
         // Check if we are at or past the target distance
-        if (avgRange <= Constants.SA_TARGET_DISTANCE) {
+        if (avgRange <= Constants.STATION_TARGET_DISTANCE) {
             velocityX = 0;
             doneMoving = true;
         }
@@ -68,7 +68,7 @@ public class StationAlign extends Command{
         double rotationalRate = ((rightRange - leftRange) / 8) + 0.034;
 
         // Check if we are within the rotational rate threshold
-        if ((Math.abs(leftRange - rightRange) < Constants.SA_ROTATIONAL_RATE_THRESHOLD) || avgRange >= Constants.SA_TARGET_DISTANCE+0.3) {
+        if ((Math.abs(leftRange - rightRange) < Constants.STATION_ROTATIONAL_RATE_THRESHOLD) || avgRange >= Constants.STATION_TARGET_DISTANCE+0.3) {
             rotationalRate = 0;
             doneRotating = true;
         }

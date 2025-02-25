@@ -140,17 +140,17 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public void armUp() {
-        armGoal = armMotor1.getPosition().getValueAsDouble() + 0.7;
+        armGoal = armMotor1.getPosition().getValueAsDouble() + Constants.ARM_MOVE_AMOUNT;
         
-        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor1.getPosition().getValueAsDouble() + 0.7);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armGoal);
 
         armMotor1.setControl(m_request);
     }
 
     public void armDown() {
-        armGoal = armMotor1.getPosition().getValueAsDouble() - 0.7;
+        armGoal = armMotor1.getPosition().getValueAsDouble() - Constants.ARM_MOVE_AMOUNT;
 
-        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor1.getPosition().getValueAsDouble() - 0.7);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armGoal);
 
         armMotor1.setControl(m_request);
     }

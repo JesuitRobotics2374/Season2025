@@ -65,7 +65,7 @@ public class Core {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.02) // Add a 10% deadband
+            .withDeadband(MaxSpeed * 0.01).withRotationalDeadband(MaxAngularRate * 0.002) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     // private final SwerveRequest.SwerveDriveBrake brake = new
     // SwerveRequest.SwerveDriveBrake();
@@ -112,7 +112,8 @@ public class Core {
         armSubsystem.wristGoTo(setpoint.getWrist());
     }
 
-    // Based on the last setpoint we aligned to, retract using a very specific set of hardward movements
+    // Based on the last setpoint we aligned to, retract using a very specific set
+    // of hardward movements
     public void performRetract() {
         // NOTE: Only tag 19 is secured to reef so only testing happened on tag 19
         if (queuedRetractAction != null) {
@@ -122,19 +123,19 @@ public class Core {
                 case "t4": // Tuned on tag 19 right & left - Note at top
                     System.out.println("Running retract macro: backAndDown");
                     SequentialCommandGroup waitAndEle = new SequentialCommandGroup(
-                        new WaitCommand(0.5), 
-                        new InstantCommand(() -> elevatorSubsystem.changeBy(-Constants.RETRACT_ELEVATOR_DOWNSHIFT)));
+                            new WaitCommand(0.5),
+                            new InstantCommand(
+                                    () -> elevatorSubsystem.changeBy(-Constants.RETRACT_ELEVATOR_DOWNSHIFT)));
                     SequentialCommandGroup waitAndOuttake = new SequentialCommandGroup(
-                        new WaitCommand(0.75),
-                        new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
-                        new WaitCommand(0.3),
-                        new InstantCommand(() -> manipulatorSubsystem.outtake(0.25)),
-                        new WaitCommand(0.3),
-                        new InstantCommand(() -> manipulatorSubsystem.stop()));
+                            new WaitCommand(0.75),
+                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
+                            new WaitCommand(0.3),
+                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.25)),
+                            new WaitCommand(0.3),
+                            new InstantCommand(() -> manipulatorSubsystem.stop()));
                     SequentialCommandGroup waitAndBack = new SequentialCommandGroup(
-                        new WaitCommand(3),
-                        new StaticBackCommand(drivetrain, -0.2, -0.4));
-
+                            new WaitCommand(3),
+                            new StaticBackCommand(drivetrain, -0.2, -0.4));
 
                     waitAndEle.schedule();
                     waitAndOuttake.schedule();
@@ -144,16 +145,16 @@ public class Core {
                 case "t3": // Tuned on tag 19 right & left - Note at top
                     System.out.println("Running retract macro: backAndDown");
                     SequentialCommandGroup waitAndOuttake3 = new SequentialCommandGroup(
-                        new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
-                        new WaitCommand(0.2),
-                        new InstantCommand(() -> manipulatorSubsystem.stop()),
-                        new WaitCommand(0.1),
-                        new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
-                        new WaitCommand(0.3),
-                        new InstantCommand(() -> manipulatorSubsystem.stop()));
+                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
+                            new WaitCommand(0.2),
+                            new InstantCommand(() -> manipulatorSubsystem.stop()),
+                            new WaitCommand(0.1),
+                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
+                            new WaitCommand(0.3),
+                            new InstantCommand(() -> manipulatorSubsystem.stop()));
                     SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new WaitCommand(0.8),
                             new StaticBackCommand(drivetrain, -0.2, -1));
-                    
+
                     elevatorSubsystem.changeBy(-50);
                     armSubsystem.armChangeBy(-19);
                     waitAndOuttake3.schedule();
@@ -163,13 +164,13 @@ public class Core {
                     System.out.println("Running retract macro: backAndDown");
 
                     SequentialCommandGroup waitAndOuttake2 = new SequentialCommandGroup(
-                        new WaitCommand(1.0),
-                        new InstantCommand(() -> manipulatorSubsystem.outtake(0.4)),
-                        new WaitCommand(3.2),
-                        new InstantCommand(() -> manipulatorSubsystem.stop()));
+                            new WaitCommand(1.0),
+                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.4)),
+                            new WaitCommand(3.2),
+                            new InstantCommand(() -> manipulatorSubsystem.stop()));
                     SequentialCommandGroup waitAndBack2 = new SequentialCommandGroup(
-                        new WaitCommand(1.7),
-                        new StaticBackCommand(drivetrain, -0.2, -1));
+                            new WaitCommand(1.7),
+                            new StaticBackCommand(drivetrain, -0.2, -1));
 
                     elevatorSubsystem.changeBy(-11);
                     armSubsystem.armChangeBy(-15);
@@ -228,23 +229,18 @@ public class Core {
     }
 
     private void configureBindings() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
+
+        // STICK MOVEMENT
         drivetrain.setDefaultCommand(
-                // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive
-                        .withVelocityX(-driveController.getLeftY() * MaxSpeed * getAxisMovementScale()) // Drive
-                        // forward
-                        // with
-                        // negative Y
-                        // (forward)
-                        .withVelocityY(-driveController.getLeftX() * MaxSpeed * getAxisMovementScale()) // Drive left
-                                                                                                        // with negative
-                                                                                                        // X (left)
-                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale()) // Drive
-                                                                                                                    // counterclockwise
-                // with negative X (left)
-                ));
+                        .withVelocityX(-driveController.getLeftY() * MaxSpeed * getAxisMovementScale())
+                        .withVelocityY(-driveController.getLeftX() * MaxSpeed * getAxisMovementScale())
+                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
+
+        driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
+
+
+        //////////////////////////////////////////
 
         // driveController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // driveController.b().whileTrue(drivetrain.applyRequest(() ->
@@ -252,46 +248,58 @@ public class Core {
         // -driveController.getLeftX()))
         // ));
 
-        driveController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T1)));
-        driveController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T2)));
-        driveController.povUp().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T3)));
-        driveController.povRight().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T4)));
+        // driveController.povDown().onTrue(new InstantCommand(() ->
+        // moveToSetpoint(Constants.SETPOINT_REEF_T1)));
+        // driveController.povLeft().onTrue(new InstantCommand(() ->
+        // moveToSetpoint(Constants.SETPOINT_REEF_T2)));
+        // driveController.povUp().onTrue(new InstantCommand(() ->
+        // moveToSetpoint(Constants.SETPOINT_REEF_T3)));
+        // driveController.povRight().onTrue(new InstantCommand(() ->
+        // moveToSetpoint(Constants.SETPOINT_REEF_T4)));
 
-        driveController.a().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_MIN)));
-        driveController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
-        // driveController.y().onTrue(new InstantCommand(() ->
-        // moveToSetpoint(Constants.SETPOINT_MAX)));
-        driveController.x().onTrue(armSubsystem.runOnce(() -> armSubsystem.setZero()));
+        // driveController.a().onTrue(new InstantCommand(() ->
+        // moveToSetpoint(Constants.SETPOINT_MIN)));
+        // driveController.b().onTrue(new InstantCommand(() ->
+        // moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
+        // // driveController.y().onTrue(new InstantCommand(() ->
+        // // moveToSetpoint(Constants.SETPOINT_MAX)));
+        // driveController.x().onTrue(armSubsystem.runOnce(() ->
+        // armSubsystem.setZero()));
 
-        // driveController.x().onTrue(new InstantCommand(() -> performRetract()));
+        // // driveController.x().onTrue(new InstantCommand(() -> performRetract()));
 
-        driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.setElevatorZero()));
+        // driveController.y().onTrue(elevatorSubsystem.runOnce(() ->
+        // elevatorSubsystem.setElevatorZero()));
 
-        driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
-        driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
+        // driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() ->
+        // elevatorSubsystem.lower()));
+        // driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() ->
+        // elevatorSubsystem.raise()));
 
-        operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
-        operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
+        // operatorController.rightBumper().onTrue(armSubsystem.runOnce(() ->
+        // armSubsystem.armUp()));
+        // operatorController.leftBumper().onTrue(armSubsystem.runOnce(() ->
+        // armSubsystem.armDown()));
 
-        operatorController.y().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake()));
-        operatorController.x().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake()));
+        // operatorController.y().onTrue(armSubsystem.runOnce(() ->
+        // armSubsystem.rotateWristIntake()));
+        // operatorController.x().onTrue(armSubsystem.runOnce(() ->
+        // armSubsystem.rotateWristOuttake()));
 
-        // operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.wristCCW()));
-        // operatorController.b().onTrue(armSubsystem.runOnce(() -> armSubsystem.wristCW()));
+        // // operatorController.a().onTrue(armSubsystem.runOnce(() ->
+        // armSubsystem.wristCCW()));
+        // // operatorController.b().onTrue(armSubsystem.runOnce(() ->
+        // armSubsystem.wristCW()));
 
-        operatorController.b().onTrue(new InstantCommand(() -> new StationAlign(drivetrain).schedule()));
+        // operatorController.b().onTrue(new InstantCommand(() -> new
+        // StationAlign(drivetrain).schedule()));
 
-        operatorController.povUp().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
-        operatorController.povDown().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
-        operatorController.povLeft().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.stop()));
-
-        
-
-        // reset the field-centric heading on left bumper press
-        driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
-
-        // driveController.a().onTrue(new InstantCommand(() -> {new
-        // PathfinderSubsystem(drivetrain, 17, Alignment.LEFT);}));
+        // operatorController.povUp().onTrue(manipulatorSubsystem.runOnce(() ->
+        // manipulatorSubsystem.intake()));
+        // operatorController.povDown().onTrue(manipulatorSubsystem.runOnce(() ->
+        // manipulatorSubsystem.outtake()));
+        // operatorController.povLeft().onTrue(manipulatorSubsystem.runOnce(() ->
+        // manipulatorSubsystem.stop()));
 
         // drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -388,5 +396,12 @@ public class Core {
 
     public double getAxisMovementScale() {
         return (1 - (driveController.getRightTriggerAxis() * 0.9));
+    }
+
+    public void checkJoystickOverride() {
+        // If either of our analog sticks are moved, we want to disable the auto
+        if (driveController.getLeftX() != 0 || driveController.getLeftY() != 0) {
+            pathfinderSubsystem.stopAll();
+        }
     }
 }

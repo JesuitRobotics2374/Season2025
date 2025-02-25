@@ -27,7 +27,7 @@ public class CanRangeDynamicBackward extends Command { // Implement in reef sequ
 
     @Override
     public void execute() {
-        double distance = Math.min(drivetrain.getForwardRangeLeft(), drivetrain.getForwardRangeRight() + Constants.RIGHT_CANRANGE_OFFSET);
+        double distance = Math.min(drivetrain.getForwardRangeLeft(), drivetrain.getForwardRangeRight() + Constants.RIGHT_CAN_RANGE_OFFSET);
 
         if (distance < Constants.CAN_RANGE_BACKWARD_DISTANCE) {
             drivetrain.setControl(driveRequest.withVelocityX(-0.5));
@@ -36,7 +36,7 @@ public class CanRangeDynamicBackward extends Command { // Implement in reef sequ
 
     @Override
     public boolean isFinished() {
-        double distance = Math.min(drivetrain.getForwardRangeLeft(), drivetrain.getForwardRangeRight() + Constants.RIGHT_CANRANGE_OFFSET);
+        double distance = Math.min(drivetrain.getForwardRangeLeft(), drivetrain.getForwardRangeRight() + Constants.RIGHT_CAN_RANGE_OFFSET);
 
         return (distance >= Constants.CAN_RANGE_FORWARD_DISTANCE);
     }
