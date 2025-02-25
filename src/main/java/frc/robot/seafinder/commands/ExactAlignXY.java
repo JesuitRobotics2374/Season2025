@@ -50,6 +50,7 @@ public class ExactAlignXY extends Command {
 
     @Override
     public void initialize() {
+        System.out.println("Exact XY init");
         doneMoving = false;
         doneRotating = false;
     }
@@ -132,7 +133,7 @@ public class ExactAlignXY extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("ExactAlign ended" + interrupted);
+        System.out.println("Exact XY ended" + interrupted);
         drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
     }
 

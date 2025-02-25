@@ -32,6 +32,7 @@ public class StationAlign extends Command{
 
     @Override
     public void initialize(){
+        System.out.println("Station Align Initialized");
     }
 
     @Override

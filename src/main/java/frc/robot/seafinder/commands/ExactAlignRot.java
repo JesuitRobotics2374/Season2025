@@ -50,6 +50,7 @@ public class ExactAlignRot extends Command {
 
     @Override
     public void initialize() {
+        System.out.println("Exact Rotate Init");
         doneMoving = false;
         doneRotating = false;
     }
@@ -115,7 +116,7 @@ public class ExactAlignRot extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("ExactAlign ended" + interrupted);
+        System.out.println("Exact Rotate ended" + interrupted);
         drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
     }
 

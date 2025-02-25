@@ -332,7 +332,7 @@ public class PathfinderSubsystem {
                 constraints,
                 0);
         InstantCommand applyBreak = new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.SwerveDriveBrake()));
-        Command pathfindWaitCommand = new WaitCommand(2);
+        Command pathfindWaitCommand = new WaitCommand(0.3);
 
         Command pathfindDeleter = new InstantCommand(() -> {pathfindCommand.cancel();pathfindCommand=null;});
 
@@ -363,6 +363,7 @@ public class PathfinderSubsystem {
                 lowerRobot, 
                 pathfindCommand, 
                 applyBreak,
+                pathfindWaitCommand,
                 exactAlignCommandRot, 
                 alignComponents, 
                 exactAlignCommandXY, 
@@ -381,6 +382,7 @@ public class PathfinderSubsystem {
                 lowerRobot,
                 moveWrist,
                 parallelSetup,
+                pathfindWaitCommand,
                 applyBreak,
                 runIntake,
                 stationAlignCommand,

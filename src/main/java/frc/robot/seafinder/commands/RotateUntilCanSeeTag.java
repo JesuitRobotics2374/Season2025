@@ -20,6 +20,7 @@ public class RotateUntilCanSeeTag extends Command {
 
     @Override
     public void initialize() {
+        System.out.println("Rotate until can see tag initialized");
         done = false;
     }
 
@@ -42,7 +43,7 @@ public class RotateUntilCanSeeTag extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("I Rotate complete!");
+        System.out.println("Init Rotate complete!");
         drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
     }
 

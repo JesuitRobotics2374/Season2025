@@ -25,6 +25,7 @@ public class StaticBackCommand extends Command {
 
     @Override
     public void initialize() {
+        System.out.println("Static X init");
         done = false;
     }
 
@@ -49,7 +50,7 @@ public class StaticBackCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("Dynamic X complete!");
+        System.out.println("Static X complete!");
         drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
     }
 
