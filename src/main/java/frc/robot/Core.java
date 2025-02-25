@@ -133,12 +133,12 @@ public class Core {
                         new InstantCommand(() -> manipulatorSubsystem.stop()));
                     SequentialCommandGroup waitAndBack = new SequentialCommandGroup(
                         new WaitCommand(3),
-                        new StaticBackCommand(drivetrain, -0.4, -0.4));
+                        new StaticBackCommand(drivetrain, -0.2, -0.4));
 
 
                     waitAndEle.schedule();
                     waitAndOuttake.schedule();
-                    armSubsystem.armChangeBy(-18);
+                    armSubsystem.armChangeBy(-9);
                     waitAndBack.schedule();
                     break;
                 case "t3": // Tuned on tag 19 right & left - Note at top
@@ -152,7 +152,7 @@ public class Core {
                         new WaitCommand(0.3),
                         new InstantCommand(() -> manipulatorSubsystem.stop()));
                     SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new WaitCommand(0.8),
-                            new StaticBackCommand(drivetrain, -0.4, -1));
+                            new StaticBackCommand(drivetrain, -0.2, -1));
                     
                     elevatorSubsystem.changeBy(-50);
                     armSubsystem.armChangeBy(-19);
@@ -169,10 +169,10 @@ public class Core {
                         new InstantCommand(() -> manipulatorSubsystem.stop()));
                     SequentialCommandGroup waitAndBack2 = new SequentialCommandGroup(
                         new WaitCommand(1.7),
-                        new StaticBackCommand(drivetrain, -0.4, -1));
+                        new StaticBackCommand(drivetrain, -0.2, -1));
 
                     elevatorSubsystem.changeBy(-11);
-                    armSubsystem.armChangeBy(-21);
+                    armSubsystem.armChangeBy(-15);
                     waitAndOuttake2.schedule();
                     waitAndBack2.schedule();
                     break;

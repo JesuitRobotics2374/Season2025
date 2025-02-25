@@ -138,7 +138,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void lower() {
-        if (!limitSwitch.get()) {
+        if (limitSwitch.get()) {
             currentlyMovingDown = true;
             MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - Constants.ELEVATOR_MOVE_AMOUNT);
             elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
@@ -146,7 +146,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void lower(double amount) {
-        if (!limitSwitch.get()) {
+        if (limitSwitch.get()) {
             currentlyMovingDown = true;
             MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - amount);
             elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
@@ -202,7 +202,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
 
         if (zeroingElevator) {
-            System.out.println("Zeroing Elevator");
+            System.out.println("Zeroing Elevator" + (!limitSwitch.get()));
             if (!limitSwitch.get()) {
                 zeroingElevator = false;
                 setElevatorZero();

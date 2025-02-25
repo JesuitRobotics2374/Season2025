@@ -33,31 +33,31 @@ public class Constants {
     public static final double ARM_RATIO = 125;
     public static final double ARM_HORIZONTAL = 2.666;
 
-    public static final double WRIST_MIN_POSITION = 0.312533;
-    public static final double WRIST_MAX_POSITION = 0.570801;
+    public static final double WRIST_MIN_POSITION = 0.325439;
+    public static final double WRIST_MAX_POSITION = 0.583008;
 
     public static final double WRIST_INCREMENT = 0.8;
     public static final double WRIST_MAX_SPEED = 0.3;
     public static final double WRIST_RATIO = 64;
 
     // Pathfinding
-    public static final double PATHFINDING_MAX_VELOCITY = 3.5;
-    public static final double PATHFINDING_MAX_ACCELERATION = 1;
+    public static final double PATHFINDING_MAX_VELOCITY = 2.6;
+    public static final double PATHFINDING_MAX_ACCELERATION = 2.2;
     public static final double PATHFINDING_MAX_ROTATIONAL_VELOCITY = Units.degreesToRadians(540);
     public static final double PATHFINDING_MAX_ROTATIONAL_ACCELERATION = Units.degreesToRadians(720);
     
     public static final double PATHFINDING_PRE_BUFFER = -1.60116; // meters
     public static final double PATHFINDING_POST_BUFFER = -0.279; // meters
     public static final double PATHFINDING_FRONT_BUFFER = -1.02; // meters
-    public static final double PATHFINDING_LEFT_SHIFT_FACTOR = -0.2727;
-    public static final double PATHFINDING_RIGHT_SHIFT_FACTOR = 0.1037;
+    public static final double PATHFINDING_LEFT_SHIFT_FACTOR = -0.2447;
+    public static final double PATHFINDING_RIGHT_SHIFT_FACTOR = 0.0877;
 
     public static final double GENERIC_DISTANCE_THRESHOLD = 0.035; 
     public static final double GENERIC_ROTATION_THRESHOLD = 0.8 * Math.PI / 180;
     public static final double ALIGN_Y_SHIFT = -0.12; //meters limelight
-    public static final double ALIGN_MOVE_SPEED = 0.25;
-    public static final double ALIGN_ROTATE_SPEED = 0.0006;
-    public static final double ALIGN_ROTATIONAL_FEED_FORWARD = 0.25;
+    public static final double ALIGN_MOVE_SPEED = 0.5;
+    public static final double ALIGN_ROTATE_SPEED = 3;
+    public static final double ALIGN_ROTATIONAL_FEED_FORWARD = 0.2;
     
     // CAN RANGE Movement - Weird Units
     public static final double RIGHT_CANRANGE_OFFSET = -0.04;
@@ -67,7 +67,7 @@ public class Constants {
     public static final double CAN_RANGE_BACKWARD_DISTANCE = 1.3;
     
     public static final double SA_RIGHT_BUFFER = -0.0;
-    public static final double SA_TARGET_DISTANCE = 0.738;
+    public static final double SA_TARGET_DISTANCE = 0.69;
     public static final double SA_ROTATIONAL_RATE_THRESHOLD = 0.04;
 
     // Elevator
@@ -82,7 +82,7 @@ public class Constants {
     public static final double SETPOINT_ELEVATOR_OFFSET = 0;
 
     public static final Setpoint SETPOINT_MIN = new Setpoint(5, 22.4, WRIST_MIN_POSITION, "none");
-    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(18.55, 14.08, WRIST_MAX_POSITION, "none");
+    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(18.55, 15.2, WRIST_MAX_POSITION, "none");
     public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(24.83, 1.857, WRIST_MAX_POSITION, "none");
     public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(12.51, 20.37, WRIST_MIN_POSITION, "t2");
     public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(60.76, 18.68, WRIST_MIN_POSITION, "t3");

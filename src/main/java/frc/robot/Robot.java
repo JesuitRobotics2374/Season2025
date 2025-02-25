@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
         InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
         
         // Raising arm and zeroing elevator
-        InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
+        InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem(), true);
         ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
         SequentialCommandGroup sequentialCommandGroup = new SequentialCommandGroup(moveArm, zeroElevator);
         

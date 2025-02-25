@@ -32,6 +32,7 @@ import frc.robot.seafinder.commands.DriveDynamicX;
 import frc.robot.seafinder.commands.ExactAlignRot;
 import frc.robot.seafinder.commands.ExactAlignXY;
 import frc.robot.seafinder.commands.IntakeCommand;
+import frc.robot.seafinder.commands.RotateUntilCanSeeTag;
 import frc.robot.seafinder.commands.StaticBackCommand;
 import frc.robot.seafinder.commands.StationAlign;
 import frc.robot.seafinder.utils.Apriltags;
@@ -53,6 +54,8 @@ public class PathfinderSubsystem {
     private boolean isReef;
 
     private Command runningCommand; // Keep track of the currently running command so we can override it later
+
+    private Command pathfindCommand;
 
     private SequentialCommandGroup autoCommandSequence = new SequentialCommandGroup();
 
@@ -150,6 +153,7 @@ public class PathfinderSubsystem {
 
     public void executePath(int[][] path) {
         this.rawPath = path;
+        autoCommandSequence.addCommands(new RotateUntilCanSeeTag(drivetrain));
         for (int i = 0; i < path.length; i++) {
             System.out.println("Path: " + path[i][0] + " " + path[i][1]);
             int posCode = path[i][0];
@@ -216,10 +220,14 @@ public class PathfinderSubsystem {
         System.out.println(pathfindTarget);
         drivetrain.setLabel(pathfindTarget, "pathfind_target");
 
-        Command pathfindCommand = AutoBuilder.pathfindToPose(
+        pathfindCommand = AutoBuilder.pathfindToPose(
                 pathfindTarget,
                 constraints,
                 0);
+        InstantCommand applyBreak = new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.SwerveDriveBrake()));
+        Command pathfindWaitCommand = new WaitCommand(2);
+
+        Command pathfindDeleter = new InstantCommand(() -> {pathfindCommand.cancel();pathfindCommand=null;});
 
         // ALIGN - Both
         Command alignComponents = new InstantCommand(() -> {core.moveToSetpoint(reefHeight);});
@@ -247,35 +255,34 @@ public class PathfinderSubsystem {
             SequentialCommandGroup finalCommandGroup = new SequentialCommandGroup(
                 lowerRobot, 
                 pathfindCommand, 
+                applyBreak,
                 exactAlignCommandRot, 
                 alignComponents, 
                 exactAlignCommandXY, 
                 dynamicForwardCommand, 
                 retractComponents, 
-                resetNavPilot);
+                resetNavPilot,
+                pathfindDeleter);
             finalCommandGroup.schedule();
         } else { // Human Station
             Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
-            // Command parallelSetup = new ParallelCommandGroup(pathfindCommand, alignComponents);
+            Command parallelSetup = new ParallelCommandGroup(pathfindCommand, alignComponents);
             StationAlign stationAlignCommand = new StationAlign(drivetrain);
-            InstantCommand applyBreak = new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.SwerveDriveBrake()));
             Command runIntake = new IntakeCommand(core.getManipulatorSubsystem());
-            Command moveBack = new CanRangeDynamicBackward(drivetrain);
+            Command moveBack = new StaticBackCommand(drivetrain, -0.3, 0.3);
 
             SequentialCommandGroup testingCommandGroup = new SequentialCommandGroup(
                 lowerRobot,
-                // moveWrist,
-                pathfindCommand,
-                // parallelSetup, add back
+                moveWrist,
+                parallelSetup,
                 applyBreak,
-                stationAlignCommand
-                //,
-                // runIntake,
-                // resetNavPilot,
-                // moveBack
+                runIntake,
+                stationAlignCommand,
+                pathfindDeleter
             );
             testingCommandGroup.schedule();
 
+            // Add back in and copy to auto
             // SequentialCommandGroup finalCommandGroup = new SequentialCommandGroup(
             //     lowerRobot, 
             //     parallelSetup, 
@@ -320,10 +327,14 @@ public class PathfinderSubsystem {
         System.out.println(pathfindTarget);
         drivetrain.setLabel(pathfindTarget, "pathfind_target");
 
-        Command pathfindCommand = AutoBuilder.pathfindToPose(
+        pathfindCommand = AutoBuilder.pathfindToPose(
                 pathfindTarget,
                 constraints,
                 0);
+        InstantCommand applyBreak = new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.SwerveDriveBrake()));
+        Command pathfindWaitCommand = new WaitCommand(2);
+
+        Command pathfindDeleter = new InstantCommand(() -> {pathfindCommand.cancel();pathfindCommand=null;});
 
         // ALIGN - Both
         Command alignComponents = new InstantCommand(() -> {core.moveToSetpoint(reefHeight);});
@@ -337,66 +348,54 @@ public class PathfinderSubsystem {
 
         Command resetNavPilot = new InstantCommand(() -> updateGUI(0));
 
-        if (!reefHeight.equals(Constants.SETPOINT_HP_INTAKE)) { // Reef
+        if (isReef) { // Reef
             double offset = alignment.getOffset();
             if (reefHeight.equals(Constants.SETPOINT_REEF_T1)) {offset = 0;}
 
-            ExactAlignRot exactAlignRotation = new ExactAlignRot(drivetrain, tagId, offset);
-            ExactAlignXY exactAlignPosition = new ExactAlignXY(drivetrain, tagId, offset);
+            ExactAlignRot exactAlignCommandRot = new ExactAlignRot(drivetrain, tagId, offset);
+            ExactAlignXY exactAlignCommandXY = new ExactAlignXY(drivetrain, tagId, offset);
     
             CanRangeDynamicForward dynamicForwardCommand = new CanRangeDynamicForward(drivetrain);
     
             Command retractComponents = new InstantCommand(() -> {core.performRetract();});
-            
+
             autoCommandSequence.addCommands(
                 lowerRobot, 
                 pathfindCommand, 
+                applyBreak,
+                exactAlignCommandRot, 
                 alignComponents, 
-                exactAlignRotation, 
-                exactAlignPosition, 
-                dynamicForwardCommand,
+                exactAlignCommandXY, 
+                dynamicForwardCommand, 
                 retractComponents, 
-                resetNavPilot);
-
-
-            // I wanna delete - if code above works -> delete
-            /*good code, commenting out bc queue for auto doesnt wanna clear (aries did smthn), has deleted all elevator commands out of fear of breaking
-            // autoCommandSequence.addCommands(pathfindCommand, pilotStateAlign,
-            //  pilotStateRot, exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
-            // pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, resetNavPilot);
-            */
-
-            // wtf is this?
-            // finalCommandGroup = new SequentialCommandGroup(pathfindCommand,
-            // pilotStateAlign,
-            // exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
-            // pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, resetNavPilot);
-
+                resetNavPilot,
+                pathfindDeleter);
         } else { // Human Station
-
-            // --------------COPY CODE FROM TELEOP EXECUTE SEQUENCE INTO HERE AFTER TESTING -------------------
-
             Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
-            Command stationAlignCommand = new StationAlign(drivetrain);
+            Command parallelSetup = new ParallelCommandGroup(pathfindCommand, alignComponents);
+            StationAlign stationAlignCommand = new StationAlign(drivetrain);
             Command runIntake = new IntakeCommand(core.getManipulatorSubsystem());
-            Command moveBack = new StaticBackCommand(drivetrain, 0.3, 0.3);
-
-            Command parallelSetup = new ParallelCommandGroup(
-                pathfindCommand, 
-                alignComponents);
+            Command moveBack = new StaticBackCommand(drivetrain, -0.3, 0.3);
 
             autoCommandSequence.addCommands(
-                lowerRobot, 
-                parallelSetup, 
-                moveWrist, 
+                lowerRobot,
+                moveWrist,
+                parallelSetup,
+                applyBreak,
+                runIntake,
                 stationAlignCommand,
-                runIntake, 
-                resetNavPilot, 
-                moveBack);
+                pathfindDeleter
+            );
 
-            // autoCommandSequence.addCommands(pathfindCommand, stationAlignCommand); // TEMPORARY, bc we testing auto code path find only, not station align
-            
-            // finalCommandGroup = new SequentialCommandGroup(parallelSetup, stationAlignCommand, resetNavPilot);
+            // Add back in and copy to auto
+            // SequentialCommandGroup finalCommandGroup = new SequentialCommandGroup(
+            //     lowerRobot, 
+            //     parallelSetup, 
+            //     moveWrist, 
+            //     stationAlignCommand,
+            //     runIntake, 
+            //     resetNavPilot, 
+            //     moveBack);
         }
     }
 
