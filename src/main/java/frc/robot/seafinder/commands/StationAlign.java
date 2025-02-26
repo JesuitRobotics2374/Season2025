@@ -77,7 +77,7 @@ public class StationAlign extends Command{
         }
 
         // Using the left and right range, we can determine the rotational rate to apply
-        double rotationalRate = ((rightAvg - leftAvg) / 8) + 0.042;
+        double rotationalRate = ((rightAvg - leftAvg) / 8) + 0.047;
 
         // Check if we are within the rotational rate threshold
         if ((Math.abs(leftRange - rightRange) < Constants.STATION_ROTATIONAL_RATE_THRESHOLD) || avgRange >= Constants.STATION_TARGET_DISTANCE+0.3) {

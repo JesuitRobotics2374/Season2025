@@ -24,7 +24,6 @@ public class ExactAlignXY extends Command {
     private double alignmentShift;
 
     private boolean doneMoving;
-    private boolean doneRotating;
 
     private int tag_id;
 
@@ -52,7 +51,6 @@ public class ExactAlignXY extends Command {
     public void initialize() {
         System.out.println("Exact XY init");
         doneMoving = false;
-        doneRotating = false;
     }
 
     @Override
@@ -72,7 +70,6 @@ public class ExactAlignXY extends Command {
 
         if (canSeeCount == 0) {
             doneMoving = true;
-            doneRotating = true;
             return;
         }
 
@@ -89,26 +86,14 @@ public class ExactAlignXY extends Command {
             doneMoving = true;
         }
 
-        double rotationToTarget = Math.abs(targetPose.getRotation().getRadians());
-        if (rotationToTarget < Constants.GENERIC_ROTATION_THRESHOLD) {
-            doneRotating = true;
-        }
-
         double velocityX = 0;
         double velocityY = 0;
         double magnitude = Math.sqrt(Math.pow(total[0], 2) + Math.pow(total[1], 2)); // TODO: Retune after removing
-                                                                                 // magnitude
-        double rotationalRate = 0;
+                                     
 
         if (!doneMoving) {
             velocityX = total[0] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
             velocityY = total[1] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
-        }
-        if (!doneRotating) {
-            double rotationError = targetPose.getRotation().getRadians();
-            double RESign = rotationError / Math.abs(rotationError);
-            rotationalRate = rotationError * Constants.ALIGN_ROTATE_SPEED
-                    + (RESign * Constants.ALIGN_ROTATIONAL_FEED_FORWARD);
         }
 
         System.out.println(" 5: " + total[5] + " 3: " + total[3] + " 4: " + total[4]);
@@ -119,9 +104,8 @@ public class ExactAlignXY extends Command {
         // " + velocityY + " ROT: " + rotationalRate);
 
         // + Y is Forard on dr
-        if (!(doneMoving && doneRotating)) {
+        if (!(doneMoving)) {
             drivetrain.setControl(driveRequest.withVelocityX(velocityY).withVelocityY(-velocityX));
-            // drivetrain.setControl(driveRequest.withRotationalRate(-rotationalRate));
         }
     }
 

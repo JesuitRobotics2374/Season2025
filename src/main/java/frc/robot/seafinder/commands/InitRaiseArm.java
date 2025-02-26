@@ -6,17 +6,11 @@ import frc.robot.subsystems.ArmSubsystem;
 
 public class InitRaiseArm extends Command {
     private ArmSubsystem armSubsystem;
-    private double addition = 0.0;
+    private double goal;
 
-    public InitRaiseArm(ArmSubsystem armSubsystem) {
+    public InitRaiseArm(ArmSubsystem armSubsystem, double goal) {
         this.armSubsystem = armSubsystem;
-        
-        addRequirements(armSubsystem);
-    }
-
-    public InitRaiseArm(ArmSubsystem armSubsystem, boolean notUsed) {
-        this.armSubsystem = armSubsystem;
-        addition = 10.0;
+        this.goal = goal;
         
         addRequirements(armSubsystem);
     }
@@ -24,7 +18,7 @@ public class InitRaiseArm extends Command {
     @Override
     public void initialize() {
         if (!armSubsystem.armPassedGoal()) {
-            armSubsystem.armGoTo(Constants.ARM_HORIZONTAL + addition);
+            armSubsystem.armGoTo(goal);
         }
         // else {
         //     armSubsystem.setGoalToCurrent():

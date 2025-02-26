@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
         InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
         
         // Raising arm and zeroing elevator
-        InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem(), true);
+        InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem(), Constants.ARM_HORIZONTAL);
         ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
         SequentialCommandGroup sequentialCommandGroup = new SequentialCommandGroup(moveArm, zeroElevator);
         
@@ -83,21 +83,21 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        // // Raising elevator a little
-        // InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(4));
-        // raiseElevator.schedule();
+        // Raising elevator a little
+        InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(4));
+        raiseElevator.schedule();
 
-        // // Waiting until elevator is raised
-        // WaitCommand waitCommand = new WaitCommand(0.3);
-        // waitCommand.schedule();
+        // Waiting until elevator is raised
+        WaitCommand waitCommand = new WaitCommand(0.3);
+        waitCommand.schedule();
 
-        // // Raising arm and zeroing elevator
-        // InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
-        // ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
+        // Raising arm and zeroing elevator
+        InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem(), Constants.SETPOINT_MIN.getArm());
+        ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
 
-        // // Running arm raise and elevator zero
-        // SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator);
-        // commandGroup.schedule();
+        // Running arm raise and elevator zero
+        SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator);
+        commandGroup.schedule();
     }
 
     @Override
