@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.Core;
 import frc.robot.seafinder.commands.CanRangeDynamicBackward;
@@ -40,7 +41,7 @@ import frc.robot.seafinder.utils.Apriltags;
 import frc.robot.seafinder.utils.Setpoint;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
-public class PathfinderSubsystem {
+public class AlternatePathfinderSubsystem {
 
     private Core core; // Keep an instance of core for moveToSetpoint and performRetract
     private CommandSwerveDrivetrain drivetrain;
@@ -56,9 +57,9 @@ public class PathfinderSubsystem {
 
     private Command pathfindCommand;
 
-    private SequentialCommandGroup autoCommandSequence = new SequentialCommandGroup();
+    private boolean isCurrentSequenceDone = true;
 
-    private int[][] rawPath;
+    // private int[][] rawPath;
 
     // Alignment data structure
     public enum Alignment {
@@ -110,7 +111,7 @@ public class PathfinderSubsystem {
 
     // Subsystem is now constructed just once, at the top of Core with other
     // subsystems
-    public PathfinderSubsystem(Core core) {
+    public AlternatePathfinderSubsystem(Core core) {
         this.core = core;
         this.drivetrain = core.getDrivetrain();
     }
@@ -122,11 +123,11 @@ public class PathfinderSubsystem {
         this.locationLoaded = true;
         if (posCode == 10 || posCode == 11) {
             reefHeight = Constants.SETPOINT_HP_INTAKE;
-            teleopExecuteSequence(tagId, alignment, reefHeight, false);
+            executeSequence(tagId, alignment, reefHeight, false);
             locationLoaded = false;
             heightLoaded = false;
         } else if (heightLoaded) {
-            teleopExecuteSequence(tagId, alignment, reefHeight, true);
+            executeSequence(tagId, alignment, reefHeight, true);
             locationLoaded = false;
             heightLoaded = false;
         } else {
@@ -139,7 +140,7 @@ public class PathfinderSubsystem {
         this.reefHeight = reefHeight;
         this.heightLoaded = true;
         if (locationLoaded) {
-            teleopExecuteSequence(tagId, alignment, reefHeight, true);
+            executeSequence(tagId, alignment, reefHeight, true);
             locationLoaded = false;
             heightLoaded = false;
         } else {
@@ -147,28 +148,40 @@ public class PathfinderSubsystem {
         }
     }
 
-    public void executePath(int[][] path) {
-        this.rawPath = path;
-        autoCommandSequence.addCommands(new RotateUntilCanSeeTag(drivetrain));
-        for (int i = 0; i < path.length; i++) {
-            System.out.println("Path: " + path[i][0] + " " + path[i][1]);
-            int posCode = path[i][0];
+    public void instantQueue(int posCode, Alignment alignment, Setpoint reefHeight) {
+        this.tagId = translateToTagId(posCode);
+        this.alignment = alignment;
+        this.reefHeight = reefHeight;
 
-            Alignment alignment = Alignment.parseTopologyAlignment(posCode != 10 && posCode != 11, path[i][1] - 1);
-            Setpoint components = Alignment.parseTopolgySetpoint(posCode != 10 && posCode != 11, path[i][1] - 1);
-
-            boolean isReef = posCode != 10 && posCode != 11;
-
-            // System.out.println("Executing path: " + posCode + " " + alignment + " " +
-            // components);
-            autoExecuteSequence(translateToTagId(posCode), alignment, components, isReef);
-        }
-        autoCommandSequence.schedule();
+        executeSequence(tagId, alignment, reefHeight, true);
     }
 
-    public void clearSequence() {
-        autoCommandSequence.cancel();
-        autoCommandSequence = new SequentialCommandGroup();
+    public void executePath(int[][] path) {
+        
+        isCurrentSequenceDone = false;
+
+        // Create sequential command group
+        SequentialCommandGroup pathCommands = new SequentialCommandGroup();
+        
+        // Add initial rotation command
+        pathCommands.addCommands(new RotateUntilCanSeeTag(drivetrain));
+        
+        // Add each path segment with appropriate delays
+        for (int i = 0; i < path.length; i++) {
+            int posCode = path[i][0];
+            Alignment alignment = Alignment.parseTopologyAlignment(posCode != 10 && posCode != 11, path[i][1] - 1);
+            Setpoint components = Alignment.parseTopolgySetpoint(posCode != 10 && posCode != 11, path[i][1] - 1);
+            
+            pathCommands.addCommands(
+                new InstantCommand(() -> {
+                    instantQueue(posCode, alignment, components);
+                }),
+                new WaitUntilCommand(() -> isCurrentSequenceDone)
+            );
+        }
+        
+        // Schedule the complete sequence
+        pathCommands.schedule();
     }
 
     // For my GUI, you can ignore
@@ -185,7 +198,7 @@ public class PathfinderSubsystem {
         }
     }
 
-    public void teleopExecuteSequence(int tagId, Alignment alignment, Setpoint reefHeight, boolean isReef) {
+    public void executeSequence(int tagId, Alignment alignment, Setpoint reefHeight, boolean isReef) {
         Pose3d tagTarget = Apriltags.getWeldedPosition(tagId); // Get the tag's position from welded map
         if (tagTarget == null) {
             System.out.println("TARGET IS NULL");
@@ -260,7 +273,8 @@ public class PathfinderSubsystem {
 
             CanRangeDynamicForward dynamicForwardCommand = new CanRangeDynamicForward(drivetrain);
 
-            Command retractComponents = new RetractComponents(drivetrain, core.getManipulatorSubsystem(), core.getElevatorSubsystem(), core.getArmSubsystem(), reefHeight.getRetractAction());
+            Command retractComponents = new RetractComponents(drivetrain, core.getManipulatorSubsystem(),
+                    core.getElevatorSubsystem(), core.getArmSubsystem(), reefHeight.getRetractAction());
 
             runningCommand = new SequentialCommandGroup(
                     lowerRobot,
@@ -272,7 +286,8 @@ public class PathfinderSubsystem {
                     dynamicForwardCommand,
                     retractComponents,
                     resetNavPilot,
-                    pathfindDeleter);
+                    pathfindDeleter,
+                    new InstantCommand(() -> isCurrentSequenceDone = true));
             runningCommand.schedule();
         } else { // Human Station
             Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
@@ -288,130 +303,9 @@ public class PathfinderSubsystem {
                     applyBreak,
                     runIntake,
                     stationAlignCommand,
-                    pathfindDeleter);
+                    pathfindDeleter,
+                    new InstantCommand(() -> isCurrentSequenceDone = true));
             runningCommand.schedule();
-
-            // Add back in and copy to auto
-            // SequentialCommandGroup finalCommandGroup = new SequentialCommandGroup(
-            // lowerRobot,
-            // parallelSetup,
-            // moveWrist,
-            // stationAlignCommand,
-            // runIntake,
-            // resetNavPilot,
-            // moveBack);
-        }
-    }
-
-    public void autoExecuteSequence(int tagId, Alignment alignment, Setpoint reefHeight, boolean isReef) {
-        Pose3d tagTarget = Apriltags.getWeldedPosition(tagId); // Get the tag's position from welded map
-        if (tagTarget == null) {
-            System.out.println("TARGET IS NULL");
-            updateGUI(1000);
-            return;
-        }
-
-        updateGUI(4);
-
-        // LOWER - Both
-        Command lowerRobot = new InstantCommand(() -> core.moveToSetpoint(Constants.SETPOINT_MIN)); // Both
-
-        // PATHFIND - Both
-        Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
-
-        double centerOffset = Alignment.CENTER.getOffset();
-
-        Pose3d pathfindTarget3d = new Pose3d(
-                tagTarget.getX() + Constants.PATHFINDING_PRE_BUFFER * Math.cos(tagRotation.getZ())
-                        + Math.sin(tagRotation.getZ()) * centerOffset + Constants.FIELD_X_MIDPOINT,
-                tagTarget.getY() + Constants.PATHFINDING_PRE_BUFFER * Math.sin(tagRotation.getZ())
-                        - Math.cos(tagRotation.getZ()) * centerOffset + Constants.FIELD_Y_MIDPOINT,
-                tagTarget.getZ(),
-                tagRotation);
-
-        Pose2d pathfindTarget = pathfindTarget3d.toPose2d();
-
-        PathConstraints constraints = new PathConstraints(Constants.PATHFINDING_MAX_VELOCITY,
-                Constants.PATHFINDING_MAX_ACCELERATION, Constants.PATHFINDING_MAX_ROTATIONAL_VELOCITY,
-                Constants.PATHFINDING_MAX_ROTATIONAL_ACCELERATION);
-
-        System.out.println(pathfindTarget);
-        drivetrain.setLabel(pathfindTarget, "pathfind_target");
-
-        pathfindCommand = AutoBuilder.pathfindToPose(
-                pathfindTarget,
-                constraints,
-                0);
-        InstantCommand applyBreak = new InstantCommand(
-                () -> drivetrain.setControl(new SwerveRequest.SwerveDriveBrake()));
-        Command pathfindWaitCommand = new WaitCommand(0.3);
-
-        Command pathfindDeleter = new InstantCommand(() -> {
-            if (pathfindCommand != null) {
-                pathfindCommand.cancel();
-            }
-            pathfindCommand = null;
-        });
-
-        // ALIGN - Both
-        Command alignComponents = new InstantCommand(() -> {
-            core.moveToSetpoint(reefHeight);
-        });
-
-        // UI Updates - Both
-        Command pilotStateAlign = new InstantCommand(() -> updateGUI(5));
-        Command pilotStateRot = new InstantCommand(() -> updateGUI(6));
-        Command pilotStateXY = new InstantCommand(() -> updateGUI(7));
-        Command pilotStateDynamic = new InstantCommand(() -> updateGUI(8));
-        Command pilotStateRetract = new InstantCommand(() -> updateGUI(9));
-
-        Command resetNavPilot = new InstantCommand(() -> updateGUI(0));
-
-        if (isReef) { // Reef
-            double offset = alignment.getOffset();
-            if (reefHeight.equals(Constants.SETPOINT_REEF_T1)) {
-                offset = 0;
-            }
-
-            ExactAlignRot exactAlignCommandRot = new ExactAlignRot(drivetrain, tagId, offset);
-            ExactAlignXY exactAlignCommandXY = new ExactAlignXY(drivetrain, tagId, offset);
-
-            CanRangeDynamicForward dynamicForwardCommand = new CanRangeDynamicForward(drivetrain);
-
-            Command retractComponents = new InstantCommand(() -> {
-                core.performRetract();
-                System.out.println("retract is done");
-            });
-
-            autoCommandSequence.addCommands(
-                    lowerRobot,
-                    pathfindCommand,
-                    applyBreak,
-                    pathfindWaitCommand,
-                    exactAlignCommandRot,
-                    alignComponents,
-                    exactAlignCommandXY,
-                    dynamicForwardCommand, // Works
-                    retractComponents, // does not end
-                    resetNavPilot,
-                    pathfindDeleter
-                );
-        } else { // Human Station
-            Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
-            Command parallelSetup = new ParallelCommandGroup(pathfindCommand); //, alignComponents); // TODO: Add back in
-            StationAlign stationAlignCommand = new StationAlign(drivetrain);
-            Command runIntake = new IntakeCommand(core.getManipulatorSubsystem());
-            Command moveBack = new StaticBackCommand(drivetrain, -0.3, 0.3);
-
-            autoCommandSequence.addCommands(
-                    lowerRobot,
-                    moveWrist,
-                    parallelSetup,
-                    pathfindWaitCommand,
-                    applyBreak,
-                    runIntake,
-                    stationAlignCommand,
-                    pathfindDeleter);
 
             // Add back in and copy to auto
             // SequentialCommandGroup finalCommandGroup = new SequentialCommandGroup(
@@ -463,11 +357,4 @@ public class PathfinderSubsystem {
         return tagId;
     }
 
-    // public void addToAutoSequence(Command command) {
-    // if (autoCommandSequence == null) {
-    // autoCommandSequence = new SequentialCommandGroup(command);
-    // } else {
-    // autoCommandSequence.addCommands(command);
-    // }
-    // }
 }

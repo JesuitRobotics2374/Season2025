@@ -50,23 +50,11 @@ import frc.robot.subsystems.drivetrain.TunerConstants;
 
 public class Core {
 
-    public double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED_LOW_ELEVATOR; // kSpeedAt12Volts
-                                                                                                       // desired top
-                                                                                                       // speed
-    public double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE; // 3/4
-                                                                                                                  // of
-                                                                                                                  // a
-                                                                                                                  // rotation
-                                                                                                                  // //
-                                                                                                                  // per
-                                                                                                                  // second
-                                                                                                                  // max
-                                                                                                                  // angular
-                                                                                                                  // velocity
+    public double MaxAngularRate = RotationsPerSecond.of(Constants.MAX_ANGULAR_RATE).in(RadiansPerSecond);
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.01).withRotationalDeadband(MaxAngularRate * 0.002) // Add a 10% deadband
+            .withDeadband(Constants.MAX_SPEED_LOW_ELEVATOR * 0.01).withRotationalDeadband(MaxAngularRate * 0.002) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     // private final SwerveRequest.SwerveDriveBrake brake = new
     // SwerveRequest.SwerveDriveBrake();
@@ -236,8 +224,8 @@ public class Core {
         // STICK MOVEMENT
         drivetrain.setDefaultCommand(
                 drivetrain.applyRequest(() -> drive
-                        .withVelocityX(-driveController.getLeftY() * MaxSpeed * getAxisMovementScale())
-                        .withVelocityY(-driveController.getLeftX() * MaxSpeed * getAxisMovementScale())
+                        .withVelocityX(-driveController.getLeftY() * findMaxSpeed() * getAxisMovementScale())
+                        .withVelocityY(-driveController.getLeftX() * findMaxSpeed() * getAxisMovementScale())
                         .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
 
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
@@ -370,6 +358,12 @@ public class Core {
 
     public double getAxisMovementScale() {
         return (1 - (driveController.getRightTriggerAxis() * 0.9));
+    }
+
+    public double findMaxSpeed() {
+        double elevatorPosition = elevatorSubsystem.elevatorMotor1.getPosition().getValueAsDouble();
+        double elevatorProgress = 1 - (elevatorPosition / Constants.ELEVATOR_MAX_HEIGHT);
+        return Constants.MAX_SPEED_LOW_ELEVATOR + (elevatorProgress * (Constants.MAX_SPEED_HIGH_ELEVATOR - Constants.MAX_SPEED_LOW_ELEVATOR));
     }
 
     public void corePeriodic() {
