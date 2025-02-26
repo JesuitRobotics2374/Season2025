@@ -21,7 +21,8 @@ public class StationAlign extends Command{
     private boolean doneMoving = false;
     private boolean doneRotating = false;
 
-    private Queue<Double> averageRange = new ArrayDeque<Double>();
+    private Queue<Double> avgRightRange = new ArrayDeque<Double>();
+    private Queue<Double> avgLeftRange = new ArrayDeque<Double>();
     private int numSamples = 5;
 
     public StationAlign(CommandSwerveDrivetrain drivetrain){
@@ -39,22 +40,33 @@ public class StationAlign extends Command{
     public void execute() {
         double rightRange = drivetrain.getForwardRangeRight() + Constants.RIGHT_CAN_RANGE_OFFSET;
         double leftRange = drivetrain.getForwardRangeLeft();
-        double currAvgRange = (rightRange + leftRange) / 2;
         
-        if (averageRange.size() >= numSamples) {
-            averageRange.poll();
+        if (avgLeftRange.size() >= numSamples) {
+            avgLeftRange.poll();
         }
-        averageRange.add(currAvgRange);
+        avgLeftRange.add(leftRange);
 
-        System.out.println("LEFT: " + leftRange + " RIGHT: " + rightRange + " AVG: " + currAvgRange);
-
-        double avgRange = 0;
-        for (double range : averageRange) {
-            avgRange += range;
+        if (avgRightRange.size() >= numSamples) {
+            avgRightRange.poll();
         }
-        avgRange /= averageRange.size() + 1e-6;
+        avgRightRange.add(rightRange);
 
-        System.out.println("TOTAVG: " + avgRange);
+
+        double leftSum = 0;
+        for (double range : avgLeftRange) {
+            leftSum += range;
+        }
+        double leftAvg = leftSum / (avgLeftRange.size() + 1e-6);
+        
+        double rightSum = 0;
+        for (double range : avgRightRange) {
+            rightSum += range;
+        }
+        double rightAvg = rightSum / (avgRightRange.size() + 1e-6);
+
+        double avgRange = (leftAvg + rightAvg) / 2;
+
+        System.out.println("LEFT: " + leftRange + " RIGHT: " + rightRange + " AVE: " + avgRange);
 
         double velocityX = (0.25 * (avgRange - Constants.STATION_TARGET_DISTANCE) / Constants.STATION_TARGET_DISTANCE) + 0.35;
 
@@ -65,7 +77,7 @@ public class StationAlign extends Command{
         }
 
         // Using the left and right range, we can determine the rotational rate to apply
-        double rotationalRate = ((rightRange - leftRange) / 8) + 0.034;
+        double rotationalRate = ((rightAvg - leftAvg) / 8) + 0.042;
 
         // Check if we are within the rotational rate threshold
         if ((Math.abs(leftRange - rightRange) < Constants.STATION_ROTATIONAL_RATE_THRESHOLD) || avgRange >= Constants.STATION_TARGET_DISTANCE+0.3) {

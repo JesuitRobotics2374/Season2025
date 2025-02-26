@@ -48,11 +48,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        // Raising arm a little
+        // Raising elevator a little
         InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(4));
         raiseElevator.schedule();
 
-        // Waiting until arm is raise
+        // Waiting until arm is raised
         WaitCommand waitCommand = new WaitCommand(0.3);
         waitCommand.schedule();
 
@@ -83,26 +83,26 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        // Raising arm a little
-        InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(4));
-        raiseElevator.schedule();
+        // // Raising elevator a little
+        // InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(4));
+        // raiseElevator.schedule();
 
-        // Waiting until arm is raise
-        WaitCommand waitCommand = new WaitCommand(0.3);
-        waitCommand.schedule();
+        // // Waiting until elevator is raised
+        // WaitCommand waitCommand = new WaitCommand(0.3);
+        // waitCommand.schedule();
 
-        // Raising arm and zeroing elevator
-        InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
-        ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
+        // // Raising arm and zeroing elevator
+        // InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
+        // ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
 
-        // Running arm raise and elevator zero
-        SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator);
-        commandGroup.schedule();
+        // // Running arm raise and elevator zero
+        // SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator);
+        // commandGroup.schedule();
     }
 
     @Override
     public void teleopPeriodic() {
-        m_core.checkJoystickOverride();
+        m_core.corePeriodic();
     }
 
     @Override

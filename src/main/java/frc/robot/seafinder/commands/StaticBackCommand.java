@@ -3,49 +3,45 @@ package frc.robot.seafinder.commands;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
 public class StaticBackCommand extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
-    private double providedDistance;
+    private double time;
     private double speed;
+    private WaitCommand waitCommand = null;
 
-    private double startingDistance;
-
-    private boolean done;
-
-    public StaticBackCommand(CommandSwerveDrivetrain drivetrain, double distance, double speed) {
+    public StaticBackCommand(CommandSwerveDrivetrain drivetrain, double time, double speed) {
         this.drivetrain = drivetrain;
-        this.providedDistance = distance;
+        this.time = time;
         this.speed = speed;
-        this.startingDistance = drivetrain.getRobotX();
         addRequirements(drivetrain);
     }
 
     @Override
     public void initialize() {
         System.out.println("Static X init");
-        done = false;
     }
 
     @Override
     public void execute() {
-        // if (!visionSubsystem.canSeeTag(tag_id)) {
-        // done = true;
-        // return;
-        // }
-        drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(speed));
-        double distance = drivetrain.getRobotX();
-        System.out.println(distance);
-        if (distance - startingDistance < providedDistance) {
-            done = true;
+        if (waitCommand == null) {
+            waitCommand = new WaitCommand(time);
+            waitCommand.schedule();
         }
+
+        drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(speed));
     }
 
     @Override
     public boolean isFinished() {
-        return done;
+        if (waitCommand != null) {
+            return waitCommand.isFinished();
+        } else {
+            return false;
+        }
     }
 
     @Override

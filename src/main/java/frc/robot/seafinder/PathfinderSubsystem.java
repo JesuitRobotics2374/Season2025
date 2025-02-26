@@ -32,6 +32,7 @@ import frc.robot.seafinder.commands.DriveDynamicX;
 import frc.robot.seafinder.commands.ExactAlignRot;
 import frc.robot.seafinder.commands.ExactAlignXY;
 import frc.robot.seafinder.commands.IntakeCommand;
+import frc.robot.seafinder.commands.RetractComponents;
 import frc.robot.seafinder.commands.RotateUntilCanSeeTag;
 import frc.robot.seafinder.commands.StaticBackCommand;
 import frc.robot.seafinder.commands.StationAlign;
@@ -228,7 +229,9 @@ public class PathfinderSubsystem {
         Command pathfindWaitCommand = new WaitCommand(2);
 
         Command pathfindDeleter = new InstantCommand(() -> {
-            pathfindCommand.cancel();
+            if (pathfindCommand != null) {
+                pathfindCommand.cancel();
+            }
             pathfindCommand = null;
         });
 
@@ -257,9 +260,7 @@ public class PathfinderSubsystem {
 
             CanRangeDynamicForward dynamicForwardCommand = new CanRangeDynamicForward(drivetrain);
 
-            Command retractComponents = new InstantCommand(() -> {
-                core.performRetract();
-            });
+            Command retractComponents = new RetractComponents(drivetrain, core.getManipulatorSubsystem(), core.getElevatorSubsystem(), core.getArmSubsystem(), reefHeight.getRetractAction());
 
             SequentialCommandGroup finalCommandGroup = new SequentialCommandGroup(
                     lowerRobot,
@@ -276,7 +277,7 @@ public class PathfinderSubsystem {
             finalCommandGroup.schedule();
         } else { // Human Station
             Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
-            Command parallelSetup = new ParallelCommandGroup(pathfindCommand, alignComponents);
+            Command parallelSetup = new ParallelCommandGroup(alignComponents); // Add pathfind back in
             StationAlign stationAlignCommand = new StationAlign(drivetrain);
             Command runIntake = new IntakeCommand(core.getManipulatorSubsystem());
             Command moveBack = new StaticBackCommand(drivetrain, -0.3, 0.3);
@@ -348,7 +349,9 @@ public class PathfinderSubsystem {
         Command pathfindWaitCommand = new WaitCommand(0.3);
 
         Command pathfindDeleter = new InstantCommand(() -> {
-            pathfindCommand.cancel();
+            if (pathfindCommand != null) {
+                pathfindCommand.cancel();
+            }
             pathfindCommand = null;
         });
 
@@ -379,6 +382,7 @@ public class PathfinderSubsystem {
 
             Command retractComponents = new InstantCommand(() -> {
                 core.performRetract();
+                System.out.println("retract is done");
             });
 
             autoCommandSequence.addCommands(
@@ -389,13 +393,14 @@ public class PathfinderSubsystem {
                     exactAlignCommandRot,
                     alignComponents,
                     exactAlignCommandXY,
-                    dynamicForwardCommand,
-                    retractComponents,
+                    dynamicForwardCommand, // Works
+                    retractComponents, // does not end
                     resetNavPilot,
-                    pathfindDeleter);
+                    pathfindDeleter
+                );
         } else { // Human Station
             Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
-            Command parallelSetup = new ParallelCommandGroup(pathfindCommand, alignComponents);
+            Command parallelSetup = new ParallelCommandGroup(pathfindCommand); //, alignComponents); // TODO: Add back in
             StationAlign stationAlignCommand = new StationAlign(drivetrain);
             Command runIntake = new IntakeCommand(core.getManipulatorSubsystem());
             Command moveBack = new StaticBackCommand(drivetrain, -0.3, 0.3);

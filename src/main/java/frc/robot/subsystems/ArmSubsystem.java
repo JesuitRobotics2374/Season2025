@@ -139,6 +139,11 @@ public class ArmSubsystem extends SubsystemBase {
         return armMotor1.getPosition().getValueAsDouble() >= armGoal;
     }
 
+    public void setGoalToCurrent() {
+        MotionMagicVoltage m_request = new MotionMagicVoltage(0);
+        armMotor1.setControl(m_request);
+    }
+
     public void armUp() {
         armGoal = armMotor1.getPosition().getValueAsDouble() + Constants.ARM_MOVE_AMOUNT;
         

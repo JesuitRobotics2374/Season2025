@@ -23,7 +23,12 @@ public class InitRaiseArm extends Command {
 
     @Override
     public void initialize() {
-        armSubsystem.armGoTo(Constants.ARM_HORIZONTAL + addition);
+        if (!armSubsystem.armPassedGoal()) {
+            armSubsystem.armGoTo(Constants.ARM_HORIZONTAL + addition);
+        }
+        // else {
+        //     armSubsystem.setGoalToCurrent():
+        // }
     }
 
     @Override
