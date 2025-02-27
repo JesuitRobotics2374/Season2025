@@ -87,10 +87,11 @@ public class ManipulatorSubsystem extends SubsystemBase {
         return isIntaking;
     }
 
-    // public void holdAlgae() {
-    // algaeIntake = !algaeIntake;
-    // clock = 0;
-    // }
+    int algaeClock = 0;
+
+    public void holdAlgae() {
+    algaeIntake = !algaeIntake;
+    }
 
     int clock = 11;
 
@@ -98,6 +99,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
     public void periodic() {
 
         clock++;
+        algaeClock++;
 
         boolean withinRange = sensor.getDistance().getValueAsDouble() <= 0.06 && sensor.getIsDetected().getValueAsDouble() == 1.0;
 
@@ -105,9 +107,20 @@ public class ManipulatorSubsystem extends SubsystemBase {
             clock = 5;
         }
 
-        if (isIntaking && !isOuttaking && withinRange && clock == 10) {
+        if (isIntaking && !isOuttaking && withinRange && clock == 10 && !algaeIntake) {
             stop();
             isIntaking = false;
+        }
+
+        if (algaeIntake && algaeClock == 20) {
+            spinAt(0.6);
+        }
+
+        if (algaeClock == 27) {
+            algaeClock = 0;
+            if (algaeIntake) {
+                stop();
+            }
         }
 
         // if (algaeIntake && clock == 12) {
