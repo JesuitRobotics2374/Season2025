@@ -105,75 +105,75 @@ public class Core {
 
     // Based on the last setpoint we aligned to, retract using a very specific set
     // of hardward movements
-    public void performRetract() {
-        // NOTE: Only tag 19 is secured to reef so only testing happened on tag 19
-        if (queuedRetractAction != null) {
-            switch (queuedRetractAction) {
-                case "none":
-                    break;
-                case "t4": // Tuned on tag 19 right & left - Note at top
-                    System.out.println("Running retract macro: backAndDown");
-                    SequentialCommandGroup waitAndEle = new SequentialCommandGroup(
-                            new WaitCommand(0.5),
-                            new InstantCommand(
-                                    () -> elevatorSubsystem.changeBy(-Constants.RETRACT_ELEVATOR_DOWNSHIFT)));
-                    SequentialCommandGroup waitAndOuttake = new SequentialCommandGroup(
-                            new WaitCommand(0.75),
-                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
-                            new WaitCommand(0.3),
-                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.25)),
-                            new WaitCommand(0.3),
-                            new InstantCommand(() -> manipulatorSubsystem.stop()));
-                    SequentialCommandGroup waitAndBack = new SequentialCommandGroup(
-                            new WaitCommand(3),
-                            new StaticBackCommand(drivetrain, -0.2, -0.4));
+    // public void performRetract() {
+    //     // NOTE: Only tag 19 is secured to reef so only testing happened on tag 19
+    //     if (queuedRetractAction != null) {
+    //         switch (queuedRetractAction) {
+    //             case "none":
+    //                 break;
+    //             case "t4": // Tuned on tag 19 right & left - Note at top
+    //                 System.out.println("Running retract macro: backAndDown");
+    //                 SequentialCommandGroup waitAndEle = new SequentialCommandGroup(
+    //                         new WaitCommand(0.5),
+    //                         new InstantCommand(
+    //                                 () -> elevatorSubsystem.changeBy(-Constants.RETRACT_ELEVATOR_DOWNSHIFT)));
+    //                 SequentialCommandGroup waitAndOuttake = new SequentialCommandGroup(
+    //                         new WaitCommand(0.75),
+    //                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
+    //                         new WaitCommand(0.3),
+    //                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.25)),
+    //                         new WaitCommand(0.3),
+    //                         new InstantCommand(() -> manipulatorSubsystem.stop()));
+    //                 SequentialCommandGroup waitAndBack = new SequentialCommandGroup(
+    //                         new WaitCommand(3),
+    //                         new StaticBackCommand(drivetrain, -0.2, -0.4));
 
-                    waitAndEle.schedule();
-                    waitAndOuttake.schedule();
-                    armSubsystem.armChangeBy(-9);
-                    waitAndBack.schedule();
-                    break;
-                case "t3": // Tuned on tag 19 right & left - Note at top
-                    System.out.println("Running retract macro: backAndDown");
-                    SequentialCommandGroup waitAndOuttake3 = new SequentialCommandGroup(
-                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
-                            new WaitCommand(0.2),
-                            new InstantCommand(() -> manipulatorSubsystem.stop()),
-                            new WaitCommand(0.1),
-                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
-                            new WaitCommand(0.3),
-                            new InstantCommand(() -> manipulatorSubsystem.stop()));
-                    SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new WaitCommand(0.8),
-                            new StaticBackCommand(drivetrain, -0.2, -1));
+    //                 waitAndEle.schedule();
+    //                 waitAndOuttake.schedule();
+    //                 armSubsystem.armChangeBy(-9);
+    //                 waitAndBack.schedule();
+    //                 break;
+    //             case "t3": // Tuned on tag 19 right & left - Note at top
+    //                 System.out.println("Running retract macro: backAndDown");
+    //                 SequentialCommandGroup waitAndOuttake3 = new SequentialCommandGroup(
+    //                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
+    //                         new WaitCommand(0.2),
+    //                         new InstantCommand(() -> manipulatorSubsystem.stop()),
+    //                         new WaitCommand(0.1),
+    //                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
+    //                         new WaitCommand(0.3),
+    //                         new InstantCommand(() -> manipulatorSubsystem.stop()));
+    //                 SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new WaitCommand(0.8),
+    //                         new StaticBackCommand(drivetrain, -0.2, -1));
 
-                    elevatorSubsystem.changeBy(-50);
-                    armSubsystem.armChangeBy(-19);
-                    waitAndOuttake3.schedule();
-                    waitAndBack3.schedule();
-                    break;
-                case "t2": // Tuned on tage 19 right & left - Note at top
-                    System.out.println("Running retract macro: backAndDown");
+    //                 elevatorSubsystem.changeBy(-50);
+    //                 armSubsystem.armChangeBy(-19);
+    //                 waitAndOuttake3.schedule();
+    //                 waitAndBack3.schedule();
+    //                 break;
+    //             case "t2": // Tuned on tage 19 right & left - Note at top
+    //                 System.out.println("Running retract macro: backAndDown");
 
-                    SequentialCommandGroup waitAndOuttake2 = new SequentialCommandGroup(
-                            new WaitCommand(1.0),
-                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.4)),
-                            new WaitCommand(3.2),
-                            new InstantCommand(() -> manipulatorSubsystem.stop()));
-                    SequentialCommandGroup waitAndBack2 = new SequentialCommandGroup(
-                            new WaitCommand(1.7),
-                            new StaticBackCommand(drivetrain, -0.2, -1));
+    //                 SequentialCommandGroup waitAndOuttake2 = new SequentialCommandGroup(
+    //                         new WaitCommand(1.0),
+    //                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.4)),
+    //                         new WaitCommand(3.2),
+    //                         new InstantCommand(() -> manipulatorSubsystem.stop()));
+    //                 SequentialCommandGroup waitAndBack2 = new SequentialCommandGroup(
+    //                         new WaitCommand(1.7),
+    //                         new StaticBackCommand(drivetrain, -0.2, -1));
 
-                    elevatorSubsystem.changeBy(-11);
-                    armSubsystem.armChangeBy(-15);
-                    waitAndOuttake2.schedule();
-                    waitAndBack2.schedule();
-                    break;
-                default:
-                    break;
-            }
-        }
-        return;
-    }
+    //                 elevatorSubsystem.changeBy(-11);
+    //                 armSubsystem.armChangeBy(-15);
+    //                 waitAndOuttake2.schedule();
+    //                 waitAndBack2.schedule();
+    //                 break;
+    //             default:
+    //                 break;
+    //         }
+    //     }
+    //     return;
+    // }
 
     public void registerAutoCommands() {
         // NamedCommands.registerCommand("OuttakeCommand", new
@@ -224,8 +224,8 @@ public class Core {
         // STICK MOVEMENT
         drivetrain.setDefaultCommand(
                 drivetrain.applyRequest(() -> drive
-                        .withVelocityX(-driveController.getLeftY() * findMaxSpeed() * getAxisMovementScale())
-                        .withVelocityY(-driveController.getLeftX() * findMaxSpeed() * getAxisMovementScale())
+                        .withVelocityX(-driveController.getLeftY() * Constants.MAX_SPEED_LOW_ELEVATOR * getAxisMovementScale())
+                        .withVelocityY(-driveController.getLeftX() * Constants.MAX_SPEED_LOW_ELEVATOR * getAxisMovementScale())
                         .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
 
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
@@ -252,7 +252,7 @@ public class Core {
         operatorController.y().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_BARGE)));
         operatorController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
         operatorController.a().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_MIN)));
-        operatorController.x().onTrue(new InstantCommand(() -> performRetract()));
+        // operatorController.x().onTrue(new InstantCommand(() -> performRetract()));
 
         // operatorController.back().onTrue(armSubsystem.runOnce(() ->
         // armSubsystem.rotateWristIntake()));

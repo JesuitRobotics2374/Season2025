@@ -378,10 +378,7 @@ public class PathfinderSubsystem {
 
             CanRangeDynamicForward dynamicForwardCommand = new CanRangeDynamicForward(drivetrain);
 
-            Command retractComponents = new InstantCommand(() -> {
-                core.performRetract();
-                System.out.println("retract is done");
-            });
+            Command retractComponents = new RetractComponents(drivetrain, core.getManipulatorSubsystem(), core.getElevatorSubsystem(), core.getArmSubsystem(), reefHeight.getRetractAction());
 
             autoCommandSequence.addCommands(
                     lowerRobot,
