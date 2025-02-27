@@ -83,10 +83,14 @@ public class Constants {
 
     public static final Setpoint SETPOINT_MIN = new Setpoint(5, 22.4, WRIST_MIN_POSITION, "none");
     public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(18.55, 14.08, WRIST_MAX_POSITION, "none");
+    public static final Setpoint SETPOINT_PROCESSOR = new Setpoint(25, 2, WRIST_MIN_POSITION, "none");
+    public static final Setpoint SETPOINT_BARGE = new Setpoint(128.1, 22.26, WRIST_MAX_POSITION, "none");
     public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(24.83, 1.857, WRIST_MAX_POSITION, "none");
     public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(12.51, 20.37, WRIST_MIN_POSITION, "t2");
     public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(60.76, 18.68, WRIST_MIN_POSITION, "t3");
     public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(122.2, 20.42, WRIST_MIN_POSITION, "t4");
+    public static final Setpoint SETPOINT_ALGAE_T2 = new Setpoint(74.5, -1.81, WRIST_MAX_POSITION, "c2");
+    public static final Setpoint SETPOINT_ALGAE_T3 = new Setpoint(110.76, -2.68, WRIST_MAX_POSITION, "c3");
     public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION, "none");
     
 }
