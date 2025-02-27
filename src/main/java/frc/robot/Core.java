@@ -42,6 +42,7 @@ import frc.robot.seafinder.interfaces.NavInterfaceSubsystem;
 import frc.robot.seafinder.interfaces.PanelSubsystem;
 import frc.robot.seafinder.utils.Setpoint;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
@@ -82,6 +83,7 @@ public class Core {
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     public final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
+    public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     public final PathfinderSubsystem pathfinderSubsystem = new PathfinderSubsystem(this);
 
@@ -228,75 +230,50 @@ public class Core {
     }
 
     private void configureBindings() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(
-                // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive
-                        .withVelocityX(-driveController.getLeftY() * MaxSpeed * getAxisMovementScale()) // Drive
-                        // forward
-                        // with
-                        // negative Y
-                        // (forward)
-                        .withVelocityY(-driveController.getLeftX() * MaxSpeed * getAxisMovementScale()) // Drive left
-                                                                                                        // with negative
-                                                                                                        // X (left)
-                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale()) // Drive
-                                                                                                                    // counterclockwise
-                // with negative X (left)
-                ));
-
-        // driveController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        // driveController.b().whileTrue(drivetrain.applyRequest(() ->
-        // point.withModuleDirection(new Rotation2d(-driveController.getLeftY(),
-        // -driveController.getLeftX()))
-        // ));
-
-        driveController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T1)));
-        driveController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T2)));
-        driveController.povUp().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T3)));
-        driveController.povRight().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T4)));
-
-        driveController.a().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_MIN)));
-        // driveController.y().onTrue(new InstantCommand(() ->
-        // moveToSetpoint(Constants.SETPOINT_MAX)));
-
-        driveController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
-
-        // driveController.x().onTrue(new InstantCommand(() -> performRetract()));
-
-        driveController.y().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.setElevatorZero()));
-
-        driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
-        driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
-
-        operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
-        operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
-
-        operatorController.y().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristIntake()));
-        operatorController.x().onTrue(armSubsystem.runOnce(() -> armSubsystem.rotateWristOuttake()));
-
-        // operatorController.a().onTrue(armSubsystem.runOnce(() -> armSubsystem.wristCCW()));
-        // operatorController.b().onTrue(armSubsystem.runOnce(() -> armSubsystem.wristCW()));
-
-        operatorController.b().onTrue(new InstantCommand(() -> new StationAlign(drivetrain).schedule()));
-
-        operatorController.povUp().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.intake()));
-        operatorController.povDown().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.outtake()));
-        operatorController.povLeft().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.stop()));
-
         
+        // STICK MOVEMENT
+        drivetrain.setDefaultCommand(
+                drivetrain.applyRequest(() -> drive
+                        .withVelocityX(-driveController.getLeftY() * Constants.MAX_SPEED * getAxisMovementScale())
+                        .withVelocityY(-driveController.getLeftX() * Constants.MAX_SPEED * getAxisMovementScale())
+                        .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
 
-        // reset the field-centric heading on left bumper press
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
 
-        // driveController.a().onTrue(new InstantCommand(() -> {new
-        // PathfinderSubsystem(drivetrain, 17, Alignment.LEFT);}));
+        driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T2))); // RESET POSE
+        driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T3))); // RESET POSE
+        driveController.x().onTrue(armSubsystem.runOnce(() -> {armSubsystem.setZero();}));
 
-        // drivetrain.registerTelemetry(logger::telemeterize);
+        // Climber
+        driveController.povDown().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.servoLogic()));
+        driveController.povRight().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.stop()));
+        driveController.povLeft().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.speed(0.5)));
+        driveController.povUp().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.speed(-0.5)));
 
-        
-        // new JoystickButton(navController, 1).onTrue(new InstantCommand(() -> {System.out.println("SLKDSSF:LKJDSFLDSFDSF");}));
+        driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() ->
+        elevatorSubsystem.lower()));
+        driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() ->
+        elevatorSubsystem.raise()));
+
+        operatorController.rightBumper().onTrue(armSubsystem.runOnce(() ->
+        armSubsystem.armUp()));
+        operatorController.leftBumper().onTrue(armSubsystem.runOnce(() ->
+        armSubsystem.armDown()));
+
+        operatorController.y().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_BARGE)));
+        operatorController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
+        operatorController.a().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_MIN)));
+        // operatorController.x().onTrue(new InstantCommand(() -> performRetract()));
+
+        // operatorController.back().onTrue(armSubsystem.runOnce(() ->
+        // armSubsystem.rotateWristIntake()));
+        operatorController.start().onTrue(manipulatorSubsystem.runOnce(() ->
+        manipulatorSubsystem.holdAlgae()));
+
+        operatorController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T1)));
+        operatorController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T2)));
+        operatorController.povUp().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T3)));
+        operatorController.povRight().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T4)));
 
     }
 
@@ -390,6 +367,15 @@ public class Core {
     }
 
     public double getAxisMovementScale() {
-        return (1 - (driveController.getRightTriggerAxis() * 0.9));
+        return (1 - (driveController.getRightTriggerAxis() * 0.85));
+    }
+
+    public void corePeriodic() {
+        // If either of our analog sticks are moved, we want to disable the auto
+        if (driveController.getLeftX() != 0 || driveController.getLeftY() != 0) {
+            pathfinderSubsystem.stopAll();
+        }
+
+        manipulatorSubsystem.spinAt(operatorController.getLeftY());
     }
 }
