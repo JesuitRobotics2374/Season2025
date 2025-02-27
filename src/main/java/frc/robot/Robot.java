@@ -49,28 +49,27 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         // Raising elevator a little
-        InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(4));
-        raiseElevator.schedule();
+        Command raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(4));
 
         // Waiting until arm is raised
-        WaitCommand waitCommand = new WaitCommand(0.3);
-        waitCommand.schedule();
+        Command waitCommand = new WaitCommand(0.3);
 
         // Creating pathfinder to get out of starting position
         m_core.getPathfinderSubsystem().clearSequence();
         int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
         System.out.println("Path loaded: " + path.length);
-        InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
+        
+        // Command autoRoutine = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
+
+        Command autoRoutine = new InstantCommand(() -> m_core.getPathfinderSubsystem().doMiniAuto());
         
         // Raising arm and zeroing elevator
-        InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem(), Constants.ARM_HORIZONTAL);
-        ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
+        Command moveArm = new InitRaiseArm(m_core.getArmSubsystem(), Constants.ARM_HORIZONTAL);
+        Command zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
         SequentialCommandGroup sequentialCommandGroup = new SequentialCommandGroup(moveArm, zeroElevator);
-        
-        // Running pathfinder and arm raise/elevator zero in parallel
-        ParallelCommandGroup parallelCommandGroup = new ParallelCommandGroup(pathfinder, sequentialCommandGroup);
-        parallelCommandGroup.schedule();
 
+        SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseElevator, waitCommand, autoRoutine, sequentialCommandGroup);
+        commandGroup.schedule();
     }
 
     @Override

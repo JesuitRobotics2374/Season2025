@@ -23,7 +23,6 @@ public class ExactAlignRot extends Command {
 
     private double alignmentShift;
 
-    private boolean doneMoving;
     private boolean doneRotating;
 
     private int tag_id;
@@ -51,7 +50,6 @@ public class ExactAlignRot extends Command {
     @Override
     public void initialize() {
         System.out.println("Exact Rotate Init");
-        doneMoving = false;
         doneRotating = false;
     }
 
@@ -70,7 +68,6 @@ public class ExactAlignRot extends Command {
         }
 
         if (canSeeCount == 0) {
-            doneMoving = true;
             doneRotating = true;
             return;
         }

@@ -224,7 +224,7 @@ public class PathfinderSubsystem {
                 pathfindTarget,
                 constraints,
                 0);
-        InstantCommand applyBreak = new InstantCommand(
+        Command applyBreak = new InstantCommand(
                 () -> drivetrain.setControl(new SwerveRequest.SwerveDriveBrake()));
         Command pathfindWaitCommand = new WaitCommand(2);
 
@@ -458,6 +458,26 @@ public class PathfinderSubsystem {
         }
 
         return tagId;
+    }
+
+    public void doMiniAuto() {
+        Command alignComponents = new InstantCommand(() -> {
+            core.moveToSetpoint(reefHeight);
+        });
+        ExactAlignRot exactAlignCommandRot = new ExactAlignRot(drivetrain, translateToTagId(4), Alignment.RIGHT.getOffset());
+        ExactAlignXY exactAlignCommandXY = new ExactAlignXY(drivetrain, translateToTagId(4), Alignment.RIGHT.getOffset());
+        CanRangeDynamicForward dynamicForwardCommand = new CanRangeDynamicForward(drivetrain);
+        Command retractComponents = new RetractComponents(drivetrain, core.getManipulatorSubsystem(), core.getElevatorSubsystem(), core.getArmSubsystem(), reefHeight.getRetractAction());
+
+        Command finalAuto = new SequentialCommandGroup(
+                alignComponents,
+                exactAlignCommandRot,
+                exactAlignCommandXY,
+                dynamicForwardCommand,
+                retractComponents
+        );
+
+        finalAuto.schedule();
     }
 
     // public void addToAutoSequence(Command command) {

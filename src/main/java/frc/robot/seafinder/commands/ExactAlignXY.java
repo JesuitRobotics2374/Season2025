@@ -76,8 +76,8 @@ public class ExactAlignXY extends Command {
         for (int i = 0; i < 6; i++) {
             total[i] /= canSeeCount;
         }
-        total[0] += alignmentShift;
-        total[1] += Constants.ALIGN_Y_SHIFT;
+        total[0] += alignmentShift; // X shift
+        total[1] += Constants.ALIGN_Y_SHIFT; // Y shift
 
         targetPose = new Pose3d(total[0], total[1], total[2], new Rotation3d(total[5] * Math.PI / 180, total[3] * Math.PI / 180, total[4] * Math.PI / 180)).toPose2d();
 
@@ -88,12 +88,16 @@ public class ExactAlignXY extends Command {
 
         double velocityX = 0;
         double velocityY = 0;
-        double magnitude = Math.sqrt(Math.pow(total[0], 2) + Math.pow(total[1], 2)); // TODO: Retune after removing
+        double magnitude = Math.sqrt(Math.pow(total[0], 2) + Math.pow(total[1], 2));
                                      
 
         if (!doneMoving) {
             velocityX = total[0] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
             velocityY = total[1] / (magnitude + 1e-6) * Constants.ALIGN_MOVE_SPEED;
+
+            // System.out.println("Delta values: " + total[0] + " " + total[1]); // For logging to set Constants.ALIGN_MOVE_SPEED
+            // velocityX = total[0] * Constants.ALIGN_MOVE_SPEED;
+            // velocityY = total[1] * Constants.ALIGN_MOVE_SPEED;
         }
 
         System.out.println(" 5: " + total[5] + " 3: " + total[3] + " 4: " + total[4]);
