@@ -49,44 +49,23 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
 
         System.out.println("Auto-Iit");
-       // InstantCommand setElevatorZero = new InstantCommand(() -> m_core.getElevatorSubsystem().zeroElevator());
-        // setElevatorZero.schedule();
-        InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(4));
-        raiseElevator.schedule();
-   
-        WaitCommand waitCommand = new WaitCommand(0.3);
-        waitCommand.schedule();
-
-
-       // InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
-
+        InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(5));
+        WaitCommand waitCommand = new WaitCommand(0.7);
         InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(18.68));
-        raiseArm.schedule();
-     //   ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
-     //   zeroElevator.schedule();
-
-        System.out.println("lower to limit");
         InstantCommand lower_to_limt = new InstantCommand( () -> m_core.getElevatorSubsystem().lower_to_limt() );
-        lower_to_limt.schedule();
-        
-
-        System.out.println("auto_init done");
-      //  SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseArm, zeroElevator);
-      //  commandGroup.schedule();
-
-/* 
-        m_core.getPathfinderSubsystem().clearSequence();
-        int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
-        System.out.println("Path loaded: " + path.length);
-        InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
-        
-        InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
-        ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
-        
-        SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator, pathfinder);
+        SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseElevator, waitCommand, raiseArm, lower_to_limt); 
         commandGroup.schedule();
 
-*/
+      //  m_core.getPathfinderSubsystem().clearSequence();
+       // int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
+        //System.out.println("Path loaded: " + path.length);
+        //InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
+        
+      //  InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
+      //  ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
+        
+        //SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator, pathfinder)
+
     }
 
     @Override
@@ -99,6 +78,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+
+        /* 
         InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(4));
         raiseElevator.schedule();
 
@@ -112,6 +93,15 @@ public class Robot extends TimedRobot {
         ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
         
         SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator);
+        commandGroup.schedule();
+*/
+
+        System.out.println("Teleop-Iit");
+        InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(5));
+        WaitCommand waitCommand = new WaitCommand(0.7);
+        InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(18.68));
+        InstantCommand lower_to_limt = new InstantCommand( () -> m_core.getElevatorSubsystem().lower_to_limt() );
+        SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseElevator, waitCommand, raiseArm, lower_to_limt); 
         commandGroup.schedule();
     }
 
