@@ -151,14 +151,15 @@ public class Core {
                         new WaitCommand(0.2),
                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
                         new WaitCommand(0.3),
-                        new InstantCommand(() -> manipulatorSubsystem.stop()));
-                    SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new WaitCommand(0.8),
-                            new StaticBackCommand(drivetrain, -0.4, -1));
+                        new InstantCommand(() -> manipulatorSubsystem.stop()),
+                        new StaticBackCommand(drivetrain, -0.4, -1));
+                  //  SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new WaitCommand(0.8),
+                            
                     
                     elevatorSubsystem.changeBy(-50);
                     armSubsystem.armChangeBy(-19);
                     waitAndOuttake3.schedule();
-                    waitAndBack3.schedule();
+                 //   waitAndBack3.schedule();
                     break;
                 case "t2": // Not tuned on tage 19 right & left
                     // primary steps
