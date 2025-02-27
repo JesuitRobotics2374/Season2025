@@ -124,18 +124,19 @@ public class Core {
                 case "t4": // Tune
                     System.out.println("Running retract macro: backAndDown");
                     SequentialCommandGroup waitAndEle = new SequentialCommandGroup(
-                        new WaitCommand(0.5), 
-                        new InstantCommand(() -> elevatorSubsystem.changeBy(-Constants.RETRACT_ELEVATOR_DOWNSHIFT)));
+                            new WaitCommand(0.5),
+                            new InstantCommand(
+                                    () -> elevatorSubsystem.changeBy(-Constants.RETRACT_ELEVATOR_DOWNSHIFT)));
                     SequentialCommandGroup waitAndOuttake = new SequentialCommandGroup(
-                        new WaitCommand(0.75),
-                        new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
-                        new WaitCommand(0.3),
-                        new InstantCommand(() -> manipulatorSubsystem.outtake(0.25)),
-                        new WaitCommand(0.3),
-                        new InstantCommand(() -> manipulatorSubsystem.stop()));
+                            new WaitCommand(0.75),
+                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
+                            new WaitCommand(0.3),
+                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.25)),
+                            new WaitCommand(0.3),
+                            new InstantCommand(() -> manipulatorSubsystem.stop()));
                     SequentialCommandGroup waitAndBack = new SequentialCommandGroup(
-                        new WaitCommand(3),
-                        new StaticBackCommand(drivetrain, -0.4, -0.4));
+                            new WaitCommand(3),
+                            new StaticBackCommand(drivetrain, -0.4, -0.4));
 
                     waitAndEle.schedule();
                     waitAndOuttake.schedule();
@@ -145,34 +146,34 @@ public class Core {
                 case "t3": // Tuned on tag 19 right & left
                     System.out.println("Running retract macro: backAndDown");
                     SequentialCommandGroup waitAndOuttake3 = new SequentialCommandGroup(
-                        new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
-                        new WaitCommand(0.2),
-                        new InstantCommand(() -> manipulatorSubsystem.stop()),
-                        new WaitCommand(0.2),
-                        new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
-                        new WaitCommand(0.3),
-                        new InstantCommand(() -> manipulatorSubsystem.stop()),
-                        new StaticBackCommand(drivetrain, -0.4, -1).withTimeout(3)      );
-                  //  SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new WaitCommand(0.8),
-                            
-                    
+                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
+                            new WaitCommand(0.2),
+                            new InstantCommand(() -> manipulatorSubsystem.stop()),
+                            new WaitCommand(0.2),
+                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
+                            new WaitCommand(0.3),
+                            new InstantCommand(() -> manipulatorSubsystem.stop()),
+                            new StaticBackCommand(drivetrain, -0.4, -1));
+                    // SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new
+                    // WaitCommand(0.8),
+
                     elevatorSubsystem.changeBy(-50);
                     armSubsystem.armChangeBy(-19);
                     waitAndOuttake3.schedule();
-                 //   waitAndBack3.schedule();
+                    // waitAndBack3.schedule();
                     break;
                 case "t2": // Not tuned on tage 19 right & left
                     // primary steps
                     System.out.println("Running retract macro: backAndDown");
 
                     SequentialCommandGroup waitAndOuttake2 = new SequentialCommandGroup(
-                        new WaitCommand(1.0),
-                        new InstantCommand(() -> manipulatorSubsystem.outtake(0.4)),
-                        new WaitCommand(3.2),
-                        new InstantCommand(() -> manipulatorSubsystem.stop()));
+                            new WaitCommand(1.0),
+                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.4)),
+                            new WaitCommand(3.2),
+                            new InstantCommand(() -> manipulatorSubsystem.stop()));
                     SequentialCommandGroup waitAndBack2 = new SequentialCommandGroup(
-                        new WaitCommand(1.7),
-                        new StaticBackCommand(drivetrain, -0.4, -1));
+                            new WaitCommand(1.7),
+                            new StaticBackCommand(drivetrain, -0.4, -1));
 
                     elevatorSubsystem.changeBy(-11);
                     armSubsystem.armChangeBy(-21);
@@ -231,12 +232,14 @@ public class Core {
     }
 
     private void configureBindings() {
-        
+
         // STICK MOVEMENT
         drivetrain.setDefaultCommand(
                 drivetrain.applyRequest(() -> drive
-                       // .withVelocityX(-driveController.getLeftY() * Constants.MAX_SPEED * getAxisMovementScale())
-                       // .withVelocityY(-driveController.getLeftX() * Constants.MAX_SPEED * getAxisMovementScale())
+                        // .withVelocityX(-driveController.getLeftY() * Constants.MAX_SPEED *
+                        // getAxisMovementScale())
+                        // .withVelocityY(-driveController.getLeftX() * Constants.MAX_SPEED *
+                        // getAxisMovementScale())
                         .withVelocityX(-driveController.getLeftY() * MaxSpeed * getAxisMovementScale())
                         .withVelocityY(-driveController.getLeftX() * MaxSpeed * getAxisMovementScale())
                         .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
@@ -245,7 +248,9 @@ public class Core {
 
         driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T2))); // RESET POSE
         driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T3))); // RESET POSE
-        driveController.x().onTrue(armSubsystem.runOnce(() -> {armSubsystem.setZero();}));
+        driveController.x().onTrue(armSubsystem.runOnce(() -> {
+            armSubsystem.setZero();
+        }));
 
         // Climber
         driveController.povDown().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.servoLogic()));
@@ -253,15 +258,11 @@ public class Core {
         driveController.povLeft().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.speed(0.5)));
         driveController.povUp().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.speed(-0.5)));
 
-        driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() ->
-        elevatorSubsystem.lower()));
-        driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() ->
-        elevatorSubsystem.raise()));
+        driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
+        driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
 
-        operatorController.rightBumper().onTrue(armSubsystem.runOnce(() ->
-        armSubsystem.armUp()));
-        operatorController.leftBumper().onTrue(armSubsystem.runOnce(() ->
-        armSubsystem.armDown()));
+        operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
+        operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
 
         operatorController.y().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_BARGE)));
         operatorController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
@@ -270,8 +271,7 @@ public class Core {
 
         // operatorController.back().onTrue(armSubsystem.runOnce(() ->
         // armSubsystem.rotateWristIntake()));
-   //     operatorController.start().onTrue(manipulatorSubsystem.runOnce(() ->
-    //    manipulatorSubsystem.holdAlgae()));
+        operatorController.start().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.holdAlgae()));
 
         operatorController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T1)));
         operatorController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T2)));
