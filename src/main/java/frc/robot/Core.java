@@ -267,8 +267,8 @@ public class Core {
 
         // operatorController.back().onTrue(armSubsystem.runOnce(() ->
         // armSubsystem.rotateWristIntake()));
-        operatorController.start().onTrue(manipulatorSubsystem.runOnce(() ->
-        manipulatorSubsystem.holdAlgae()));
+   //     operatorController.start().onTrue(manipulatorSubsystem.runOnce(() ->
+    //    manipulatorSubsystem.holdAlgae()));
 
         operatorController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T1)));
         operatorController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T2)));
