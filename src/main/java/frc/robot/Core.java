@@ -146,7 +146,7 @@ public class Core {
                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
                         new WaitCommand(0.2),
                         new InstantCommand(() -> manipulatorSubsystem.stop()),
-                        new WaitCommand(0.1),
+                        new WaitCommand(0.2),
                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
                         new WaitCommand(0.3),
                         new InstantCommand(() -> manipulatorSubsystem.stop()));
