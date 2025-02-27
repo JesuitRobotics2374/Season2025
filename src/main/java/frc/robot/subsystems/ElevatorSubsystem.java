@@ -145,6 +145,22 @@ public class ElevatorSubsystem extends SubsystemBase {
        // }
     }
 
+    public void lower_to_limt() {
+        // if (!limitSwitch.get()) {
+             currentlyMovingDown = true;
+             while (currentlyMovingDown) {
+                MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - Constants.ELEVATOR_MOVE_AMOUNT);
+                elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+                if (!limitSwitch.get() ) {
+                    setElevatorZero();
+                    currentlyMovingDown = false;
+                }
+
+             }
+
+        // }
+     }
+
     public void lower(double amount) {
       //  if (!limitSwitch.get()) {
             currentlyMovingDown = true;
