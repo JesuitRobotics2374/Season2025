@@ -234,8 +234,10 @@ public class Core {
         // STICK MOVEMENT
         drivetrain.setDefaultCommand(
                 drivetrain.applyRequest(() -> drive
-                        .withVelocityX(-driveController.getLeftY() * Constants.MAX_SPEED * getAxisMovementScale())
-                        .withVelocityY(-driveController.getLeftX() * Constants.MAX_SPEED * getAxisMovementScale())
+                       // .withVelocityX(-driveController.getLeftY() * Constants.MAX_SPEED * getAxisMovementScale())
+                       // .withVelocityY(-driveController.getLeftX() * Constants.MAX_SPEED * getAxisMovementScale())
+                        .withVelocityX(-driveController.getLeftY() * MaxSpeed * getAxisMovementScale())
+                        .withVelocityY(-driveController.getLeftX() * MaxSpeed * getAxisMovementScale())
                         .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
 
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
