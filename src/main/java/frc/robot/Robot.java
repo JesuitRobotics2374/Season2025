@@ -102,9 +102,10 @@ public class Robot extends TimedRobot {
         System.out.println("Teleop-Iit");
         InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(5));
         WaitCommand waitCommand = new WaitCommand(0.7);
-        InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(18.68));
+        InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
+       // InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(18.68));
         InstantCommand lower_to_limt = new InstantCommand( () -> m_core.getElevatorSubsystem().lower_to_limt() );
-        SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseElevator, waitCommand, raiseArm, lower_to_limt); 
+        SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseElevator, waitCommand, moveArm, lower_to_limt); 
         commandGroup.schedule();
     }
 

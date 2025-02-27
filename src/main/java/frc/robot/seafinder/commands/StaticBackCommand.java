@@ -1,5 +1,7 @@
 package frc.robot.seafinder.commands;
 
+import java.io.LineNumberInputStream;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,10 +36,13 @@ public class StaticBackCommand extends Command {
         // done = true;
         // return;
         // }
+       // drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(speed));
         drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(speed));
         double distance = drivetrain.getRobotX();
-        System.out.println(distance);
+        System.out.println("Provided Distance:  " + providedDistance + " startingdistance " + startingDistance + " distance " + distance);
+        System.out.println("delta " + (distance - startingDistance));
         if (distance - startingDistance < providedDistance) {
+            System.out.print("Setback done");
             done = true;
         }
     }

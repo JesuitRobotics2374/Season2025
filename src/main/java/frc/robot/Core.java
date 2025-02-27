@@ -152,7 +152,7 @@ public class Core {
                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
                         new WaitCommand(0.3),
                         new InstantCommand(() -> manipulatorSubsystem.stop()),
-                        new StaticBackCommand(drivetrain, -0.4, -1));
+                        new StaticBackCommand(drivetrain, -0.4, -1).withTimeout(3)      );
                   //  SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new WaitCommand(0.8),
                             
                     

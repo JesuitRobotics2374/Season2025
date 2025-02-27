@@ -233,6 +233,7 @@ public class PathfinderSubsystem {
         Command resetNavPilot = new InstantCommand(() -> updateGUI(0));
 
         if (isReef) { // Reef
+            System.out.println("Reef");
             double offset = alignment.getOffset();
             if (reefHeight.equals(Constants.SETPOINT_REEF_T1)) {offset = 0;}
 
@@ -241,7 +242,7 @@ public class PathfinderSubsystem {
     
             CanRangeDynamicForward dynamicForwardCommand = new CanRangeDynamicForward(drivetrain);
     
-            Command retractComponents = new InstantCommand(() -> {core.performRetract();});
+            Command retractComponents = new InstantCommand(() -> {core.performRetract();}).withTimeout(5)   ;
 
             SequentialCommandGroup finalCommandGroup = new SequentialCommandGroup(
                 lowerRobot, 
@@ -254,6 +255,7 @@ public class PathfinderSubsystem {
                 resetNavPilot);
             finalCommandGroup.schedule();
         } else { // Human Station
+            System.out.println("Not Reef");
             Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
             Command parallelSetup = new ParallelCommandGroup(pathfindCommand, alignComponents);
             StationAlign stationAlignCommand = new StationAlign(drivetrain);
@@ -334,6 +336,7 @@ public class PathfinderSubsystem {
 
 
         if (!reefHeight.equals(Constants.SETPOINT_HP_INTAKE)) { // Reef
+            System.out.println("Auto reef");
             double offset = alignment.getOffset();
             if (reefHeight.equals(Constants.SETPOINT_REEF_T1)) {offset = 0;}
 
@@ -368,6 +371,7 @@ public class PathfinderSubsystem {
             // exactAlignCommandRot, pilotStateXY, exactAlignCommandXY,
             // pilotStateDynamic, dynamicForwardCommand, pilotStateRetract, resetNavPilot);
         } else { // Human Station
+            System.out.println("auto not reef");
             Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
             Command stationAlignCommand = new StationAlign(drivetrain);
             Command runIntake = new IntakeCommand(core.getManipulatorSubsystem());
