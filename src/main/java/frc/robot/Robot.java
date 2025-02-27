@@ -82,23 +82,6 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
 
-        /* 
-        InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(4));
-        raiseElevator.schedule();
-
-        WaitCommand waitCommand = new WaitCommand(0.3);
-        waitCommand.schedule();
-
-        // InstantCommand setElevatorZero = new InstantCommand(() -> m_core.getElevatorSubsystem().zeroElevator());
-        // setElevatorZero.schedule();
-        
-        InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
-        ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
-        
-        SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator);
-        commandGroup.schedule();
-*/
-
         System.out.println("Teleop-Iit");
         InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(5));
         WaitCommand waitCommand = new WaitCommand(0.7);

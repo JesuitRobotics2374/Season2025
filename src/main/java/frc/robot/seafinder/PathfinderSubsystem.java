@@ -49,7 +49,7 @@ public class PathfinderSubsystem {
     private boolean heightLoaded = false; // Have we inputted a height?
     private Setpoint reefHeight; // What setpoint should we move to? (T1/2/3/4)
 
-    private boolean isReef;
+    private boolean isReef = true;
 
     private Command runningCommand; // Keep track of the currently running command so we can override it later
 
