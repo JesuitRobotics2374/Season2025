@@ -53,14 +53,17 @@ public class Robot extends TimedRobot {
         WaitCommand waitCommand = new WaitCommand(0.7);
         InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(18.68));
         InstantCommand lower_to_limt = new InstantCommand( () -> m_core.getElevatorSubsystem().lower_to_limt() );
-        SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseElevator, waitCommand, raiseArm, lower_to_limt); 
+
+
+        m_core.getPathfinderSubsystem().clearSequence();
+        int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
+        System.out.println("Path loaded: " + path.length);
+        InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
+        
+        SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseElevator, waitCommand, raiseArm, lower_to_limt, pathfinder); 
         commandGroup.schedule();
 
-      //  m_core.getPathfinderSubsystem().clearSequence();
-       // int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
-        //System.out.println("Path loaded: " + path.length);
-        //InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
-        
+
       //  InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
       //  ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
         
