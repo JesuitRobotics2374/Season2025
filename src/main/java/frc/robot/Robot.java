@@ -49,7 +49,7 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
 
         System.out.println("Auto-Iit");
-        InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(5));
+        InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(10));
         WaitCommand waitCommand = new WaitCommand(0.7);
         InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(18.68));
         InstantCommand lower_to_limt = new InstantCommand( () -> m_core.getElevatorSubsystem().lower_to_limt() );
