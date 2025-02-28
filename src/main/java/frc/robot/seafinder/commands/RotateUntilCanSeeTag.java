@@ -29,8 +29,8 @@ public class RotateUntilCanSeeTag extends Command {
         drivetrain.setControl(
                 new SwerveRequest.FieldCentric().withRotationalRate(-Math.PI / 3.5).withVelocityX(-0.3));
 
-        if (NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1) != -1
-        || NetworkTableInstance.getDefault().getTable("limelight-right").getEntry("tid").getDouble(-1) != -1) {
+        if (NetworkTableInstance.getDefault().getTable("limelight-left").getEntry("tid").getDouble(-1) != -1) {
+        // || NetworkTableInstance.getDefault().getTable("limelight-right").getEntry("tid").getDouble(-1) != -1) {
             done = true;
         }
 

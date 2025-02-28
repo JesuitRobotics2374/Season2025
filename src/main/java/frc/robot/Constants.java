@@ -50,7 +50,7 @@ public class Constants {
     public static final double PATHFINDING_POST_BUFFER = -0.279; // meters
     public static final double PATHFINDING_FRONT_BUFFER = -1.02; // meters
     public static final double PATHFINDING_LEFT_SHIFT_FACTOR = -0.2727;
-    public static final double PATHFINDING_RIGHT_SHIFT_FACTOR = 0.1037;
+    public static final double PATHFINDING_RIGHT_SHIFT_FACTOR = 0.1437;
 
     public static final double GENERIC_DISTANCE_THRESHOLD = 0.035; 
     public static final double GENERIC_ROTATION_THRESHOLD = 0.8 * Math.PI / 180;
@@ -72,7 +72,7 @@ public class Constants {
 
     // Elevator
     public static final double ELEVATOR_RATIO = 20;
-    public static final double ELEVATOR_MOVE_AMOUNT = 2;
+    public static final double ELEVATOR_MOVE_AMOUNT = 5;
 
     public static final int PIGEON_ID = 0;
     public static final double MAX_TIP_ANGLE = 8.0;

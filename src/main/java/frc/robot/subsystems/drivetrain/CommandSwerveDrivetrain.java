@@ -68,7 +68,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveDrivePoseEstimator estimator;
     Field2d field = new Field2d();
 
-    public CoreCANrange robotRangeRight = new CoreCANrange(18, "FastFD");
+    // public CoreCANrange robotRangeRight = new CoreCANrange(18, "FastFD");
     public CoreCANrange robotRangeLeft = new CoreCANrange(19, "FastFD");
 
     private final SwerveRequest.ApplyRobotSpeeds autoRequest = new SwerveRequest.ApplyRobotSpeeds();
@@ -470,13 +470,22 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public double getForwardRangeRight() {
-        StatusSignal<Distance> d = robotRangeRight.getDistance();
+        // StatusSignal<Distance> d = robotRangeRight.getDistance();
+        StatusSignal<Distance> d = robotRangeLeft.getDistance();
         // return (robotRangeRight.getIsDetected().getValueAsDouble()==1) ? d.getValueAsDouble() : Double.MAX_VALUE;
         return Math.min(d.getValueAsDouble(), 1.5);
     }
 
     public void setLabel(Pose2d pose2d, String label) {
         field.getObject(label).setPose(pose2d);
+    }
+
+    public void seedRobotAuto() {
+        if (DriverStation.getAlliance().get() == Alliance.Red) {
+            resetRotation(new Rotation2d(0));
+        } else {
+            resetRotation(new Rotation2d(Math.PI));
+        }
     }
 
 }

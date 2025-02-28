@@ -17,6 +17,8 @@ import frc.robot.seafinder.commands.InitRaiseArm;
 import frc.robot.seafinder.commands.ZeroElevator;
 import frc.robot.seafinder.utils.AStar;
 import frc.robot.seafinder.utils.Apriltags;
+import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.LimelightObject;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
@@ -49,6 +51,13 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
 
         System.out.println("Auto-Iit");
+        Command seedForAuto = new InstantCommand(() -> m_core.getDrivetrain().seedRobotAuto());
+
+        LimelightObject llRight = Constants.LIMELIGHTS_ON_BOARD[0];
+        // Command snapToLimelight = new InstantCommand(() -> m_core.getDrivetrain().alignToVision(llRight, (LimelightHelpers.getBotPoseEstimate_wpiBlue(llRight.name)).pose, true));
+
+        Command waitForSync = new WaitCommand(3);
+
         InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(10));
         WaitCommand waitCommand = new WaitCommand(0.7);
         InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(18.68));
@@ -60,7 +69,7 @@ public class Robot extends TimedRobot {
         System.out.println("Path loaded: " + path.length);
         InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
         
-        SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseElevator, waitCommand, raiseArm, lower_to_limt, pathfinder); 
+        SequentialCommandGroup commandGroup = new SequentialCommandGroup(seedForAuto, waitForSync, waitCommand, raiseArm, lower_to_limt, pathfinder); 
         commandGroup.schedule();
 
 
@@ -82,14 +91,14 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
 
-        System.out.println("Teleop-Iit");
-        InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(5));
-        WaitCommand waitCommand = new WaitCommand(0.7);
-        InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
-       // InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(18.68));
-        InstantCommand lower_to_limt = new InstantCommand( () -> m_core.getElevatorSubsystem().lower_to_limt() );
-        SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseElevator, waitCommand, moveArm, lower_to_limt); 
-        commandGroup.schedule();
+    //     System.out.println("Teleop-Iit");
+    //     InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(5));
+    //     WaitCommand waitCommand = new WaitCommand(0.7);
+    //     InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
+    //    // InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(18.68));
+    //     InstantCommand lower_to_limt = new InstantCommand( () -> m_core.getElevatorSubsystem().lower_to_limt() );
+    //     SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseElevator, waitCommand, moveArm, lower_to_limt); 
+    //     commandGroup.schedule();
     }
 
     @Override

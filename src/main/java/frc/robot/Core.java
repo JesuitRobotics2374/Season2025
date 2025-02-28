@@ -245,6 +245,7 @@ public class Core {
                         .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
 
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
+        driveController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedRobotAuto()));
 
         driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T2))); // RESET POSE
         driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T3))); // RESET POSE
@@ -267,7 +268,7 @@ public class Core {
         operatorController.y().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_BARGE)));
         operatorController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
         operatorController.a().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_MIN)));
-        // operatorController.x().onTrue(new InstantCommand(() -> performRetract()));
+        operatorController.x().onTrue(new InstantCommand(() -> performRetract()));
 
         // operatorController.back().onTrue(armSubsystem.runOnce(() ->
         // armSubsystem.rotateWristIntake()));

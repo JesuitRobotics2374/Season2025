@@ -53,7 +53,7 @@ import frc.robot.Constants;
 
 public class ArmSubsystem extends SubsystemBase {
 
-    public TalonFX armMotor1;
+    // public TalonFX armMotor1;
     public TalonFX armMotor2;
     public TalonFX wristMotor;
 
@@ -68,14 +68,14 @@ public class ArmSubsystem extends SubsystemBase {
     // private CANrangeConfiguration rangeConfig = new CANrangeConfiguration();
 
     public ArmSubsystem() {
-        this.armMotor1 = new TalonFX(11, "rio");
+        // this.armMotor1 = new TalonFX(11, "rio");
         this.armMotor2 = new TalonFX(12, "rio");
         this.wristMotor = new TalonFX(17, "rio");
 
         this.armEncoder = new CANcoder(10, "rio");
         this.wristEncoder = new CANcoder(29);
 
-        this.armMotor1.setNeutralMode(NeutralModeValue.Brake);
+        // this.armMotor1.setNeutralMode(NeutralModeValue.Brake);
         this.armMotor2.setNeutralMode(NeutralModeValue.Brake);
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
@@ -96,9 +96,9 @@ public class ArmSubsystem extends SubsystemBase {
         motionMagicConfigs.MotionMagicAcceleration = 5; // Target acceleration in rps/s
         motionMagicConfigs.MotionMagicJerk = 5; // Target jerk in rps/s/s
 
-        armMotor1.getConfigurator().apply(talonFXConfigs);
-        armMotor1.getConfigurator().apply(slot0Configs);
-        armMotor1.getConfigurator().apply(motionMagicConfigs);
+        armMotor2.getConfigurator().apply(talonFXConfigs);
+        armMotor2.getConfigurator().apply(slot0Configs);
+        armMotor2.getConfigurator().apply(motionMagicConfigs);
 
         /////
 
@@ -126,33 +126,33 @@ public class ArmSubsystem extends SubsystemBase {
 
         // armMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble() * 125);
 
-        armMotor2.setControl(new Follower(armMotor1.getDeviceID(), true));
+        // armMotor2.setControl(new Follower(armMotor1.getDeviceID(), true));
 
-        armMotor1.setPosition(armEncoder.getPosition().getValueAsDouble() * Constants.ARM_RATIO);
+        armMotor2.setPosition(armEncoder.getPosition().getValueAsDouble() * Constants.ARM_RATIO);
         wristMotor.setPosition(wristEncoder.getPosition().getValueAsDouble() * Constants.WRIST_RATIO);
 
-        MotionMagicVoltage m_request = new MotionMagicVoltage(0);
-        armMotor1.setControl(m_request);
+        // MotionMagicVoltage m_request = new MotionMagicVoltage(0);
+        // armMotor1.setControl(m_request);
     }
 
     public boolean armPassedGoal() {
-        return armMotor1.getPosition().getValueAsDouble() >= armGoal;
+        return armMotor2.getPosition().getValueAsDouble() >= armGoal;
     }
 
     public void armUp() {
-        armGoal = armMotor1.getPosition().getValueAsDouble() + 0.7;
+        armGoal = armMotor2.getPosition().getValueAsDouble() + 0.7;
         
-        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor1.getPosition().getValueAsDouble() + 0.7);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor2.getPosition().getValueAsDouble() + 0.7);
 
-        armMotor1.setControl(m_request);
+        armMotor2.setControl(m_request);
     }
 
     public void armDown() {
-        armGoal = armMotor1.getPosition().getValueAsDouble() - 0.7;
+        armGoal = armMotor2.getPosition().getValueAsDouble() - 0.7;
 
-        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor1.getPosition().getValueAsDouble() - 0.7);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor2.getPosition().getValueAsDouble() - 0.7);
 
-        armMotor1.setControl(m_request);
+        armMotor2.setControl(m_request);
     }
 
     public void armGoTo(double pos) {
@@ -160,29 +160,29 @@ public class ArmSubsystem extends SubsystemBase {
 
         MotionMagicVoltage m_request = new MotionMagicVoltage(pos);
 
-        armMotor1.setControl(m_request);
+        armMotor2.setControl(m_request);
     }
 
     public void armChangeBy(double pos) {
-        armGoal = armMotor1.getPosition().getValueAsDouble() + pos;
+        armGoal = armMotor2.getPosition().getValueAsDouble() + pos;
 
-        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor1.getPosition().getValueAsDouble() + pos);
-        armMotor1.setControl(m_request);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor2.getPosition().getValueAsDouble() + pos);
+        armMotor2.setControl(m_request);
     }
 
     public void setZero() {
         armGoal = 0.0;
 
         wristEncoder.setPosition(0.0);
-        armMotor1.setPosition(0.0);
+        armMotor2.setPosition(0.0);
 
         MotionMagicVoltage m_request = new MotionMagicVoltage(0);
-        armMotor1.setControl(m_request);
+        armMotor2.setControl(m_request);
     }
 
     public void stopArm() {
-        armMotor1.stopMotor();
-        armMotor1.setNeutralMode(NeutralModeValue.Brake);
+        armMotor2.stopMotor();
+        armMotor2.setNeutralMode(NeutralModeValue.Brake);
     }
 
     public void rotateWristIntake() {
