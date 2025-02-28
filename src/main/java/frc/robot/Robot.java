@@ -56,10 +56,10 @@ public class Robot extends TimedRobot {
         LimelightObject llRight = Constants.LIMELIGHTS_ON_BOARD[0];
         // Command snapToLimelight = new InstantCommand(() -> m_core.getDrivetrain().alignToVision(llRight, (LimelightHelpers.getBotPoseEstimate_wpiBlue(llRight.name)).pose, true));
 
-        Command waitForSync = new WaitCommand(3);
+        // Command waitForSync = new WaitCommand(3);
 
         InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(10));
-        WaitCommand waitCommand = new WaitCommand(0.7);
+        WaitCommand waitCommand = new WaitCommand(4);
         InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(18.68));
         InstantCommand lower_to_limt = new InstantCommand( () -> m_core.getElevatorSubsystem().lower_to_limt() );
 
@@ -69,7 +69,7 @@ public class Robot extends TimedRobot {
         System.out.println("Path loaded: " + path.length);
         InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
         
-        SequentialCommandGroup commandGroup = new SequentialCommandGroup(seedForAuto, waitForSync, waitCommand, raiseArm, lower_to_limt, pathfinder); 
+        SequentialCommandGroup commandGroup = new SequentialCommandGroup(seedForAuto, raiseArm, waitCommand, lower_to_limt, pathfinder); 
         commandGroup.schedule();
 
 

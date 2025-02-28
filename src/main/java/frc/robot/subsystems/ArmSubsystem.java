@@ -28,6 +28,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ConnectedMotorValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase;
@@ -39,6 +40,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.controls.Follower;
 
@@ -91,6 +93,8 @@ public class ArmSubsystem extends SubsystemBase {
                              // the target position due to forces like gravity or friction.
         slot0Configs.kD = 0.1; // Responds to the rate of change of the error, damping the motion as the motor
                                // approaches the target. This reduces overshooting and oscillations.
+
+        talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         motionMagicConfigs.MotionMagicCruiseVelocity = 8; // Target velocity in rps
         motionMagicConfigs.MotionMagicAcceleration = 5; // Target acceleration in rps/s

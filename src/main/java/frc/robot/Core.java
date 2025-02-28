@@ -42,7 +42,7 @@ import frc.robot.seafinder.interfaces.NavInterfaceSubsystem;
 import frc.robot.seafinder.interfaces.PanelSubsystem;
 import frc.robot.seafinder.utils.Setpoint;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ClimberSubsystem;
+// import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
@@ -83,7 +83,7 @@ public class Core {
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     public final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
-    public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+    // public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     public final PathfinderSubsystem pathfinderSubsystem = new PathfinderSubsystem(this);
 
@@ -136,7 +136,7 @@ public class Core {
                             new InstantCommand(() -> manipulatorSubsystem.stop()));
                     SequentialCommandGroup waitAndBack = new SequentialCommandGroup(
                             new WaitCommand(3),
-                            new StaticBackCommand(drivetrain, -0.4, -0.4));
+                            (new StaticBackCommand(drivetrain, -0.4, -0.4)).withTimeout(1.5));
 
                     waitAndEle.schedule();
                     waitAndOuttake.schedule();
@@ -153,7 +153,7 @@ public class Core {
                             new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
                             new WaitCommand(0.3),
                             new InstantCommand(() -> manipulatorSubsystem.stop()),
-                            new StaticBackCommand(drivetrain, -0.4, -1));
+                            (new StaticBackCommand(drivetrain, -0.4, -1)).withTimeout(1.5));
                     // SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new
                     // WaitCommand(0.8),
 
@@ -173,7 +173,7 @@ public class Core {
                             new InstantCommand(() -> manipulatorSubsystem.stop()));
                     SequentialCommandGroup waitAndBack2 = new SequentialCommandGroup(
                             new WaitCommand(1.7),
-                            new StaticBackCommand(drivetrain, -0.4, -1));
+                            (new StaticBackCommand(drivetrain, -0.4, -1)).withTimeout(1.5));
 
                     elevatorSubsystem.changeBy(-11);
                     armSubsystem.armChangeBy(-21);
@@ -249,15 +249,16 @@ public class Core {
 
         driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T2))); // RESET POSE
         driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T3))); // RESET POSE
-        driveController.x().onTrue(armSubsystem.runOnce(() -> {
-            armSubsystem.setZero();
-        }));
+        // driveController.x().onTrue(armSubsystem.runOnce(() -> {
+        //     armSubsystem.setZero();
+        // }));
+        driveController.x().onTrue(new InstantCommand( () -> armSubsystem.armGoTo(18.68)));
 
         // Climber
-        driveController.povDown().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.servoLogic()));
-        driveController.povRight().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.stop()));
-        driveController.povLeft().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.speed(0.5)));
-        driveController.povUp().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.speed(-0.5)));
+        // driveController.povDown().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.servoLogic()));
+        // driveController.povRight().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.stop()));
+        // driveController.povLeft().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.speed(0.5)));
+        // driveController.povUp().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.speed(-0.5)));
 
         driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
         driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));

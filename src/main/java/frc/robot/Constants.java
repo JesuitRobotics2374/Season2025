@@ -10,8 +10,8 @@ import frc.robot.utils.LimelightObject.LLType;
 
 public class Constants {
     // Critical Generic Constants
-    public static final double MAX_SPEED = 0.2; // kSpeedAt12Volts desired top speed
-    public static final double MAX_ANGULAR_RATE = 0.3; // 3/4 of a rotation per second max angular velocity
+    public static final double MAX_SPEED = 0.35; // kSpeedAt12Volts desired top speed
+    public static final double MAX_ANGULAR_RATE = 0.5; // 3/4 of a rotation per second max angular velocity
 
     public static final double FIELD_X_MIDPOINT = 0; // 8.779; // meters
     public static final double FIELD_Y_MIDPOINT = 0; // 4.026; // meters
@@ -82,7 +82,7 @@ public class Constants {
     public static final double SETPOINT_ELEVATOR_OFFSET = 0;
 
     public static final Setpoint SETPOINT_MIN = new Setpoint(5, 22.4, WRIST_MIN_POSITION, "none");
-    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(18.55, 14.08, WRIST_MAX_POSITION, "none");
+    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(28.55, 14.08, WRIST_MAX_POSITION, "none");
     public static final Setpoint SETPOINT_PROCESSOR = new Setpoint(25, 2, WRIST_MIN_POSITION, "none");
     public static final Setpoint SETPOINT_BARGE = new Setpoint(128.1, 22.26, WRIST_MAX_POSITION, "none");
     public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(24.83, 1.857, WRIST_MAX_POSITION, "none");
