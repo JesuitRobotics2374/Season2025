@@ -476,6 +476,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return Math.min(d.getValueAsDouble(), 1.5);
     }
 
+    public boolean isCANRangeInThreshold() {
+        StatusSignal<Distance> dL = robotRangeLeft.getDistance();
+        StatusSignal<Distance> dR = robotRangeLeft.getDistance();
+        double dMin = Math.min(dL.getValueAsDouble(), dR.getValueAsDouble());
+        return (dMin > 0.5 && dMin < 0.55);
+    }
+
     public void setLabel(Pose2d pose2d, String label) {
         field.getObject(label).setPose(pose2d);
     }

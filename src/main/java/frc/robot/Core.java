@@ -50,19 +50,11 @@ import frc.robot.subsystems.drivetrain.TunerConstants;
 
 public class Core {
 
-    public double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED; // kSpeedAt12Volts
-                                                                                                       // desired top
-                                                                                                       // speed
-    public double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE; // 3/4
-                                                                                                                  // of
-                                                                                                                  // a
-                                                                                                                  // rotation
-                                                                                                                  // //
-                                                                                                                  // per
-                                                                                                                  // second
-                                                                                                                  // max
-                                                                                                                  // angular
-                                                                                                                  // velocity
+    public double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED;
+
+    public double MaxSpeedTurbo = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED_TURBO;
+
+    public double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -89,6 +81,8 @@ public class Core {
 
     public final PanelSubsystem panelSubsystem = new PanelSubsystem(pathfinderSubsystem);
     public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem();
+
+    SequentialCommandGroup autoCommandGroup;
 
     // private final SendableChooser<Command> autoChooser;
 
@@ -180,6 +174,13 @@ public class Core {
                     waitAndOuttake2.schedule();
                     waitAndBack2.schedule();
                     break;
+                case "t1":
+                    SequentialCommandGroup waitAndOuttakeL1 = new SequentialCommandGroup(
+                            new WaitCommand(0.1),
+                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.6)),
+                            new WaitCommand(3.2),
+                            new InstantCommand(() -> manipulatorSubsystem.stop()));
+                    waitAndOuttakeL1.schedule();
                 default:
                     break;
             }
@@ -227,6 +228,8 @@ public class Core {
         // .withWidget("Number Bar");
         tab.addDouble("Robot X", () -> drivetrain.getRobotX());
 
+        tab.addBoolean("IN RANGE", () -> drivetrain.isCANRangeInThreshold());
+
         // tab.add("Auto Chooser", autoChooser);
 
     }
@@ -250,15 +253,19 @@ public class Core {
         driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T2))); // RESET POSE
         driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T3))); // RESET POSE
         // driveController.x().onTrue(armSubsystem.runOnce(() -> {
-        //     armSubsystem.setZero();
+        // armSubsystem.setZero();
         // }));
-        driveController.x().onTrue(new InstantCommand( () -> armSubsystem.armGoTo(18.68)));
+        driveController.x().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_PROCESSOR)));
 
         // Climber
-        // driveController.povDown().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.servoLogic()));
-        // driveController.povRight().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.stop()));
-        // driveController.povLeft().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.speed(0.5)));
-        // driveController.povUp().onTrue(climberSubsystem.runOnce(() -> climberSubsystem.speed(-0.5)));
+        // driveController.povDown().onTrue(climberSubsystem.runOnce(() ->
+        // climberSubsystem.servoLogic()));
+        // driveController.povRight().onTrue(climberSubsystem.runOnce(() ->
+        // climberSubsystem.stop()));
+        // driveController.povLeft().onTrue(climberSubsystem.runOnce(() ->
+        // climberSubsystem.speed(0.5)));
+        // driveController.povUp().onTrue(climberSubsystem.runOnce(() ->
+        // climberSubsystem.speed(-0.5)));
 
         driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
         driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
@@ -379,6 +386,9 @@ public class Core {
         // If either of our analog sticks are moved, we want to disable the auto
         if (driveController.getLeftX() != 0 || driveController.getLeftY() != 0) {
             pathfinderSubsystem.stopAll();
+            if (autoCommandGroup != null) {
+                autoCommandGroup.cancel();
+            }
         }
 
         manipulatorSubsystem.spinAt(operatorController.getLeftY());

@@ -10,7 +10,8 @@ import frc.robot.utils.LimelightObject.LLType;
 
 public class Constants {
     // Critical Generic Constants
-    public static final double MAX_SPEED = 0.35; // kSpeedAt12Volts desired top speed
+    public static final double MAX_SPEED = 0.475; // kSpeedAt12Volts desired top speed
+    public static final double MAX_SPEED_TURBO = 0.75;
     public static final double MAX_ANGULAR_RATE = 0.5; // 3/4 of a rotation per second max angular velocity
 
     public static final double FIELD_X_MIDPOINT = 0; // 8.779; // meters
@@ -63,7 +64,7 @@ public class Constants {
     public static final double RIGHT_CANRANGE_OFFSET = -0.04;
 
     public static final double CAN_RANGE_SPEED = 0.6;
-    public static final double CAN_RANGE_FORWARD_DISTANCE = 0.47;
+    public static final double CAN_RANGE_FORWARD_DISTANCE = 0.77;
     public static final double CAN_RANGE_BACKWARD_DISTANCE = 1.3;
     
     public static final double SA_RIGHT_BUFFER = -0.0;
@@ -82,13 +83,13 @@ public class Constants {
     public static final double SETPOINT_ELEVATOR_OFFSET = 0;
 
     public static final Setpoint SETPOINT_MIN = new Setpoint(5, 22.4, WRIST_MIN_POSITION, "none");
-    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(28.55, 14.08, WRIST_MAX_POSITION, "none");
-    public static final Setpoint SETPOINT_PROCESSOR = new Setpoint(25, 2, WRIST_MIN_POSITION, "none");
+    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(34.55, 14.08, WRIST_MAX_POSITION, "none");
+    public static final Setpoint SETPOINT_PROCESSOR = new Setpoint(33.27, 2, WRIST_MAX_POSITION, "none");
     public static final Setpoint SETPOINT_BARGE = new Setpoint(128.1, 22.26, WRIST_MAX_POSITION, "none");
-    public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(24.83, 1.857, WRIST_MAX_POSITION, "none");
+    public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(27.63, 1.857, WRIST_MAX_POSITION, "t1");
     public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(12.51, 20.37, WRIST_MIN_POSITION, "t2");
     public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(60.76, 18.68, WRIST_MIN_POSITION, "t3");
-    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(122.2, 20.42, WRIST_MIN_POSITION, "t4");
+    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(122.2, 16.22, WRIST_MIN_POSITION, "t4");
     public static final Setpoint SETPOINT_ALGAE_T2 = new Setpoint(74.5, -1.81, WRIST_MAX_POSITION, "c2");
     public static final Setpoint SETPOINT_ALGAE_T3 = new Setpoint(110.76, -2.68, WRIST_MAX_POSITION, "c3");
     public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION, "none");
