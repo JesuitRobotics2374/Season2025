@@ -20,6 +20,7 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ManipulatorSubsystem extends SubsystemBase {
@@ -69,7 +70,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
     }
 
     public void stopOuttake() {
-        isOuttaking = false;    
+        isOuttaking = false;
         control.set(0);
     }
 
@@ -83,6 +84,14 @@ public class ManipulatorSubsystem extends SubsystemBase {
         control.stopMotor();
     }
 
+    public Command spinIntakeCommand(double speed) {
+        return this.startEnd(() -> {
+            this.spinAt(speed);
+        }, () -> {
+            this.stop();
+        });
+    }
+
     public boolean getIsIntaking() {
         return isIntaking;
     }
@@ -90,7 +99,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
     int algaeClock = 0;
 
     public void holdAlgae() {
-    algaeIntake = !algaeIntake;
+        algaeIntake = !algaeIntake;
     }
 
     int clock = 11;
@@ -101,7 +110,8 @@ public class ManipulatorSubsystem extends SubsystemBase {
         clock++;
         algaeClock++;
 
-        boolean withinRange = sensor.getDistance().getValueAsDouble() <= 0.06 && sensor.getIsDetected().getValueAsDouble() == 1.0;
+        boolean withinRange = sensor.getDistance().getValueAsDouble() <= 0.06
+                && sensor.getIsDetected().getValueAsDouble() == 1.0;
 
         if (clock > 10 && withinRange) {
             clock = 5;
