@@ -41,6 +41,7 @@ import frc.robot.seafinder.commands.StationAlign;
 import frc.robot.seafinder.interfaces.NavInterfaceSubsystem;
 import frc.robot.seafinder.interfaces.PanelSubsystem;
 import frc.robot.seafinder.utils.Setpoint;
+import frc.robot.seafinder2.utils.Target;
 import frc.robot.subsystems.ArmSubsystem;
 // import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -105,6 +106,12 @@ public class Core {
     // A setpoint is a "macro" state. Find its definition in utils folder.
     public void moveToSetpoint(Setpoint setpoint) {
         queuedRetractAction = setpoint.getRetractAction(); // Store what we just did for when we retract
+        elevatorSubsystem.elevatorGoToDouble(setpoint.getElevator());
+        armSubsystem.armGoTo(setpoint.getArm());
+        armSubsystem.wristGoTo(setpoint.getWrist());
+    }
+
+    public void moveToSetpoint(Target.Setpoint setpoint) {
         elevatorSubsystem.elevatorGoToDouble(setpoint.getElevator());
         armSubsystem.armGoTo(setpoint.getArm());
         armSubsystem.wristGoTo(setpoint.getWrist());
