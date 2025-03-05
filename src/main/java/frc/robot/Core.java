@@ -54,6 +54,8 @@ public class Core {
 
     public double MaxSpeedTurbo = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED_TURBO;
 
+    public boolean isTurbo = false;
+
     public double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -79,7 +81,7 @@ public class Core {
 
     public final PathfinderSubsystem pathfinderSubsystem = new PathfinderSubsystem(this);
 
-    public final PanelSubsystem panelSubsystem = new PanelSubsystem(pathfinderSubsystem);
+    // public final PanelSubsystem panelSubsystem = new PanelSubsystem(pathfinderSubsystem);
     public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem();
 
     SequentialCommandGroup autoCommandGroup;
@@ -230,6 +232,8 @@ public class Core {
 
         tab.addBoolean("IN RANGE", () -> drivetrain.isCANRangeInThreshold());
 
+        tab.addBoolean("FAST MODE", () -> {return isTurbo;});
+
         // tab.add("Auto Chooser", autoChooser);
 
     }
@@ -243,8 +247,8 @@ public class Core {
                         // getAxisMovementScale())
                         // .withVelocityY(-driveController.getLeftX() * Constants.MAX_SPEED *
                         // getAxisMovementScale())
-                        .withVelocityX(-driveController.getLeftY() * MaxSpeed * getAxisMovementScale())
-                        .withVelocityY(-driveController.getLeftX() * MaxSpeed * getAxisMovementScale())
+                        .withVelocityX(-driveController.getLeftY() * (isTurbo ? MaxSpeedTurbo : MaxSpeed) * getAxisMovementScale())
+                        .withVelocityY(-driveController.getLeftX() * (isTurbo ? MaxSpeedTurbo : MaxSpeed) * getAxisMovementScale())
                         .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
 
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
@@ -256,6 +260,8 @@ public class Core {
         // armSubsystem.setZero();
         // }));
         driveController.x().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_PROCESSOR)));
+
+        driveController.povLeft().onTrue(new InstantCommand(() -> {isTurbo = !isTurbo;}));
 
         // Climber
         // driveController.povDown().onTrue(climberSubsystem.runOnce(() ->
@@ -391,6 +397,10 @@ public class Core {
             }
         }
 
-        manipulatorSubsystem.spinAt(operatorController.getLeftY());
+        if (operatorController.getLeftY() < 0) {
+            manipulatorSubsystem.spinAt(operatorController.getLeftY() / 4);
+        } else {
+            manipulatorSubsystem.spinAt(operatorController.getLeftY());
+        }
     }
 }

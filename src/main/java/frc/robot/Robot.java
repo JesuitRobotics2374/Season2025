@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.seafinder.PathfinderSubsystem.Alignment;
 import frc.robot.seafinder.commands.InitRaiseArm;
+import frc.robot.seafinder.commands.TimedForward;
 import frc.robot.seafinder.commands.ZeroElevator;
 import frc.robot.seafinder.utils.AStar;
 import frc.robot.seafinder.utils.Apriltags;
@@ -68,8 +69,10 @@ public class Robot extends TimedRobot {
         int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
         System.out.println("Path loaded: " + path.length);
         InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
+
+        Command moveForward = new TimedForward(m_core.getDrivetrain(), 1.5);
         
-        m_core.autoCommandGroup = new SequentialCommandGroup(seedForAuto, raiseArm, waitCommand, lower_to_limt, pathfinder); 
+        m_core.autoCommandGroup = new SequentialCommandGroup(seedForAuto, raiseArm, waitCommand, lower_to_limt, moveForward); 
         m_core.autoCommandGroup.schedule();
 
 

@@ -41,7 +41,8 @@ public class NavInterfaceSubsystem extends SubsystemBase {
     public int[][] loadPathData() {
 
         NetworkTableEntry pathEntry = navTable.getEntry("kAutoSequence");
-        long[] pathDataRaw = pathEntry.getIntegerArray(new long[0]);
+        // long[] pathDataRaw = pathEntry.getIntegerArray(new long[0]);
+        long[] pathDataRaw = {72};
         int[][] pathData = decodeRaw(pathDataRaw);
         return pathData;
     }

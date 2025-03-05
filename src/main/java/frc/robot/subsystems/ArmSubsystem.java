@@ -96,9 +96,10 @@ public class ArmSubsystem extends SubsystemBase {
 
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        motionMagicConfigs.MotionMagicCruiseVelocity = 8; // Target velocity in rps
-        motionMagicConfigs.MotionMagicAcceleration = 5; // Target acceleration in rps/s
-        motionMagicConfigs.MotionMagicJerk = 5; // Target jerk in rps/s/s
+        motionMagicConfigs.MotionMagicCruiseVelocity = 24; // Target velocity in rps
+        motionMagicConfigs.MotionMagicAcceleration = 18; // Target acceleration in rps/s
+        motionMagicConfigs.MotionMagicJerk = 10
+        ; // Target jerk in rps/s/s
 
         armMotor2.getConfigurator().apply(talonFXConfigs);
         armMotor2.getConfigurator().apply(slot0Configs);
@@ -144,17 +145,17 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public void armUp() {
-        armGoal = armMotor2.getPosition().getValueAsDouble() + 0.7;
+        armGoal = armMotor2.getPosition().getValueAsDouble() + 2;
         
-        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor2.getPosition().getValueAsDouble() + 0.7);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor2.getPosition().getValueAsDouble() + 2);
 
         armMotor2.setControl(m_request);
     }
 
     public void armDown() {
-        armGoal = armMotor2.getPosition().getValueAsDouble() - 0.7;
+        armGoal = armMotor2.getPosition().getValueAsDouble() - 2;
 
-        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor2.getPosition().getValueAsDouble() - 0.7);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor2.getPosition().getValueAsDouble() - 2);
 
         armMotor2.setControl(m_request);
     }
