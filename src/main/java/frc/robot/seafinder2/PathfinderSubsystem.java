@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.Core;
+import frc.robot.seafinder.commands.IntakeCommand;
 import frc.robot.seafinder2.utils.Target.Side;
 import frc.robot.seafinder2.utils.Apriltags;
 import frc.robot.seafinder2.commands.ExactAlign;
@@ -66,7 +67,7 @@ public class PathfinderSubsystem {
         }
 
         // LOWER - Both
-        Command lowerRobot = new InstantCommand(() -> core.moveToSetpoint(SF2Constants.SETPOINT_MIN)); // Both
+        Command lowerRobot = new InstantCommand(() -> core.moveToSetpoint(SF2Constants.SETPOINT_MIN));
 
         // PATHFIND - Both
         Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
@@ -98,37 +99,35 @@ public class PathfinderSubsystem {
             core.moveToSetpoint(target.getSetpoint());
         });
 
+        Command retractComponents = target.getRetractCommand();
+
         if (target.isReef()) { // Reef
 
-            ExactAlign exactAlign = new ExactAlign(drivetrain, target.getTagRelativePose());
+            Command exactAlign = new ExactAlign(drivetrain, target.getTagRelativePose());
 
-            Command retractComponents = new InstantCommand(() -> {
-                core.performRetract();
-            });
-
-            SequentialCommandGroup finalCommandGroup = new SequentialCommandGroup(
+            runningCommand = new SequentialCommandGroup(
                     lowerRobot,
                     pathfindCommand,
                     alignComponents,
                     exactAlign,
                     retractComponents);
-            finalCommandGroup.schedule();
+
+            runningCommand.schedule();
 
         } else { // Human Station
 
-            Command moveWrist = new InstantCommand(() -> core.getArmSubsystem().rotateWristIntake());
-            Command parallelSetup = new ParallelCommandGroup(pathfindCommand, alignComponents);
+            Command intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
 
-            SequentialCommandGroup testingCommandGroup = new SequentialCommandGroup(
+            runningCommand = new SequentialCommandGroup(
                     lowerRobot,
-                    parallelSetup,
-                    moveWrist
-            // , stationAlignCommand
-            // , runIntake
-            // , resetNavPilot
-            // , moveBack
+                    pathfindCommand,
+                    alignComponents,
+                    // fieldAlign,
+                    intakeCommand,
+                    retractComponents
             );
-            testingCommandGroup.schedule();
+
+            runningCommand.schedule();
 
         }
     }

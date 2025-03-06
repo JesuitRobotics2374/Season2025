@@ -9,8 +9,11 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants;
-import frc.robot.seafinder.PathfinderSubsystem;
-import frc.robot.seafinder.PathfinderSubsystem.Alignment;
+import frc.robot.seafinder2.PathfinderSubsystem;
+import frc.robot.seafinder2.utils.Target.Height;
+import frc.robot.seafinder2.utils.Target.Landmark;
+import frc.robot.seafinder2.utils.Target.Location;
+import frc.robot.seafinder2.utils.Target.Side;
 
 public class PanelSubsystem extends SubsystemBase {
 
@@ -27,45 +30,59 @@ public class PanelSubsystem extends SubsystemBase {
 
         public void configureBindings() {
                 new JoystickButton(navControllerA, 1)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(1, Alignment.LEFT)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.REEF_FRONT, Side.LEFT))));
                 new JoystickButton(navControllerA, 2)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(1, Alignment.RIGHT)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.REEF_FRONT, Side.RIGHT))));
                 new JoystickButton(navControllerA, 3)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(2, Alignment.LEFT)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.LEFT))));
                 new JoystickButton(navControllerA, 4)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(2, Alignment.RIGHT)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT))));
                 new JoystickButton(navControllerA, 5)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(3, Alignment.LEFT)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.LEFT))));
                 new JoystickButton(navControllerA, 6)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(3, Alignment.RIGHT)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.RIGHT))));
                 new JoystickButton(navControllerA, 7)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(4, Alignment.LEFT)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.REEF_BACK, Side.LEFT))));
                 new JoystickButton(navControllerA, 8)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(4, Alignment.RIGHT)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.REEF_BACK, Side.RIGHT))));
                 new JoystickButton(navControllerA, 9)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(5, Alignment.LEFT)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.REEF_BACK_LEFT, Side.LEFT))));
                 new JoystickButton(navControllerA, 10)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(5, Alignment.RIGHT)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.REEF_BACK_LEFT, Side.RIGHT))));
                 new JoystickButton(navControllerA, 11)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(6, Alignment.LEFT)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.LEFT))));
                 new JoystickButton(navControllerA, 12)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(6, Alignment.RIGHT)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.RIGHT))));
                 new JoystickButton(navControllerB, 2)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(11, Alignment.CENTER)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.STATION_LEFT, Side.CENTER))));
                 new JoystickButton(navControllerA, 18)
-                                .onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(10, Alignment.CENTER)));
+                                .onTrue(new InstantCommand(() -> pathfinderSubsystem
+                                                .queueFind(new Location(Landmark.STATION_RIGHT, Side.CENTER))));
                 new JoystickButton(navControllerA, 13)
                                 .onTrue(new InstantCommand(
-                                                () -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T1)));
+                                                () -> pathfinderSubsystem.queueAlign(Height.TROUGH)));
                 new JoystickButton(navControllerA, 14)
                                 .onTrue(new InstantCommand(
-                                                () -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T2)));
+                                                () -> pathfinderSubsystem.queueAlign(Height.BRANCH_L2)));
                 new JoystickButton(navControllerA, 15)
                                 .onTrue(new InstantCommand(
-                                                () -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T3)));
+                                                () -> pathfinderSubsystem.queueAlign(Height.BRANCH_L3)));
                 new JoystickButton(navControllerA, 16)
                                 .onTrue(new InstantCommand(
-                                                () -> pathfinderSubsystem.queueAlign(Constants.SETPOINT_REEF_T4)));
+                                                () -> pathfinderSubsystem.queueAlign(Height.BRANCH_L4)));
         }
 
 }

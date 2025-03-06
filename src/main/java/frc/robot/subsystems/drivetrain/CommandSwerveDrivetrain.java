@@ -22,6 +22,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -32,6 +33,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -335,11 +338,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         // // Limelight not available in sim env
         if (!Utils.isSimulation()) {
-        //     // Update graphics
-        //     field.getObject("Vision1").setPose(
-        //             LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left").pose);
-        //     field.getObject("Vision2").setPose(
-        //             LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
+            // // Update graphics
+            // field.getObject("Vision1").setPose(
+            // LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left").pose);
+            // field.getObject("Vision2").setPose(
+            // LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
 
             for (LimelightObject llo : Constants.LIMELIGHTS_ON_BOARD) {
                 PoseEstimate fp = LimelightHelpers.getBotPoseEstimate_wpiBlue(llo.name);
@@ -349,6 +352,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 }
             }
 
+            // DEBUG
+
+            ShuffleboardTab tab = Shuffleboard.getTab("Test");
+
+            // LL Outs
+            Pose3d llp = LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[0].name);
+            tab.addDouble("EE LL X", () -> {
+                return llp.getX();
+            });
+            tab.addDouble("EE LL Y", () -> {
+                return llp.getY();
+            });
+            tab.addDouble("EE LL Yaw", () -> {
+                return llp.getRotation().getZ();
+            });
         }
 
     }
@@ -416,8 +434,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             doRejectUpdate = true; // at null zone
         }
         counter++;
-        if (counter > 50) { 
-            //System.out.println(detPose);
+        if (counter > 50) {
+            // System.out.println(detPose);
             counter = 0;
         }
 
@@ -433,7 +451,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     mt2.pose,
                     mt2.timestampSeconds);
             // REMOVE
-            // var updatedPose = estimator.update(getGyroscopeRotation(), getSwerveModulePositions());
+            // var updatedPose = estimator.update(getGyroscopeRotation(),
+            // getSwerveModulePositions());
             // System.out.println("Updated pose: " + updatedPose);
             // REMOVE
         }
@@ -465,14 +484,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getForwardRangeLeft() {
         StatusSignal<Distance> d = robotRangeLeft.getDistance();
-        // return (robotRangeLeft.getIsDetected().getValueAsDouble()==1) ? d.getValueAsDouble() : Double.MAX_VALUE;
+        // return (robotRangeLeft.getIsDetected().getValueAsDouble()==1) ?
+        // d.getValueAsDouble() : Double.MAX_VALUE;
         return Math.min(d.getValueAsDouble(), 1.5);
     }
 
     public double getForwardRangeRight() {
         // StatusSignal<Distance> d = robotRangeRight.getDistance();
         StatusSignal<Distance> d = robotRangeLeft.getDistance();
-        // return (robotRangeRight.getIsDetected().getValueAsDouble()==1) ? d.getValueAsDouble() : Double.MAX_VALUE;
+        // return (robotRangeRight.getIsDetected().getValueAsDouble()==1) ?
+        // d.getValueAsDouble() : Double.MAX_VALUE;
         return Math.min(d.getValueAsDouble(), 1.5);
     }
 
