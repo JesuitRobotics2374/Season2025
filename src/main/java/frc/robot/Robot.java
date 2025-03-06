@@ -60,9 +60,10 @@ public class Robot extends TimedRobot {
         // Command waitForSync = new WaitCommand(3);
 
         InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(10));
-        WaitCommand waitCommand = new WaitCommand(4);
+        WaitCommand waitCommand = new WaitCommand(1);
         InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(9));
         InstantCommand lower_to_limt = new InstantCommand( () -> m_core.getElevatorSubsystem().lower_to_limt() );
+        Command goToSetpoint = new InstantCommand(() -> m_core.moveToSetpoint(Constants.SETPOINT_MIN));
 
 
         m_core.getPathfinderSubsystem().clearSequence();
@@ -70,9 +71,9 @@ public class Robot extends TimedRobot {
         System.out.println("Path loaded: " + path.length);
         InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
 
-        Command moveForward = new TimedForward(m_core.getDrivetrain(), 1.5);
+        // Command moveForward = new TimedForward(m_core.getDrivetrain(), 1.5);
         
-        m_core.autoCommandGroup = new SequentialCommandGroup(seedForAuto, raiseArm, waitCommand, lower_to_limt, moveForward); 
+        m_core.autoCommandGroup = new SequentialCommandGroup(seedForAuto, raiseElevator, raiseArm, waitCommand, goToSetpoint); 
         m_core.autoCommandGroup.schedule();
 
 

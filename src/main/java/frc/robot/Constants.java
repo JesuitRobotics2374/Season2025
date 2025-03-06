@@ -34,8 +34,8 @@ public class Constants {
     public static final double ARM_RATIO = 125;
     public static final double ARM_HORIZONTAL = 2.666;
 
-    public static final double WRIST_MIN_POSITION = 0.312533;
-    public static final double WRIST_MAX_POSITION = 0.570801;
+    public static final double WRIST_MIN_POSITION = 0;
+    public static final double WRIST_MAX_POSITION = 0.234;
 
     public static final double WRIST_INCREMENT = 0.8;
     public static final double WRIST_MAX_SPEED = 0.3;

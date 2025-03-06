@@ -1,41 +1,22 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 
-import java.io.ObjectInputFilter.Config;
 import java.security.InvalidParameterException;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
-import com.ctre.phoenix6.controls.ControlRequest;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix.sensors.CANCoderConfiguration;
-import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.ctre.phoenix6.configs.CANrangeConfiguration;
-import com.ctre.phoenix6.configs.CustomParamsConfigs;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.ConnectedMotorValue;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.controls.Follower;
 
-import edu.wpi.first.units.AngleUnit;
-import edu.wpi.first.units.Unit;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -58,7 +39,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private static final double IH = 125; // Position of intake (number 5)
     private static final double AH = 125; // Position of algae outtake height (number 6)
 
-    private double elevatorSpeed = 0.5;
+    private int elevatorCycleOnStart = 2;
 
     public ElevatorSubsystem() {
 
@@ -86,16 +67,20 @@ public class ElevatorSubsystem extends SubsystemBase {
         motionMagicConfigs.MotionMagicAcceleration = 180; // Target acceleration in rps/s
         motionMagicConfigs.MotionMagicJerk = 1000; // Target jerk in rps/s/s
 
-        elevatorSpeed = motionMagicConfigs.getMotionMagicCruiseVelocityMeasure().magnitude();
-
         elevatorMotor1.getConfigurator().apply(talonFXConfigs);
         elevatorMotor1.getConfigurator().apply(slot0Configs);
         elevatorMotor1.getConfigurator().apply(motionMagicConfigs);
 
         elevatorMotor2.setControl(new Follower(elevatorMotor1.getDeviceID(), true));
 
-        shaftEncoder.setPosition(0);
-        elevatorMotor1.setPosition(shaftEncoder.getPosition().getValueAsDouble() * Constants.ELEVATOR_RATIO);
+        double absPosition = shaftEncoder.getAbsolutePosition().getValueAsDouble() + elevatorCycleOnStart;
+
+        ShuffleboardTab tab = Shuffleboard.getTab("Test");
+        tab.addDouble("ABS STARTING", () -> {return absPosition;});
+        tab.addDouble("ELE CURRENT", () -> {return elevatorMotor1.getPosition().getValueAsDouble();});
+
+        // shaftEncoder.setPosition(0);
+        elevatorMotor1.setPosition(absPosition * Constants.ELEVATOR_RATIO);
     }
 
     public void setElevatorZero() {

@@ -91,15 +91,14 @@ public class ArmSubsystem extends SubsystemBase {
                              // difference between the current position and the target position.
         slot0Configs.kI = 1; // Addresses steady-state error, which occurs when the motor doesn’t quite reach
                              // the target position due to forces like gravity or friction.
-        slot0Configs.kD = 0.1; // Responds to the rate of change of the error, damping the motion as the motor
+        slot0Configs.kD = 0.3; // Responds to the rate of change of the error, damping the motion as the motor
                                // approaches the target. This reduces overshooting and oscillations.
 
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        motionMagicConfigs.MotionMagicCruiseVelocity = 24; // Target velocity in rps
-        motionMagicConfigs.MotionMagicAcceleration = 18; // Target acceleration in rps/s
-        motionMagicConfigs.MotionMagicJerk = 10
-        ; // Target jerk in rps/s/s
+        motionMagicConfigs.MotionMagicCruiseVelocity = 50; // Target velocity in rps
+        motionMagicConfigs.MotionMagicAcceleration = 40; // Target acceleration in rps/s
+        motionMagicConfigs.MotionMagicJerk = 400; // Target jerk in rps/s/s
 
         armMotor2.getConfigurator().apply(talonFXConfigs);
         armMotor2.getConfigurator().apply(slot0Configs);
@@ -121,9 +120,9 @@ public class ArmSubsystem extends SubsystemBase {
         slot0ConfigsWrist.kD = 0.25; // Responds to the rate of change of the error, damping the motion as the motor
         // approaches the target. This reduces overshooting and oscillations.
 
-        motionMagicConfigsWrist.MotionMagicCruiseVelocity = 50; // Target velocity in rps
-        motionMagicConfigsWrist.MotionMagicAcceleration = 45; // Target acceleration in rps/s
-        motionMagicConfigsWrist.MotionMagicJerk = 3; // Target jerk in rps/s/s
+        motionMagicConfigsWrist.MotionMagicCruiseVelocity = 70; // Target velocity in rps
+        motionMagicConfigsWrist.MotionMagicAcceleration = 50; // Target acceleration in rps/s
+        motionMagicConfigsWrist.MotionMagicJerk = 450; // Target jerk in rps/s/s
 
         wristMotor.getConfigurator().apply(talonFXConfigsWrist);
         wristMotor.getConfigurator().apply(slot0ConfigsWrist);
@@ -133,8 +132,8 @@ public class ArmSubsystem extends SubsystemBase {
 
         // armMotor2.setControl(new Follower(armMotor1.getDeviceID(), true));
 
-        armMotor2.setPosition(armEncoder.getPosition().getValueAsDouble() * Constants.ARM_RATIO);
-        wristMotor.setPosition(wristEncoder.getPosition().getValueAsDouble() * Constants.WRIST_RATIO);
+        armMotor2.setPosition(armEncoder.getAbsolutePosition().getValueAsDouble() * Constants.ARM_RATIO);
+        wristMotor.setPosition(wristEncoder.getAbsolutePosition().getValueAsDouble() * Constants.WRIST_RATIO);
 
         // MotionMagicVoltage m_request = new MotionMagicVoltage(0);
         // armMotor1.setControl(m_request);
