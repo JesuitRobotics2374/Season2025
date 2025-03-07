@@ -31,6 +31,11 @@ public class PathfinderSubsystem {
 
     private Command runningCommand; // Keep track of the currently running command so we can override it later
 
+    public PathfinderSubsystem(Core core) {
+        this.core = core;
+        this.drivetrain = core.getDrivetrain();
+    }
+
     // Queue a pathfind; done by clicking a button on the panel
     public void queueFind(Location location) {
         target.setLocation(location);

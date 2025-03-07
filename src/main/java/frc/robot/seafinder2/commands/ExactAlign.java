@@ -116,7 +116,7 @@ public class ExactAlign extends Command {
             
             avg_x += pose3d.getX();
             avg_y += pose3d.getY();
-            avg_yaw += pose3d.getRotation().toRotation2d().getRadians();
+            avg_yaw += pose3d.getRotation().getY();
             count++;
         }
 

@@ -352,21 +352,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 }
             }
 
-            // DEBUG
-
-            ShuffleboardTab tab = Shuffleboard.getTab("Test");
-
-            // LL Outs
-            Pose3d llp = LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[0].name);
-            tab.addDouble("EE LL X", () -> {
-                return llp.getX();
-            });
-            tab.addDouble("EE LL Y", () -> {
-                return llp.getY();
-            });
-            tab.addDouble("EE LL Yaw", () -> {
-                return llp.getRotation().getZ();
-            });
         }
 
     }

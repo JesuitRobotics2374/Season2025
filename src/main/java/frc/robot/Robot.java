@@ -66,10 +66,10 @@ public class Robot extends TimedRobot {
         Command goToSetpoint = new InstantCommand(() -> m_core.moveToSetpoint(Constants.SETPOINT_MIN));
 
 
-        m_core.getPathfinderSubsystem().clearSequence();
+        // m_core.getPathfinderSubsystem().clearSequence();
         int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
         System.out.println("Path loaded: " + path.length);
-        InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
+        // InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
 
         // Command moveForward = new TimedForward(m_core.getDrivetrain(), 1.5);
         

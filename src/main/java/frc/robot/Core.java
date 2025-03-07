@@ -17,6 +17,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.Pathfinder;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -33,7 +34,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.seafinder.PathfinderSubsystem;
+import frc.robot.seafinder2.PathfinderSubsystem;
 import frc.robot.seafinder.PathfinderSubsystem.Alignment;
 import frc.robot.seafinder.commands.ExactAlignRot;
 import frc.robot.seafinder.commands.StaticBackCommand;
@@ -42,12 +43,14 @@ import frc.robot.seafinder.interfaces.NavInterfaceSubsystem;
 import frc.robot.seafinder.interfaces.PanelSubsystem;
 import frc.robot.seafinder.utils.Setpoint;
 import frc.robot.seafinder2.utils.Target;
+import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.subsystems.ArmSubsystem;
 // import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
+import frc.robot.utils.LimelightHelpers;
 
 public class Core {
 
@@ -82,10 +85,13 @@ public class Core {
 
     public final PathfinderSubsystem pathfinderSubsystem = new PathfinderSubsystem(this);
 
-    // public final PanelSubsystem panelSubsystem = new PanelSubsystem(pathfinderSubsystem);
+    // public final PanelSubsystem panelSubsystem = new
+    // PanelSubsystem(pathfinderSubsystem);
     public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem();
 
     SequentialCommandGroup autoCommandGroup;
+
+    Pose3d llp;
 
     // private final SendableChooser<Command> autoChooser;
 
@@ -101,6 +107,25 @@ public class Core {
 
         // drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI /
         // 180))));
+
+        // DEBUG
+
+        ShuffleboardTab tab = Shuffleboard.getTab("Test");
+
+        if (llp != null) {
+
+            // LL Outs
+            tab.addDouble("EE LL X", () -> {
+                return llp.getX();
+            });
+            tab.addDouble("EE LL Y", () -> {
+                return llp.getY();
+            });
+            tab.addDouble("EE LL Yaw", () -> {
+                return llp.getRotation().getZ();
+            });
+
+        }
     }
 
     // A setpoint is a "macro" state. Find its definition in utils folder.
@@ -239,7 +264,9 @@ public class Core {
 
         tab.addBoolean("IN RANGE", () -> drivetrain.isCANRangeInThreshold());
 
-        tab.addBoolean("FAST MODE", () -> {return isTurbo;});
+        tab.addBoolean("FAST MODE", () -> {
+            return isTurbo;
+        });
 
         // tab.add("Auto Chooser", autoChooser);
 
@@ -254,8 +281,10 @@ public class Core {
                         // getAxisMovementScale())
                         // .withVelocityY(-driveController.getLeftX() * Constants.MAX_SPEED *
                         // getAxisMovementScale())
-                        .withVelocityX(-driveController.getLeftY() * (isTurbo ? MaxSpeedTurbo : MaxSpeed) * getAxisMovementScale())
-                        .withVelocityY(-driveController.getLeftX() * (isTurbo ? MaxSpeedTurbo : MaxSpeed) * getAxisMovementScale())
+                        .withVelocityX(-driveController.getLeftY() * (isTurbo ? MaxSpeedTurbo : MaxSpeed)
+                                * getAxisMovementScale())
+                        .withVelocityY(-driveController.getLeftX() * (isTurbo ? MaxSpeedTurbo : MaxSpeed)
+                                * getAxisMovementScale())
                         .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
 
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
@@ -268,7 +297,9 @@ public class Core {
         // }));
         driveController.x().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_PROCESSOR)));
 
-        driveController.povLeft().onTrue(new InstantCommand(() -> {isTurbo = !isTurbo;}));
+        driveController.povLeft().onTrue(new InstantCommand(() -> {
+            isTurbo = !isTurbo;
+        }));
 
         // Climber
         // driveController.povDown().onTrue(climberSubsystem.runOnce(() ->
@@ -293,7 +324,9 @@ public class Core {
 
         // operatorController.back().onTrue(armSubsystem.runOnce(() ->
         // armSubsystem.rotateWristIntake()));
-        operatorController.start().onTrue(manipulatorSubsystem.runOnce(() -> manipulatorSubsystem.holdAlgae()));
+
+        operatorController.start().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT, Side.LEFT))));
+        operatorController.back().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Height.BRANCH_L3)))
 
         operatorController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T1)));
         operatorController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T2)));
@@ -395,7 +428,15 @@ public class Core {
         return (1 - (driveController.getRightTriggerAxis() * 0.85));
     }
 
+    int clock = 0;
+
     public void corePeriodic() {
+        clock++;
+        if (clock > 10) {
+            clock = 0;
+            llp = LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[0].name);
+            System.out.println("X: " + llp.getX() + " Y: " + llp.getY() + " R1: " + llp.getRotation().getX()  + " R2: " + llp.getRotation().getY()  + " R3: " + llp.getRotation().getZ());
+        }
         // If either of our analog sticks are moved, we want to disable the auto
         if (driveController.getLeftX() != 0 || driveController.getLeftY() != 0) {
             pathfinderSubsystem.stopAll();
