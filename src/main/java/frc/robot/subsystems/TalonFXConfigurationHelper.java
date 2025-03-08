@@ -6,18 +6,25 @@ import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 public class TalonFXConfigurationHelper {
 
-    private final File file = new File("/home/lvuser/deploy/talonfx-configs.txt");
-    private final TalonFXConfiguration configuration;
+    private final File file; // The configuration file to change the motor
+    private final TalonFX motorController; // The motor
+    private final TalonFXConfiguration configuration; // Configuration to change the motor
 
-    public TalonFXConfigurationHelper(TalonFXConfiguration configuration) {
+    public TalonFXConfigurationHelper(TalonFXConfiguration configuration, File file, TalonFX motorController) {
+        this.file = file;
         this.configuration = configuration;
+        this.motorController = motorController;
     }
 
-    public void checkConfiguration() throws Exception {
-        Field[] fields = TalonFXConfiguration.class.getFields();
+    // The function to read the configuration file and change the configuration of
+    // the motor
+
+    public void setConfiguration() throws Exception {
+        Field[] fields = TalonFXConfiguration.class.getFields(); // Gets all variables in the TalonFXConfiguration class
         Scanner scanner = new Scanner(file);
         String fileValueString = "";
 
@@ -33,20 +40,27 @@ public class TalonFXConfigurationHelper {
             if (!field.equals(fields[0])) {
                 Object obj = field.get(configuration);
                 for (int i = 0; i < obj.getClass().getFields().length; i++) {
+
+                    // Parses the configuration file and changes each variable in the
+                    // TalonFXConfiguration class
+
                     String preKey = st.nextToken();
                     String key = preKey.substring(0, preKey.length() - 1);
                     String value = st.nextToken();
 
-                    Field subField = obj.getClass().getField(key);
-                    subField.set(obj, convertString(value, subField.getType()));
+                    Field subField = obj.getClass().getField(key); // Gets the variables in the previously gotten
+                                                                   // variables
+                    subField.set(obj, convertString(value, subField.getType())); // Sets the variables to the correct
+                                                                                 // values
                 }
             }
         }
-        // System.out.println(config);
+        motorController.getConfigurator().refresh(configuration); // Changes the configuration of the motor
 
     }
 
-    private Object convertString(String value, Class clazz) {
+    @SuppressWarnings("unchecked")
+    private <T extends Enum<T>> Object convertString(String value, Class<?> clazz) {
         try {
             return Integer.valueOf(value);
         } catch (Exception e) {
@@ -58,7 +72,7 @@ public class TalonFXConfigurationHelper {
 
         }
         try {
-            return Enum.valueOf(clazz, value);
+            return Enum.valueOf((Class<T>) clazz, value);
         } catch (Exception e) {
         }
         if (value.contains("true")) {

@@ -12,11 +12,13 @@ import java.util.*;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix6.hardware.DeviceIdentifier;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -29,10 +31,10 @@ public class OuttakeSubsystem extends SubsystemBase {
 
     public OuttakeSubsystem() {
         config = new TalonFXConfiguration();
-        configHelper = new TalonFXConfigurationHelper(config);
         motorController = new TalonFX(29);
+        configHelper = new TalonFXConfigurationHelper(config, new File("/home/lvuser/deploy/talonfx-configs.txt"), motorController);
         try {
-            configHelper.checkConfiguration();
+            configHelper.setConfiguration();
         } catch (Exception e) {
 
         }
