@@ -35,7 +35,6 @@ import frc.robot.commands.auto.Outtake;
 import frc.robot.commands.auto.Pathfind;
 import frc.robot.commands.auto.PathfindBasic;
 import frc.robot.subsystems.OuttakeSubsystem;
-import frc.robot.subsystems.TestEject;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.utils.LimelightObject;
@@ -70,7 +69,7 @@ public class Core {
 
     public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
 
-    public final TestEject testEject = new TestEject();
+    
 
     private final SendableChooser<Command> autoChooser;
 
