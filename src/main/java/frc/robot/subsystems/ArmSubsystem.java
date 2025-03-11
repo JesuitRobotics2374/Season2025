@@ -134,10 +134,11 @@ public class ArmSubsystem extends SubsystemBase {
 
         armMotor2.setPosition(armEncoder.getAbsolutePosition().getValueAsDouble() * Constants.ARM_RATIO);
         wristMotor.setPosition(wristEncoder.getAbsolutePosition().getValueAsDouble() * Constants.WRIST_RATIO);
-        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor2.getPosition().getValueAsDouble());
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor2.getPosition().getValueAsDouble() + 3);
         MotionMagicVoltage m_requestWrist = new MotionMagicVoltage(wristMotor.getPosition().getValueAsDouble());
         armMotor2.setControl(m_request);
         wristMotor.setControl(m_requestWrist);
+
     }
 
     public void zeroArm() {
@@ -244,8 +245,7 @@ public class ArmSubsystem extends SubsystemBase {
 
         clock++;
         if (clock == 20) {
-            // System.out.println("     ARM: " + armMotor1.getPosition());
-            // System.out.println("   WRIST: " + wristMotor.getPosition());
+            System.out.println(armMotor2.getPosition().getValueAsDouble());
             clock = 0;
         }
 

@@ -27,13 +27,15 @@ public class PathfinderSubsystem {
     private Core core;
     private CommandSwerveDrivetrain drivetrain;
 
-    private Target target = new Target(core);
+    private Target target;
 
     private Command runningCommand; // Keep track of the currently running command so we can override it later
 
     public PathfinderSubsystem(Core core) {
         this.core = core;
         this.drivetrain = core.getDrivetrain();
+
+        target = new Target(core);
     }
 
     // Queue a pathfind; done by clicking a button on the panel
