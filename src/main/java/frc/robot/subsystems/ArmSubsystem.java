@@ -71,11 +71,11 @@ public class ArmSubsystem extends SubsystemBase {
 
     public ArmSubsystem() {
         // this.armMotor1 = new TalonFX(11, "rio");
-        this.armMotor2 = new TalonFX(12, "rio");
-        this.wristMotor = new TalonFX(17, "rio");
+        this.armMotor2 = new TalonFX(16, "FastFD");
+        this.wristMotor = new TalonFX(17, "FastFD");
 
-        this.armEncoder = new CANcoder(10, "rio");
-        this.wristEncoder = new CANcoder(29);
+        this.armEncoder = new CANcoder(28, "FastFD");
+        this.wristEncoder = new CANcoder(29, "FastFD");
 
         // this.armMotor1.setNeutralMode(NeutralModeValue.Brake);
         this.armMotor2.setNeutralMode(NeutralModeValue.Brake);
@@ -87,9 +87,9 @@ public class ArmSubsystem extends SubsystemBase {
         slot0Configs.kG = 8.5; // Output of voltage to overcome gravity
         slot0Configs.kV = 2; // Output per unit target velocity, perhaps not needed
         slot0Configs.kA = 0.3; // Output per unit target acceleration, perhaps not needed
-        slot0Configs.kP = 9; // Controls the response to position error—how much the motor reacts to the
+        slot0Configs.kP = 15; // Controls the response to position error—how much the motor reacts to the
                              // difference between the current position and the target position.
-        slot0Configs.kI = 1; // Addresses steady-state error, which occurs when the motor doesn’t quite reach
+        slot0Configs.kI = 1.5; // Addresses steady-state error, which occurs when the motor doesn’t quite reach
                              // the target position due to forces like gravity or friction.
         slot0Configs.kD = 0.3; // Responds to the rate of change of the error, damping the motion as the motor
                                // approaches the target. This reduces overshooting and oscillations.
@@ -97,7 +97,7 @@ public class ArmSubsystem extends SubsystemBase {
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         motionMagicConfigs.MotionMagicCruiseVelocity = 50; // Target velocity in rps
-        motionMagicConfigs.MotionMagicAcceleration = 40; // Target acceleration in rps/s
+        motionMagicConfigs.MotionMagicAcceleration = 32; // Target acceleration in rps/s
         motionMagicConfigs.MotionMagicJerk = 400; // Target jerk in rps/s/s
 
         armMotor2.getConfigurator().apply(talonFXConfigs);
@@ -134,9 +134,16 @@ public class ArmSubsystem extends SubsystemBase {
 
         armMotor2.setPosition(armEncoder.getAbsolutePosition().getValueAsDouble() * Constants.ARM_RATIO);
         wristMotor.setPosition(wristEncoder.getAbsolutePosition().getValueAsDouble() * Constants.WRIST_RATIO);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor2.getPosition().getValueAsDouble());
+        MotionMagicVoltage m_requestWrist = new MotionMagicVoltage(wristMotor.getPosition().getValueAsDouble());
+        armMotor2.setControl(m_request);
+        wristMotor.setControl(m_requestWrist);
+    }
 
-        // MotionMagicVoltage m_request = new MotionMagicVoltage(0);
-        // armMotor1.setControl(m_request);
+    public void zeroArm() {
+        armMotor2.setPosition(armEncoder.getAbsolutePosition().getValueAsDouble() * Constants.ARM_RATIO);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armMotor2.getPosition().getValueAsDouble());
+        armMotor2.setControl(m_request);
     }
 
     public boolean armPassedGoal() {

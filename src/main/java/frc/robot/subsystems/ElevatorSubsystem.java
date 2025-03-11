@@ -47,7 +47,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         this.elevatorMotor2 = new TalonFX(32, "FastFD");
         this.pidgey = new Pigeon2(Constants.PIGEON_ID, "FastFD");
         this.shaftEncoder = new CANcoder(30, "FastFD");
-        limitSwitch = new DigitalInput(0);
+        limitSwitch = new DigitalInput(1);
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
         Slot0Configs slot0Configs = talonFXConfigs.Slot0;

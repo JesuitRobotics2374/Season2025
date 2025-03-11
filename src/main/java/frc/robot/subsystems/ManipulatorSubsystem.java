@@ -39,8 +39,8 @@ public class ManipulatorSubsystem extends SubsystemBase {
     public ManipulatorSubsystem() {
 
         // this.eject = new SparkMax(33, MotorType.kBrushless);
-        this.control = new TalonFX(21, "rio");
-        this.sensor = new CoreCANrange(22, "rio");
+        this.control = new TalonFX(26, "FastFD");
+        this.sensor = new CoreCANrange(27, "FastFD");
 
         SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(IdleMode.kBrake);

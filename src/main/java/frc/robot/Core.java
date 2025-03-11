@@ -44,6 +44,9 @@ import frc.robot.seafinder.interfaces.PanelSubsystem;
 import frc.robot.seafinder.utils.Setpoint;
 import frc.robot.seafinder2.utils.Target;
 import frc.robot.seafinder2.utils.Target.Height;
+import frc.robot.seafinder2.utils.Target.Landmark;
+import frc.robot.seafinder2.utils.Target.Location;
+import frc.robot.seafinder2.utils.Target.Side;
 import frc.robot.subsystems.ArmSubsystem;
 // import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -288,7 +291,7 @@ public class Core {
                         .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
 
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
-        driveController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedRobotAuto()));
+        driveController.start().onTrue(armSubsystem.runOnce(() -> armSubsystem.zeroArm()));
 
         driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T2))); // RESET POSE
         driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T3))); // RESET POSE
@@ -326,7 +329,7 @@ public class Core {
         // armSubsystem.rotateWristIntake()));
 
         operatorController.start().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT, Side.LEFT))));
-        operatorController.back().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Height.BRANCH_L3)))
+        operatorController.back().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Height.BRANCH_L3)));
 
         operatorController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T1)));
         operatorController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T2)));
