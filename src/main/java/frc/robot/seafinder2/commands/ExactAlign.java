@@ -30,16 +30,17 @@ public class ExactAlign extends Command {
     private final SlewRateLimiter yawRateLimiter = new SlewRateLimiter(3.0);
     
     // Position tolerance thresholds
-    private static final double POSITION_TOLERANCE = 0.05; // meters
-    private static final double YAW_TOLERANCE = 0.05; // radians
+    private static final double X_TOLERANCE = 0.03; // meters
+    private static final double Y_TOLERANCE = 0.01; // meters
+    private static final double YAW_TOLERANCE = 0.17; // radians
     
     // Maximum output values
-    private static final double MAX_LINEAR_SPEED = 0.8;
+    private static final double MAX_LINEAR_SPEED = 1.5;
     private static final double MAX_ANGULAR_SPEED = 1.0;
     
     // Minimum output to overcome static friction
-    private static final double MIN_LINEAR_COMMAND = 0.03;
-    private static final double MIN_ANGULAR_COMMAND = 0.03;
+    private static final double MIN_LINEAR_COMMAND = 0.05;
+    private static final double MIN_ANGULAR_COMMAND = 0.17;
     
     // State tracking
     private int framesAtTarget = 0;
@@ -62,15 +63,15 @@ public class ExactAlign extends Command {
         
         // Initialize PID controllers
         // X PID coefficients (Adjust these values based on testing)
-        xController = new PIDController(0.15, 0.01, 0.02);
-        xController.setTolerance(POSITION_TOLERANCE);
+        xController = new PIDController(0.40, 0.0, 0.0);
+        xController.setTolerance(X_TOLERANCE);
         
         // Y PID coefficients
-        yController = new PIDController(0.15, 0.01, 0.02);
-        yController.setTolerance(POSITION_TOLERANCE);
+        yController = new PIDController(0.40, 0.0, 0.0);
+        yController.setTolerance(Y_TOLERANCE);
         
         // Yaw PID coefficients
-        yawController = new PIDController(0.15, 0.01, 0.05);
+        yawController = new PIDController(0.05, 0.0, 0.0);
         yawController.setTolerance(YAW_TOLERANCE);
         yawController.enableContinuousInput(-Math.PI, Math.PI);
         
@@ -106,14 +107,16 @@ public class ExactAlign extends Command {
         
         for (LimelightObject limelight : SF2Constants.LIMELIGHTS_ON_BOARD) {
             if ((int) LimelightHelpers.getFiducialID(limelight.name) != tagId) {
+                System.out.println("EXACT ALIGN TAG: " + (int) LimelightHelpers.getFiducialID(limelight.name));
                 continue;
             }
             
             Pose3d pose3d = LimelightHelpers.getBotPose3d_TargetSpace(limelight.name);
             if (pose3d == null) {
+                System.out.println("EXACT ALIGN POSE NO SEE");
                 continue;
             }
-            
+
             avg_x += pose3d.getX();
             avg_y += pose3d.getY();
             avg_yaw += pose3d.getRotation().getY();
@@ -123,8 +126,9 @@ public class ExactAlign extends Command {
         if (count == 0) {
             framesWithoutTarget++;
             if (framesWithoutTarget > MAX_FRAMES_WITHOUT_TARGET) {
-                end(true);
+               end(true);
             }
+            System.out.println("EXACT ALIGN REDUCE DRIVETRAIN");
             // Maintain last movement but slowly reduce it
             drivetrain.setControl(driveRequest
                 .withVelocityX(xRateLimiter.calculate(0))
@@ -152,16 +156,16 @@ public class ExactAlign extends Command {
         error_yaw = Rotation2d.fromRadians(error_yaw).getRadians();
 
         // Calculate PID outputs
-        double dx = -xController.calculate(avg_x, x_offset);
-        double dy = -yController.calculate(avg_y, y_offset);
-        double dtheta = -yawController.calculate(avg_yaw, yaw_offset);
+        double dx = xController.calculate(avg_x, x_offset);
+        double dy = yController.calculate(avg_y, y_offset);
+        double dtheta = yawController.calculate(avg_yaw, yaw_offset);
         
         // Apply minimum command if needed
-        if (Math.abs(error_x) > POSITION_TOLERANCE && Math.abs(dx) < MIN_LINEAR_COMMAND) {
+        if (Math.abs(error_x) > X_TOLERANCE && Math.abs(dx) < MIN_LINEAR_COMMAND) {
             dx = MIN_LINEAR_COMMAND * Math.signum(dx);
         }
         
-        if (Math.abs(error_y) > POSITION_TOLERANCE && Math.abs(dy) < MIN_LINEAR_COMMAND) {
+        if (Math.abs(error_y) > Y_TOLERANCE && Math.abs(dy) < MIN_LINEAR_COMMAND) {
             dy = MIN_LINEAR_COMMAND * Math.signum(dy);
         }
         
@@ -180,28 +184,29 @@ public class ExactAlign extends Command {
         dtheta = yawRateLimiter.calculate(dtheta);
         
         // Zero out commands if we're within tolerance
-        if (xController.atSetpoint()) dx = 0;
-        if (yController.atSetpoint()) dy = 0;
-        if (yawController.atSetpoint()) dtheta = 0;
+        boolean xTollerenace = Math.abs(dx) < X_TOLERANCE;
+        boolean yTollerenace = Math.abs(dy) < Y_TOLERANCE;
+        boolean thetaTollerenace = Math.abs(dtheta) < YAW_TOLERANCE;
+        if (xTollerenace) dx = 0;
+        if (yTollerenace) dy = 0;
+        if (thetaTollerenace) dtheta = 0;
 
         // Set the drive request
         drivetrain.setControl(driveRequest
-                .withVelocityX(dx)
-                .withVelocityY(dy)
-                .withRotationalRate(dtheta));
+                .withVelocityX(dy * 3)
+                .withVelocityY(-dx * 3)
+                .withRotationalRate(dtheta)
+        );
+
+        System.out.println("EXACT ALIGN VALUES: " + dx + " " + dy + " " + dtheta);
+        System.out.println("EXACT ALIGN VALUES: " + xTollerenace + " " + yTollerenace + " " + thetaTollerenace);
                 
         // Update state for isFinished
-        if (isAtTarget()) {
+        if (xTollerenace && yTollerenace && thetaTollerenace) {
             framesAtTarget++;
         } else {
             framesAtTarget = 0;
         }
-    }
-
-    private boolean isAtTarget() {
-        return xController.atSetpoint() && 
-               yController.atSetpoint() && 
-               yawController.atSetpoint();
     }
 
     @Override

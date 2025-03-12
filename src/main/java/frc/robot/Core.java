@@ -34,7 +34,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.seafinder2.PathfinderSubsystem;
+import frc.robot.seafinder.PathfinderSubsystem;
 import frc.robot.seafinder.PathfinderSubsystem.Alignment;
 import frc.robot.seafinder.commands.ExactAlignRot;
 import frc.robot.seafinder.commands.StaticBackCommand;
@@ -47,6 +47,7 @@ import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.seafinder2.utils.Target.Landmark;
 import frc.robot.seafinder2.utils.Target.Location;
 import frc.robot.seafinder2.utils.Target.Side;
+import frc.robot.seafinder2.utils.Target.TagRelativePose;
 import frc.robot.subsystems.ArmSubsystem;
 // import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -54,6 +55,7 @@ import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.seafinder2.commands.ExactAlign;
 
 public class Core {
 
@@ -303,7 +305,10 @@ public class Core {
         driveController.povLeft().onTrue(new InstantCommand(() -> {
             isTurbo = !isTurbo;
         }));
-
+        
+        TagRelativePose testingTagRelativePose = new TagRelativePose(18, 0.0, -0.2, 0.0); // idk what units this is in -  x is left right & y is front back
+        driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
+        
         // Climber
         // driveController.povDown().onTrue(climberSubsystem.runOnce(() ->
         // climberSubsystem.servoLogic()));
@@ -328,8 +333,8 @@ public class Core {
         // operatorController.back().onTrue(armSubsystem.runOnce(() ->
         // armSubsystem.rotateWristIntake()));
 
-        operatorController.start().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT, Side.LEFT))));
-        operatorController.back().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Height.BRANCH_L3)));
+        // operatorController.start().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT, Side.LEFT))));
+        // operatorController.back().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Height.BRANCH_L3)));
 
         operatorController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T1)));
         operatorController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T2)));
