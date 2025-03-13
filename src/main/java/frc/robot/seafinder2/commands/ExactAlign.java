@@ -25,18 +25,18 @@ public class ExactAlign extends Command {
     private final PIDController yawController;
     
     // Rate limiters for smoother motion
-    private final SlewRateLimiter xRateLimiter = new SlewRateLimiter(2.0);
-    private final SlewRateLimiter yRateLimiter = new SlewRateLimiter(2.0);
-    private final SlewRateLimiter yawRateLimiter = new SlewRateLimiter(3.0);
+    private final SlewRateLimiter xRateLimiter = new SlewRateLimiter(8.0);
+    private final SlewRateLimiter yRateLimiter = new SlewRateLimiter(8.0);
+    private final SlewRateLimiter yawRateLimiter = new SlewRateLimiter(10.0);
     
     // Position tolerance thresholds
-    private static final double X_TOLERANCE = 0.03; // meters
-    private static final double Y_TOLERANCE = 0.01; // meters
-    private static final double YAW_TOLERANCE = 0.17; // radians
+    private static final double X_TOLERANCE = 0.1; // meters
+    private static final double Y_TOLERANCE = 0.1; // meters
+    private static final double YAW_TOLERANCE = 4 * Math.PI/180; // radians
     
     // Maximum output values
-    private static final double MAX_LINEAR_SPEED = 1.5;
-    private static final double MAX_ANGULAR_SPEED = 1.0;
+    private static final double MAX_LINEAR_SPEED = 0.4;
+    private static final double MAX_ANGULAR_SPEED = 2.0;
     
     // Minimum output to overcome static friction
     private static final double MIN_LINEAR_COMMAND = 0.05;
@@ -54,7 +54,12 @@ public class ExactAlign extends Command {
     private final double y_offset;
     private final double yaw_offset;
 
+    boolean finishedOverride;
+
     public ExactAlign(CommandSwerveDrivetrain drivetrain, TagRelativePose tagRelativePose) {
+
+        finishedOverride = false;
+
         this.drivetrain = drivetrain;
         this.tagId = tagRelativePose.getTagId();
         this.x_offset = tagRelativePose.getX();
@@ -63,15 +68,15 @@ public class ExactAlign extends Command {
         
         // Initialize PID controllers
         // X PID coefficients (Adjust these values based on testing)
-        xController = new PIDController(0.40, 0.0, 0.0);
+        xController = new PIDController(2, 0.0, 0.7);
         xController.setTolerance(X_TOLERANCE);
         
         // Y PID coefficients
-        yController = new PIDController(0.40, 0.0, 0.0);
+        yController = new PIDController(3, 0.0, .4);
         yController.setTolerance(Y_TOLERANCE);
         
         // Yaw PID coefficients
-        yawController = new PIDController(0.05, 0.0, 0.0);
+        yawController = new PIDController(0.1, 0.0, 0.0);
         yawController.setTolerance(YAW_TOLERANCE);
         yawController.enableContinuousInput(-Math.PI, Math.PI);
         
@@ -80,6 +85,9 @@ public class ExactAlign extends Command {
 
     @Override
     public void initialize() {
+
+        finishedOverride = false;
+
         System.out.println("EXACTALIGN STARTED");
         for (LimelightObject limelight : SF2Constants.LIMELIGHTS_ON_BOARD) {
             LimelightHelpers.setPriorityTagID(limelight.name, tagId);
@@ -107,7 +115,7 @@ public class ExactAlign extends Command {
         
         for (LimelightObject limelight : SF2Constants.LIMELIGHTS_ON_BOARD) {
             if ((int) LimelightHelpers.getFiducialID(limelight.name) != tagId) {
-                System.out.println("EXACT ALIGN TAG: " + (int) LimelightHelpers.getFiducialID(limelight.name));
+                System.out.println("EXACT ALIGN " + limelight.name + " TAG: " + (int) LimelightHelpers.getFiducialID(limelight.name));
                 continue;
             }
             
@@ -118,7 +126,7 @@ public class ExactAlign extends Command {
             }
 
             avg_x += pose3d.getX();
-            avg_y += pose3d.getY();
+            avg_y += pose3d.getZ();
             avg_yaw += pose3d.getRotation().getY();
             count++;
         }
@@ -131,8 +139,8 @@ public class ExactAlign extends Command {
             System.out.println("EXACT ALIGN REDUCE DRIVETRAIN");
             // Maintain last movement but slowly reduce it
             drivetrain.setControl(driveRequest
-                .withVelocityX(xRateLimiter.calculate(0))
-                .withVelocityY(yRateLimiter.calculate(0))
+                .withVelocityX(yRateLimiter.calculate(0))
+                .withVelocityY(xRateLimiter.calculate(0))
                 .withRotationalRate(yawRateLimiter.calculate(0)));
             return;
         }
@@ -145,7 +153,10 @@ public class ExactAlign extends Command {
         avg_yaw /= count;
 
         // Flip yaw to face into the target
-        avg_yaw += Math.PI;
+        // avg_yaw += Math.PI;
+
+        // Clamp yaw to +-180
+        // avg_yaw = Rotation2d.fromRadians(avg_yaw).getRadians();
 
         // Calculate errors (target offset - current position)
         double error_x = avg_x - x_offset;
@@ -184,21 +195,21 @@ public class ExactAlign extends Command {
         dtheta = yawRateLimiter.calculate(dtheta);
         
         // Zero out commands if we're within tolerance
-        boolean xTollerenace = Math.abs(dx) < X_TOLERANCE;
-        boolean yTollerenace = Math.abs(dy) < Y_TOLERANCE;
-        boolean thetaTollerenace = Math.abs(dtheta) < YAW_TOLERANCE;
+        boolean xTollerenace = Math.abs(error_x) < X_TOLERANCE;
+        boolean yTollerenace = Math.abs(error_y) < Y_TOLERANCE;
+        boolean thetaTollerenace = Math.abs(error_yaw) < YAW_TOLERANCE;
         if (xTollerenace) dx = 0;
         if (yTollerenace) dy = 0;
         if (thetaTollerenace) dtheta = 0;
 
         // Set the drive request
         drivetrain.setControl(driveRequest
-                .withVelocityX(dy * 3)
-                .withVelocityY(-dx * 3)
-                .withRotationalRate(dtheta)
+                .withVelocityX(dy)
+                .withVelocityY(-dx)
+                .withRotationalRate(-dtheta)
         );
 
-        System.out.println("EXACT ALIGN VALUES: " + dx + " " + dy + " " + dtheta);
+        System.out.println("EXACT ALIGN VALUES: " + error_x + " " + error_y + " " + error_yaw);
         System.out.println("EXACT ALIGN VALUES: " + xTollerenace + " " + yTollerenace + " " + thetaTollerenace);
                 
         // Update state for isFinished
@@ -211,6 +222,7 @@ public class ExactAlign extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        finishedOverride = true;
         drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
         if (interrupted) {
             System.out.println("EXACTALIGN INTERRUPTED");
@@ -221,6 +233,6 @@ public class ExactAlign extends Command {
 
     @Override
     public boolean isFinished() {
-        return framesAtTarget >= REQUIRED_FRAMES_AT_TARGET;
+        return framesAtTarget >= REQUIRED_FRAMES_AT_TARGET || finishedOverride;
     }
 }

@@ -55,6 +55,7 @@ import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.seafinder2.SF2Constants;
 import frc.robot.seafinder2.commands.ExactAlign;
 
 public class Core {
@@ -97,7 +98,7 @@ public class Core {
     SequentialCommandGroup autoCommandGroup;
 
     Pose3d llp;
-
+    Pose3d llp2;
     // private final SendableChooser<Command> autoChooser;
 
     private Command pathfindingCommand;
@@ -306,10 +307,11 @@ public class Core {
             isTurbo = !isTurbo;
         }));
         
-        TagRelativePose testingTagRelativePose = new TagRelativePose(18, 0.0, -0.2, 0.0); // idk what units this is in -  x is left right & y is front back
+        TagRelativePose testingTagRelativePose = new TagRelativePose(18, SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET, -0.7, 0.0); // idk what units this is in -  x is left right & y is front back
         driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
         
         // Climber
+
         // driveController.povDown().onTrue(climberSubsystem.runOnce(() ->
         // climberSubsystem.servoLogic()));
         // driveController.povRight().onTrue(climberSubsystem.runOnce(() ->
@@ -441,9 +443,14 @@ public class Core {
     public void corePeriodic() {
         clock++;
         if (clock > 10) {
+
+            // llp2 = LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[1].name);
+            // System.out.println("LL-R-X: " + llp2.getX() + " Y: " + llp2.getY() + " R1: " + llp2.getRotation().getX()  + " R2: " + llp2.getRotation().getY()  + " R3: " + llp2.getRotation().getZ());
+
+            // llp = LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[0].name);
+            // System.out.println("LL-L-X: " + llp.getX() + " Y: " + llp.getY() + " R1: " + llp.getRotation().getX()  + " R2: " + llp.getRotation().getY()  + " R3: " + llp.getRotation().getZ());
+
             clock = 0;
-            llp = LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[0].name);
-            System.out.println("X: " + llp.getX() + " Y: " + llp.getY() + " R1: " + llp.getRotation().getX()  + " R2: " + llp.getRotation().getY()  + " R3: " + llp.getRotation().getZ());
         }
         // If either of our analog sticks are moved, we want to disable the auto
         if (driveController.getLeftX() != 0 || driveController.getLeftY() != 0) {

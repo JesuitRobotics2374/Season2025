@@ -15,8 +15,8 @@ public class SF2Constants {
     public static final double SEAFINDER2_MAX_ROTATIONAL_ACCELERATION = Units.degreesToRadians(720);
 
     public static final double SEAFINDER2_REEF_FRONT_PADDING = 0.5;
-    public static final double SEAFINDER2_REEF_LEFT_BRANCH_OFFSET = 0.5;
-    public static final double SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET = 0.5;
+    public static final double SEAFINDER2_REEF_LEFT_BRANCH_OFFSET = -0.1363;
+    public static final double SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET = 0.1964;
 
     public static final double WRIST_MIN_POSITION = 0.312533;
     public static final double WRIST_MAX_POSITION = 0.570801;
