@@ -30,13 +30,13 @@ public class ExactAlign extends Command {
     private final SlewRateLimiter yawRateLimiter = new SlewRateLimiter(10.0);
     
     // Position tolerance thresholds
-    private static final double X_TOLERANCE = 0.1; // meters
-    private static final double Y_TOLERANCE = 0.1; // meters
-    private static final double YAW_TOLERANCE = 4 * Math.PI/180; // radians
+    private static final double X_TOLERANCE = 0.15; // meters
+    private static final double Y_TOLERANCE = 0.15; // meters
+    private static final double YAW_TOLERANCE = 3 * Math.PI / 180; // radians
     
     // Maximum output values
-    private static final double MAX_LINEAR_SPEED = 0.4;
-    private static final double MAX_ANGULAR_SPEED = 2.0;
+    private static final double MAX_LINEAR_SPEED = 0.8;
+    private static final double MAX_ANGULAR_SPEED = 100.0;
     
     // Minimum output to overcome static friction
     private static final double MIN_LINEAR_COMMAND = 0.05;
@@ -68,15 +68,15 @@ public class ExactAlign extends Command {
         
         // Initialize PID controllers
         // X PID coefficients (Adjust these values based on testing)
-        xController = new PIDController(2, 0.0, 0.7);
+        xController = new PIDController(1.8, 0.0, 1.2);
         xController.setTolerance(X_TOLERANCE);
         
         // Y PID coefficients
-        yController = new PIDController(3, 0.0, .4);
+        yController = new PIDController(3, 0.0, 0.4);
         yController.setTolerance(Y_TOLERANCE);
         
         // Yaw PID coefficients
-        yawController = new PIDController(0.1, 0.0, 0.0);
+        yawController = new PIDController(2.0, 0.0, 0.0);
         yawController.setTolerance(YAW_TOLERANCE);
         yawController.enableContinuousInput(-Math.PI, Math.PI);
         
