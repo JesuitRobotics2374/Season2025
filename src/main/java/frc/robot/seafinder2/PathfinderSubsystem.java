@@ -13,10 +13,11 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.Core;
-import frc.robot.seafinder.commands.IntakeCommand;
 import frc.robot.seafinder2.utils.Target.Side;
 import frc.robot.seafinder2.utils.Apriltags;
 import frc.robot.seafinder2.commands.ExactAlign;
+import frc.robot.seafinder2.commands.limbControl.ArmCommand;
+import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
 import frc.robot.seafinder2.utils.Target;
 import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.seafinder2.utils.Target.Location;
@@ -40,8 +41,10 @@ public class PathfinderSubsystem {
 
     // Queue a pathfind; done by clicking a button on the panel
     public void queueFind(Location location) {
+        System.out.println("queueFind ran");
         target.setLocation(location);
         if (target.isComputed()) {
+            System.out.println("Target was computed");
             executeSequence(target);
             target = new Target(core);
         }
@@ -65,6 +68,8 @@ public class PathfinderSubsystem {
     }
 
     public void executeSequence(Target target) {
+
+        System.out.println(target.getTag());
 
         // Get the tag's position from welded map
         Pose3d tagTarget = Apriltags.getWeldedPosition(target.getTag());
@@ -102,39 +107,54 @@ public class PathfinderSubsystem {
                 0);
 
         // ALIGN - Both
-        Command alignComponents = new InstantCommand(() -> {
-            core.moveToSetpoint(target.getSetpoint());
-        });
+        // Command alignComponents = new InstantCommand(() -> {
+        //     core.moveToSetpoint(target.getSetpoint());
+        // });
+
+        // elevatorSubsystem.elevatorGoToDouble(setpoint.getElevator());
+        // armSubsystem.armGoTo(setpoint.getArm());
+        // armSubsystem.wristGoTo(setpoint.getWrist());
+
+        Command alignComponents = new ParallelCommandGroup(
+            new ElevatorCommand(core.getElevatorSubsystem(), target.getSetpoint().getElevator()),
+            new ArmCommand(core.getArmSubsystem(), target.getSetpoint().getArm()),
+            new InstantCommand(() -> {core.getArmSubsystem().wristGoTo(target.getSetpoint().getWrist());})
+        );
 
         Command retractComponents = target.getRetractCommand();
+
+        System.out.println(target.isReef());
 
         if (target.isReef()) { // Reef
 
             Command exactAlign = new ExactAlign(drivetrain, target.getTagRelativePose());
 
+            drivetrain.setLabel(target.getTagRelativePose().getPose2d(), "EXA");
+
             runningCommand = new SequentialCommandGroup(
-                    lowerRobot,
-                    pathfindCommand,
-                    alignComponents,
+                    // lowerRobot,
+                    // pathfindCommand,
                     exactAlign,
-                    retractComponents);
+                    alignComponents,
+                    retractComponents
+                    );
 
             runningCommand.schedule();
 
         } else { // Human Station
 
-            Command intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
+            // Command intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
 
-            runningCommand = new SequentialCommandGroup(
-                    lowerRobot,
-                    pathfindCommand,
-                    alignComponents,
-                    // fieldAlign,
-                    intakeCommand,
-                    retractComponents
-            );
+            // runningCommand = new SequentialCommandGroup(
+            //         lowerRobot,
+            //         pathfindCommand,
+            //         alignComponents,
+            //         // fieldAlign,
+            //         intakeCommand,
+            //         retractComponents
+            // );
 
-            runningCommand.schedule();
+            // runningCommand.schedule();
 
         }
     }

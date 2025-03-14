@@ -27,8 +27,11 @@ public class StaticBackCommand extends Command {
 
     @Override
     public void initialize() {
+        System.out.println("STATIC BACK COMAND STARTED");
         done = false;
     }
+
+    private int clock = 0;
 
     @Override
     public void execute() {
@@ -39,12 +42,18 @@ public class StaticBackCommand extends Command {
        // drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(speed));
         drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(speed));
         double distance = drivetrain.getRobotX();
-        System.out.println("Provided Distance:  " + providedDistance + " startingdistance " + startingDistance + " distance " + distance);
-        System.out.println("delta " + (distance - startingDistance));
-        if (distance - startingDistance < providedDistance) {
-            System.out.print("Setback done");
-            done = true;
+
+        if (clock >= 20) {
+            System.out.println("Provided Distance:  " + providedDistance + " startingdistance " + startingDistance + " distance " + distance);
+            System.out.println("delta " + (distance - startingDistance));
         }
+        if (distance - startingDistance < providedDistance) {
+            done = true;
+
+            if (clock >= 20) {System.out.print("Setback done");}
+        }
+
+        if (clock >= 20) {clock = 0;}
     }
 
     @Override
@@ -54,7 +63,7 @@ public class StaticBackCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("Dynamic X complete!");
+        System.out.println("STATIC BACK COMMAND ENDED");
         drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
     }
 

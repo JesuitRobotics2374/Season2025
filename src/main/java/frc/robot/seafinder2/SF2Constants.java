@@ -14,12 +14,12 @@ public class SF2Constants {
     public static final double SEAFINDER2_MAX_ROTATIONAL_VELOCITY = Units.degreesToRadians(540);
     public static final double SEAFINDER2_MAX_ROTATIONAL_ACCELERATION = Units.degreesToRadians(720);
 
-    public static final double SEAFINDER2_REEF_FRONT_PADDING = 0.5;
+    public static final double SEAFINDER2_REEF_FRONT_PADDING = -1;
     public static final double SEAFINDER2_REEF_LEFT_BRANCH_OFFSET = -0.1363;
     public static final double SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET = 0.1964;
 
-    public static final double WRIST_MIN_POSITION = 0.312533;
-    public static final double WRIST_MAX_POSITION = 0.570801;
+    public static final double WRIST_MIN_POSITION = 0.0;
+    public static final double WRIST_MAX_POSITION = 0.25;
 
     public static final Setpoint SETPOINT_MIN = new Setpoint(5, 22.4, WRIST_MIN_POSITION);
     public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(34.55, 14.08, WRIST_MAX_POSITION);

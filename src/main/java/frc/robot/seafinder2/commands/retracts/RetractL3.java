@@ -47,6 +47,7 @@ public class RetractL3 extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        System.out.println("RETRACT L3 ENDED");
     }
 
     @Override

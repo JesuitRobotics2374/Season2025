@@ -34,14 +34,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.seafinder.PathfinderSubsystem;
-import frc.robot.seafinder.PathfinderSubsystem.Alignment;
-import frc.robot.seafinder.commands.ExactAlignRot;
-import frc.robot.seafinder.commands.StaticBackCommand;
-import frc.robot.seafinder.commands.StationAlign;
-import frc.robot.seafinder.interfaces.NavInterfaceSubsystem;
-import frc.robot.seafinder.interfaces.PanelSubsystem;
-import frc.robot.seafinder.utils.Setpoint;
+import frc.robot.seafinder2.PathfinderSubsystem;
+import frc.robot.seafinder2.interfaces.PanelSubsystem;
 import frc.robot.seafinder2.utils.Target;
 import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.seafinder2.utils.Target.Landmark;
@@ -91,9 +85,7 @@ public class Core {
 
     public final PathfinderSubsystem pathfinderSubsystem = new PathfinderSubsystem(this);
 
-    // public final PanelSubsystem panelSubsystem = new
-    // PanelSubsystem(pathfinderSubsystem);
-    public final NavInterfaceSubsystem navInterfaceSubsystem = new NavInterfaceSubsystem();
+    public final PanelSubsystem panelSubsystem = new PanelSubsystem(pathfinderSubsystem);
 
     SequentialCommandGroup autoCommandGroup;
 
@@ -135,12 +127,12 @@ public class Core {
     }
 
     // A setpoint is a "macro" state. Find its definition in utils folder.
-    public void moveToSetpoint(Setpoint setpoint) {
-        queuedRetractAction = setpoint.getRetractAction(); // Store what we just did for when we retract
-        elevatorSubsystem.elevatorGoToDouble(setpoint.getElevator());
-        armSubsystem.armGoTo(setpoint.getArm());
-        armSubsystem.wristGoTo(setpoint.getWrist());
-    }
+    // public void moveToSetpoint(Setpoint setpoint) {
+    //     queuedRetractAction = setpoint.getRetractAction(); // Store what we just did for when we retract
+    //     elevatorSubsystem.elevatorGoToDouble(setpoint.getElevator());
+    //     armSubsystem.armGoTo(setpoint.getArm());
+    //     armSubsystem.wristGoTo(setpoint.getWrist());
+    // }
 
     public void moveToSetpoint(Target.Setpoint setpoint) {
         elevatorSubsystem.elevatorGoToDouble(setpoint.getElevator());
@@ -150,83 +142,83 @@ public class Core {
 
     // Based on the last setpoint we aligned to, retract using a very specific set
     // of hardward movements
-    public void performRetract() {
-        if (queuedRetractAction != null) {
-            switch (queuedRetractAction) {
-                case "none":
-                    break;
-                case "t4": // Tune
-                    System.out.println("Running retract macro: backAndDown");
-                    SequentialCommandGroup waitAndEle = new SequentialCommandGroup(
-                            new WaitCommand(0.5),
-                            new InstantCommand(
-                                    () -> elevatorSubsystem.changeBy(-Constants.RETRACT_ELEVATOR_DOWNSHIFT)));
-                    SequentialCommandGroup waitAndOuttake = new SequentialCommandGroup(
-                            new WaitCommand(0.75),
-                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
-                            new WaitCommand(0.3),
-                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.25)),
-                            new WaitCommand(0.3),
-                            new InstantCommand(() -> manipulatorSubsystem.stop()));
-                    SequentialCommandGroup waitAndBack = new SequentialCommandGroup(
-                            new WaitCommand(3),
-                            (new StaticBackCommand(drivetrain, -0.4, -0.4)).withTimeout(1.5));
+    // public void performRetract() {
+    //     if (queuedRetractAction != null) {
+    //         switch (queuedRetractAction) {
+    //             case "none":
+    //                 break;
+    //             case "t4": // Tune
+    //                 System.out.println("Running retract macro: backAndDown");
+    //                 SequentialCommandGroup waitAndEle = new SequentialCommandGroup(
+    //                         new WaitCommand(0.5),
+    //                         new InstantCommand(
+    //                                 () -> elevatorSubsystem.changeBy(-Constants.RETRACT_ELEVATOR_DOWNSHIFT)));
+    //                 SequentialCommandGroup waitAndOuttake = new SequentialCommandGroup(
+    //                         new WaitCommand(0.75),
+    //                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
+    //                         new WaitCommand(0.3),
+    //                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.25)),
+    //                         new WaitCommand(0.3),
+    //                         new InstantCommand(() -> manipulatorSubsystem.stop()));
+    //                 SequentialCommandGroup waitAndBack = new SequentialCommandGroup(
+    //                         new WaitCommand(3),
+    //                         (new StaticBackCommand(drivetrain, -0.4, -0.4)).withTimeout(1.5));
 
-                    waitAndEle.schedule();
-                    waitAndOuttake.schedule();
-                    armSubsystem.armChangeBy(-18);
-                    waitAndBack.schedule();
-                    break;
-                case "t3": // Tuned on tag 19 right & left
-                    System.out.println("Running retract macro: backAndDown");
-                    SequentialCommandGroup waitAndOuttake3 = new SequentialCommandGroup(
-                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
-                            new WaitCommand(0.2),
-                            new InstantCommand(() -> manipulatorSubsystem.stop()),
-                            new WaitCommand(0.2),
-                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
-                            new WaitCommand(0.3),
-                            new InstantCommand(() -> manipulatorSubsystem.stop()),
-                            (new StaticBackCommand(drivetrain, -0.4, -1)).withTimeout(1.5));
-                    // SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new
-                    // WaitCommand(0.8),
+    //                 waitAndEle.schedule();
+    //                 waitAndOuttake.schedule();
+    //                 armSubsystem.armChangeBy(-18);
+    //                 waitAndBack.schedule();
+    //                 break;
+    //             case "t3": // Tuned on tag 19 right & left
+    //                 System.out.println("Running retract macro: backAndDown");
+    //                 SequentialCommandGroup waitAndOuttake3 = new SequentialCommandGroup(
+    //                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
+    //                         new WaitCommand(0.2),
+    //                         new InstantCommand(() -> manipulatorSubsystem.stop()),
+    //                         new WaitCommand(0.2),
+    //                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.1)),
+    //                         new WaitCommand(0.3),
+    //                         new InstantCommand(() -> manipulatorSubsystem.stop()),
+    //                         (new StaticBackCommand(drivetrain, -0.4, -1)).withTimeout(1.5));
+    //                 // SequentialCommandGroup waitAndBack3 = new SequentialCommandGroup(new
+    //                 // WaitCommand(0.8),
 
-                    elevatorSubsystem.changeBy(-50);
-                    armSubsystem.armChangeBy(-19);
-                    waitAndOuttake3.schedule();
-                    // waitAndBack3.schedule();
-                    break;
-                case "t2": // Not tuned on tage 19 right & left
-                    // primary steps
-                    System.out.println("Running retract macro: backAndDown");
+    //                 elevatorSubsystem.changeBy(-50);
+    //                 armSubsystem.armChangeBy(-19);
+    //                 waitAndOuttake3.schedule();
+    //                 // waitAndBack3.schedule();
+    //                 break;
+    //             case "t2": // Not tuned on tage 19 right & left
+    //                 // primary steps
+    //                 System.out.println("Running retract macro: backAndDown");
 
-                    SequentialCommandGroup waitAndOuttake2 = new SequentialCommandGroup(
-                            new WaitCommand(1.0),
-                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.4)),
-                            new WaitCommand(3.2),
-                            new InstantCommand(() -> manipulatorSubsystem.stop()));
-                    SequentialCommandGroup waitAndBack2 = new SequentialCommandGroup(
-                            new WaitCommand(1.7),
-                            (new StaticBackCommand(drivetrain, -0.4, -1)).withTimeout(1.5));
+    //                 SequentialCommandGroup waitAndOuttake2 = new SequentialCommandGroup(
+    //                         new WaitCommand(1.0),
+    //                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.4)),
+    //                         new WaitCommand(3.2),
+    //                         new InstantCommand(() -> manipulatorSubsystem.stop()));
+    //                 SequentialCommandGroup waitAndBack2 = new SequentialCommandGroup(
+    //                         new WaitCommand(1.7),
+    //                         (new StaticBackCommand(drivetrain, -0.4, -1)).withTimeout(1.5));
 
-                    elevatorSubsystem.changeBy(-11);
-                    armSubsystem.armChangeBy(-21);
-                    waitAndOuttake2.schedule();
-                    waitAndBack2.schedule();
-                    break;
-                case "t1":
-                    SequentialCommandGroup waitAndOuttakeL1 = new SequentialCommandGroup(
-                            new WaitCommand(0.1),
-                            new InstantCommand(() -> manipulatorSubsystem.outtake(0.6)),
-                            new WaitCommand(3.2),
-                            new InstantCommand(() -> manipulatorSubsystem.stop()));
-                    waitAndOuttakeL1.schedule();
-                default:
-                    break;
-            }
-        }
-        return;
-    }
+    //                 elevatorSubsystem.changeBy(-11);
+    //                 armSubsystem.armChangeBy(-21);
+    //                 waitAndOuttake2.schedule();
+    //                 waitAndBack2.schedule();
+    //                 break;
+    //             case "t1":
+    //                 SequentialCommandGroup waitAndOuttakeL1 = new SequentialCommandGroup(
+    //                         new WaitCommand(0.1),
+    //                         new InstantCommand(() -> manipulatorSubsystem.outtake(0.6)),
+    //                         new WaitCommand(3.2),
+    //                         new InstantCommand(() -> manipulatorSubsystem.stop()));
+    //                 waitAndOuttakeL1.schedule();
+    //             default:
+    //                 break;
+    //         }
+    //     }
+    //     return;
+    // }
 
     public void registerAutoCommands() {
         // NamedCommands.registerCommand("OuttakeCommand", new
@@ -296,20 +288,22 @@ public class Core {
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
         driveController.start().onTrue(armSubsystem.runOnce(() -> armSubsystem.zeroArm()));
 
-        driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T2))); // RESET POSE
-        driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T3))); // RESET POSE
-        // driveController.x().onTrue(armSubsystem.runOnce(() -> {
-        // armSubsystem.setZero();
-        // }));
-        driveController.x().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_PROCESSOR)));
+        // driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T2))); // RESET POSE
+        // driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T3))); // RESET POSE
+        // // driveController.x().onTrue(armSubsystem.runOnce(() -> {
+        // // armSubsystem.setZero();
+        // // }));
+        // driveController.x().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_PROCESSOR)));
 
         driveController.povLeft().onTrue(new InstantCommand(() -> {
             isTurbo = !isTurbo;
         }));
-        
-        TagRelativePose testingTagRelativePose = new TagRelativePose(18, SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET, -0.7, 0.0); // idk what units this is in -  x is left right & y is front back
+
+        TagRelativePose testingTagRelativePose = new TagRelativePose(18,
+                SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET, -0.7, 0.0); // idk what units this is in - x is left
+                                                                             // right & y is front back
         driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
-        
+
         // Climber
 
         // driveController.povDown().onTrue(climberSubsystem.runOnce(() ->
@@ -327,21 +321,24 @@ public class Core {
         operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
         operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
 
-        operatorController.y().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_BARGE)));
-        operatorController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
-        operatorController.a().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_MIN)));
-        operatorController.x().onTrue(new InstantCommand(() -> performRetract()));
+        // operatorController.y().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_BARGE)));
+        // operatorController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
+        // operatorController.a().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_MIN)));
+        // operatorController.x().onTrue(new InstantCommand(() -> performRetract()));
 
         // operatorController.back().onTrue(armSubsystem.runOnce(() ->
         // armSubsystem.rotateWristIntake()));
 
-        // operatorController.start().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT, Side.LEFT))));
-        // operatorController.back().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueAlign(Height.BRANCH_L3)));
+        // operatorController.start().onTrue(new InstantCommand(() ->
+        // pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT,
+        // Side.LEFT))));
+        // operatorController.back().onTrue(new InstantCommand(() ->
+        // pathfinderSubsystem.queueAlign(Height.BRANCH_L3)));
 
-        operatorController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T1)));
-        operatorController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T2)));
-        operatorController.povUp().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T3)));
-        operatorController.povRight().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_REEF_T4)));
+        operatorController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T1)));
+        operatorController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T2)));
+        operatorController.povUp().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T3)));
+        operatorController.povRight().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T4)));
 
     }
 
@@ -356,9 +353,9 @@ public class Core {
         return pathfinderSubsystem;
     }
 
-    public NavInterfaceSubsystem getNavInterfaceSubsystem() {
-        return navInterfaceSubsystem;
-    }
+    // public NavInterfaceSubsystem getNavInterfaceSubsystem() {
+    //     return navInterfaceSubsystem;
+    // }
 
     public ManipulatorSubsystem getManipulatorSubsystem() {
         return manipulatorSubsystem;
@@ -444,11 +441,17 @@ public class Core {
         clock++;
         if (clock > 10) {
 
-            // llp2 = LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[1].name);
-            // System.out.println("LL-R-X: " + llp2.getX() + " Y: " + llp2.getY() + " R1: " + llp2.getRotation().getX()  + " R2: " + llp2.getRotation().getY()  + " R3: " + llp2.getRotation().getZ());
+            // llp2 =
+            // LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[1].name);
+            // System.out.println("LL-R-X: " + llp2.getX() + " Y: " + llp2.getY() + " R1: "
+            // + llp2.getRotation().getX() + " R2: " + llp2.getRotation().getY() + " R3: " +
+            // llp2.getRotation().getZ());
 
-            // llp = LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[0].name);
-            // System.out.println("LL-L-X: " + llp.getX() + " Y: " + llp.getY() + " R1: " + llp.getRotation().getX()  + " R2: " + llp.getRotation().getY()  + " R3: " + llp.getRotation().getZ());
+            // llp =
+            // LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[0].name);
+            // System.out.println("LL-L-X: " + llp.getX() + " Y: " + llp.getY() + " R1: " +
+            // llp.getRotation().getX() + " R2: " + llp.getRotation().getY() + " R3: " +
+            // llp.getRotation().getZ());
 
             clock = 0;
         }

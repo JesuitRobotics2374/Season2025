@@ -12,12 +12,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.seafinder.PathfinderSubsystem.Alignment;
-import frc.robot.seafinder.commands.InitRaiseArm;
-import frc.robot.seafinder.commands.TimedForward;
-import frc.robot.seafinder.commands.ZeroElevator;
-import frc.robot.seafinder.utils.AStar;
-import frc.robot.seafinder.utils.Apriltags;
+import frc.robot.seafinder2.SF2Constants;
+import frc.robot.seafinder2.utils.Apriltags;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.LimelightObject;
 
@@ -63,12 +59,12 @@ public class Robot extends TimedRobot {
         WaitCommand waitCommand = new WaitCommand(1);
         InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(9));
         InstantCommand lower_to_limt = new InstantCommand( () -> m_core.getElevatorSubsystem().lower_to_limt() );
-        Command goToSetpoint = new InstantCommand(() -> m_core.moveToSetpoint(Constants.SETPOINT_MIN));
+        Command goToSetpoint = new InstantCommand(() -> m_core.moveToSetpoint(SF2Constants.SETPOINT_MIN));
 
 
         // m_core.getPathfinderSubsystem().clearSequence();
-        int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
-        System.out.println("Path loaded: " + path.length);
+        // int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
+        // System.out.println("Path loaded: " + path.length);
         // InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
 
         // Command moveForward = new TimedForward(m_core.getDrivetrain(), 1.5);

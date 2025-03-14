@@ -50,6 +50,7 @@ public class RetractL2 extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        System.out.println("RETRACT L2 ENDED");
     }
 
     @Override

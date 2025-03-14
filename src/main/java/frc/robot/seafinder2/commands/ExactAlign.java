@@ -105,8 +105,12 @@ public class ExactAlign extends Command {
         framesWithoutTarget = 0;
     }
 
+    private int clock = 0;
+
     @Override
     public void execute() {
+        clock++;
+
         // Average pose from each limelight
         double avg_x = 0;
         double avg_y = 0;
@@ -209,14 +213,20 @@ public class ExactAlign extends Command {
                 .withRotationalRate(-dtheta)
         );
 
-        System.out.println("EXACT ALIGN VALUES: " + error_x + " " + error_y + " " + error_yaw);
-        System.out.println("EXACT ALIGN VALUES: " + xTollerenace + " " + yTollerenace + " " + thetaTollerenace);
+        if (clock >= 20) {
+            System.out.println("EXACT ALIGN VALUES: " + error_x + " " + error_y + " " + error_yaw);
+            System.out.println("EXACT ALIGN VALUES: " + xTollerenace + " " + yTollerenace + " " + thetaTollerenace);
+        }
                 
         // Update state for isFinished
         if (xTollerenace && yTollerenace && thetaTollerenace) {
             framesAtTarget++;
         } else {
             framesAtTarget = 0;
+        }
+
+        if (clock >= 20) {
+            clock = 0;
         }
     }
 

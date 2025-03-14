@@ -151,7 +151,7 @@ public class Target {
     Setpoint setpoint;
     TagRelativePose tagRelativePose;
     Command retractCommand;
-    boolean isReef;
+    boolean isReef = true;
 
     public Target(Core core) {
         this.core = core;
@@ -272,6 +272,7 @@ public class Target {
                 break;
         }
 
+        System.out.println("ISREEF: " + isReef);
         if (isReef) {
             switch (this.height) {
                 case TROUGH:
@@ -293,16 +294,16 @@ public class Target {
             }
             switch (this.location.side) {
                 case LEFT:
-                    x = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
-                    y = SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET;
+                    y = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
+                    x = SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET;
                     break;
                 case RIGHT:
-                    x = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
-                    y = SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET;
+                    y = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
+                    x = SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET;
                     break;
                 case CENTER:
-                    x = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
-                    y = (SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET
+                    y = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
+                    x = (SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET
                             + SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET) / 2;
                     break;
             }

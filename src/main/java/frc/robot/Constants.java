@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.LinearVelocity;
-import frc.robot.seafinder.utils.Setpoint;
 import frc.robot.utils.LimelightObject;
 import frc.robot.utils.LimelightObject.LLType;
 
@@ -82,16 +81,16 @@ public class Constants {
     public static final double RETRACT_ELEVATOR_DOWNSHIFT = 45.0;
     public static final double SETPOINT_ELEVATOR_OFFSET = 0;
 
-    public static final Setpoint SETPOINT_MIN = new Setpoint(5, 22.4, WRIST_MIN_POSITION, "none");
-    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(34.55, 15.3, WRIST_MAX_POSITION, "none");
-    public static final Setpoint SETPOINT_PROCESSOR = new Setpoint(33.27, 3.4, WRIST_MAX_POSITION, "none");
-    public static final Setpoint SETPOINT_BARGE = new Setpoint(128.1, 23.8, WRIST_MAX_POSITION, "none");
-    public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(27.63, 4.5, WRIST_MAX_POSITION, "t1");
-    public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(12.51, 20.37, WRIST_MIN_POSITION, "t2");
-    public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(60.76, 19.4, WRIST_MIN_POSITION, "t3");
-    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(127.2, 15.5, WRIST_MIN_POSITION, "t4");
-    public static final Setpoint SETPOINT_ALGAE_T2 = new Setpoint(74.5, -1.81, WRIST_MAX_POSITION, "c2");
-    public static final Setpoint SETPOINT_ALGAE_T3 = new Setpoint(110.76, -2.68, WRIST_MAX_POSITION, "c3");
-    public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION, "none");
+    // public static final Setpoint SETPOINT_MIN = new Setpoint(5, 22.4, WRIST_MIN_POSITION, "none");
+    // public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(34.55, 15.3, WRIST_MAX_POSITION, "none");
+    // public static final Setpoint SETPOINT_PROCESSOR = new Setpoint(33.27, 3.4, WRIST_MAX_POSITION, "none");
+    // public static final Setpoint SETPOINT_BARGE = new Setpoint(128.1, 23.8, WRIST_MAX_POSITION, "none");
+    // public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(27.63, 4.5, WRIST_MAX_POSITION, "t1");
+    // public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(12.51, 20.37, WRIST_MIN_POSITION, "t2");
+    // public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(60.76, 19.4, WRIST_MIN_POSITION, "t3");
+    // public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(127.2, 15.5, WRIST_MIN_POSITION, "t4");
+    // public static final Setpoint SETPOINT_ALGAE_T2 = new Setpoint(74.5, -1.81, WRIST_MAX_POSITION, "c2");
+    // public static final Setpoint SETPOINT_ALGAE_T3 = new Setpoint(110.76, -2.68, WRIST_MAX_POSITION, "c3");
+    // public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION, "none");
     
 }
