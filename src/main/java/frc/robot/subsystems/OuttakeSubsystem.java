@@ -27,11 +27,11 @@ public class OuttakeSubsystem extends SubsystemBase {
     private TalonFXConfiguration config;
     private TalonFXConfigurationHelper configHelper;
 
-    private final TalonFX motorController;
+    private TalonFX motorController;
 
     public OuttakeSubsystem() {
         config = new TalonFXConfiguration();
-        motorController = new TalonFX(29);
+        motorController = new TalonFX(30, "FastFD");
         configHelper = new TalonFXConfigurationHelper(config, new File("/home/lvuser/deploy/talonfx-configs.txt"), motorController);
         try {
             configHelper.setConfiguration();
