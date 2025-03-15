@@ -26,7 +26,7 @@ public class SF2Constants {
     public static final double WRIST_MAX_POSITION = 0.25;
 
     public static final Setpoint SETPOINT_MIN = new Setpoint(5, 22.4, WRIST_MIN_POSITION);
-    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(34.55, 14.08, WRIST_MAX_POSITION);
+    public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(0.00, 14.08, WRIST_MAX_POSITION);
     public static final Setpoint SETPOINT_PROCESSOR = new Setpoint(33.27, 2, WRIST_MAX_POSITION);
     public static final Setpoint SETPOINT_BARGE = new Setpoint(128.1, 22.26, WRIST_MAX_POSITION);
     public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(27.63, 1.857, WRIST_MAX_POSITION);

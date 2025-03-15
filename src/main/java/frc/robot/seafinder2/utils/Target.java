@@ -292,6 +292,7 @@ public class Target {
                     break;
             }
             switch (this.location.side) {
+                
                 case LEFT:
                     y = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
                     x = SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET;
@@ -307,6 +308,7 @@ public class Target {
                     break;
             }
         } else {
+            setpoint = SF2Constants.SETPOINT_HP_INTAKE;
             retractCommand = (new StaticBackCommand(core.getDrivetrain(), -0.4, -1)).withTimeout(1.5);
         }
 

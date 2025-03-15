@@ -18,12 +18,15 @@ import frc.robot.seafinder2.utils.Target.Side;
 import frc.robot.seafinder2.utils.Apriltags;
 import frc.robot.seafinder2.commands.ExactAlign;
 import frc.robot.seafinder2.commands.StopDrivetrain;
+import frc.robot.seafinder2.commands.limbControl.HPStationCommand;
+import frc.robot.seafinder2.commands.limbControl.IntakeCommand;
 import frc.robot.seafinder2.commands.limbControl.ArmCommand;
 import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
 import frc.robot.seafinder2.commands.limbControl.WristCommand;
 import frc.robot.seafinder2.utils.Target;
 import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.seafinder2.utils.Target.Location;
+import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
 public class PathfinderSubsystem {
@@ -132,15 +135,20 @@ public class PathfinderSubsystem {
 
         Command alignComponents = new ParallelCommandGroup(
             new ElevatorCommand(core.getElevatorSubsystem(), target.getSetpoint().getElevator(), true),
-            new ArmCommand(core.getArmSubsystem(), target.getSetpoint().getArm(), true),
-            new WristCommand(core.getArmSubsystem(), target.getSetpoint().getWrist(), true)
+            new ArmCommand(core.getArmSubsystem(),target.getSetpoint().getArm(), true)
+            
+        );
+        Command alignComponentsHP = new ParallelCommandGroup(
+            new ElevatorCommand(core.getElevatorSubsystem(), target.getSetpoint().getElevator(), true),
+            new HPStationCommand(core.getArmSubsystem(), target.getSetpoint().getArm(), true, target.getSetpoint().getWrist(), true)
         );
 
         Command retractComponents = target.getRetractCommand();
+        Command wristToScoringPosCommand = new WristCommand(core.getArmSubsystem(), SF2Constants.WRIST_MIN_POSITION, true); 
 
         if (target.isReef()) {
             System.out.println("RUNNING REEF SEQUENCE");
-
+            
             Command exactAlign = new ExactAlign(drivetrain, target.getTagRelativePose());
             Command alignBoth = new ParallelCommandGroup(exactAlign, alignComponents);
             Command waitCommand = new WaitCommand(0.1);
@@ -162,16 +170,24 @@ public class PathfinderSubsystem {
             System.out.println("RUNNING HUMAN STATION SEQUENCE");
 
             // Command intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
-
+            Command bothHP = new ParallelCommandGroup(
+                pathfindCommand,alignComponentsHP
+            );
+            Command intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
             runningCommand = new SequentialCommandGroup(
                     // lowerRobot,
-                    pathfindCommand,
-                    stopDrivetrainCommand,
+                    // pathfindCommand,
+                    bothHP,
+                    // stopDrivetrainCommand,
+            
                     // fieldAlign,
-                    alignComponents
-                    // intakeCommand
+                    // alignComponentsHP
+                    intakeCommand,
+                    wristToScoringPosCommand 
                     // retractComponents
             );
+
+            
 
             runningCommand.schedule();
 
