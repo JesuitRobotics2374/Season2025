@@ -25,6 +25,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -34,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.utils.LimelightObject.LLType;
 import frc.robot.utils.LimelightHelpers;
@@ -48,6 +52,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
+    //for elastic
+    private final NetworkTable table = NetworkTableInstance.getDefault().getTable("rRelativePose");
+    private final NetworkTableEntry xEntry = table.getEntry("X");
+    private final NetworkTableEntry yEntry = table.getEntry("Y");
+    private final NetworkTableEntry rotationEntry = table.getEntry("Rotation");
+
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
@@ -59,6 +69,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+
+    private final VisionSubsystem vision = new VisionSubsystem(this);
 
     // CUSTOM DECLARATIONS
     private final SwerveDrivePoseEstimator estimator;
@@ -423,6 +435,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getRobotR() {
         return estimator.getEstimatedPosition().getRotation().getDegrees();
+    }
+
+    public void updatePose(Pose2d newPose) {
+        xEntry.setDouble(newPose.getX());
+        yEntry.setDouble(newPose.getY());
+        rotationEntry.setDouble(newPose.getRotation().getDegrees());
     }
 
 }

@@ -14,21 +14,39 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final Core m_robotContainer;
+  private VisionSubsystem visionSubsystem;
+  private CommandSwerveDrivetrain drivetrain;
 
   public Robot() {
     m_robotContainer = new Core();
 
+    drivetrain = m_robotContainer.drivetrain;
+    visionSubsystem = new VisionSubsystem(drivetrain);
+
     // PathfindingCommand.warmupCommand().schedule();
   }
 
+  private int clock = 0;
+  
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    clock++;
+
+    if (clock == 1) {
+      //System.out.println(visionSubsystem.getEstimatedGlobalPose());
+      //System.out.println(visionSubsystem.getRelativeRobotPose());
+      //drivetrain.updatePose(visionSubsystem.getRelativeRobotPose());
+      m_robotContainer.updatePose2d();
+      clock = 0;
+    }
   }
 
   @Override

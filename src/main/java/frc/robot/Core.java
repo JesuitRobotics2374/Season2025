@@ -31,10 +31,13 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Seafinder2.ExactAlign;
+import frc.robot.Seafinder2.TagRelativePose;
 import frc.robot.commands.auto.Outtake;
 import frc.robot.commands.auto.Pathfind;
 import frc.robot.commands.auto.PathfindBasic;
 import frc.robot.subsystems.OuttakeSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.utils.LimelightObject;
@@ -69,7 +72,11 @@ public class Core {
 
     public final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
 
-    
+    public final VisionSubsystem visionSubsystem = new VisionSubsystem(drivetrain);
+
+    public Pose2d pose;
+
+    public TagRelativePose tagRelativePose;
 
     private final SendableChooser<Command> autoChooser;
 
@@ -82,6 +89,8 @@ public class Core {
         configureShuffleBoard();
 
         drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
+        
+        pose = visionSubsystem.getEstimatedGlobalPose();
     }
 
     public void registerAutoCommands() {
@@ -153,10 +162,12 @@ public class Core {
         driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
         driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
+        // TagRelativePose tagPose = new TagRelativePose(22, 1, 0, 0);
+
+        // driveController.a().onTrue(new InstantCommand(() -> new ExactAlign(drivetrain, tagPose, visionSubsystem)));
+
         // driveController.a()
         //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
-
-       // driveController.b().onTrue(new Outtake(outtakeSubsystem));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -235,5 +246,11 @@ public class Core {
 
     public double getAxisMovementScale() {
        return (1 - (driveController.getRightTriggerAxis() * 0.5));
+    }
+
+    public void updatePose2d() {
+        pose = visionSubsystem.getEstimatedGlobalPose();
+        tagRelativePose = new TagRelativePose(22, pose.getX(), pose.getY(), pose.getRotation().getDegrees());
+        drivetrain.updatePose(pose);
     }
 }
