@@ -76,7 +76,7 @@ public class Core {
 
     public Pose2d pose;
 
-    public TagRelativePose tagRelativePose;
+    private TagRelativePose tagRelativePose;
 
     private final SendableChooser<Command> autoChooser;
 

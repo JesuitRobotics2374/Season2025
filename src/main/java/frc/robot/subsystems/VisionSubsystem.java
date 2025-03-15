@@ -44,10 +44,10 @@ public class VisionSubsystem {
     private Field2d field;
     private PhotonPipelineResult result = null;
     private Transform3d transform3d = null;
+    private AprilTagFieldLayout aprilTagFieldLayout;
+    private PhotonPoseEstimator photonPoseEstimator;
 
     // private Transform3d robotToCam;
-    // private AprilTagFieldLayout aprilTagFieldLayout;
-    // private PhotonPoseEstimator photonPoseEstimator;
     // private Matrix<N3, N1> curStdDevs;
     // private static Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4,0,8);
     // private static Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(4,0,8);
@@ -59,6 +59,11 @@ public class VisionSubsystem {
         System.out.println(NetworkTableInstance.getDefault());
         camera = new PhotonCamera(NetworkTableInstance.getDefault(), "camera");
         field = new Field2d();
+        try {
+            aprilTagFieldLayout = new AprilTagFieldLayout("Season2025/src/main/deploy/2025-AprilTags-Layout.json");
+        } catch (Exception e) {
+            System.out.println("April tags failed to initialize!");
+        }
 
         // robotToCam = new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0,
         // 0));
@@ -177,6 +182,14 @@ public class VisionSubsystem {
 
     public boolean canSeeTag() {
         return camera.getLatestResult().hasTargets();
+    }
+
+    public PhotonPoseEstimator getPhotonPoseEstimator() {
+        return new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.LOWEST_AMBIGUITY, transform3d);
+    }
+
+    public PhotonPipelineResult getLatestPhotonPipelineResult() {
+        return camera.getLatestResult();
     }
 
         // Optional<EstimatedRobotPose> visionEst = Optional.empty();
