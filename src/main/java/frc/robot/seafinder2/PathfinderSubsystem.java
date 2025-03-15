@@ -20,6 +20,7 @@ import frc.robot.seafinder2.commands.ExactAlign;
 import frc.robot.seafinder2.commands.StopDrivetrain;
 import frc.robot.seafinder2.commands.limbControl.ArmCommand;
 import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
+import frc.robot.seafinder2.commands.limbControl.WristCommand;
 import frc.robot.seafinder2.utils.Target;
 import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.seafinder2.utils.Target.Location;
@@ -131,16 +132,11 @@ public class PathfinderSubsystem {
 
         Command alignComponents = new ParallelCommandGroup(
             new ElevatorCommand(core.getElevatorSubsystem(), target.getSetpoint().getElevator(), true),
-            new ArmCommand(core.getArmSubsystem(), target.getSetpoint().getArm(), true)
-            //    new InstantCommand(() -> {core.getArmSubsystem().wristGoTo(target.getSetpoint().getWrist());})
+            new ArmCommand(core.getArmSubsystem(), target.getSetpoint().getArm(), true),
+            new WristCommand(core.getArmSubsystem(), target.getSetpoint().getWrist(), true)
         );
 
         Command retractComponents = target.getRetractCommand();
-
-        System.out.println(target.isReef());
-        System.out.println(target.isReef());
-        System.out.println(target.isReef());
-        System.out.println(target.isReef());
 
         if (target.isReef()) {
             System.out.println("RUNNING REEF SEQUENCE");
@@ -170,7 +166,6 @@ public class PathfinderSubsystem {
             runningCommand = new SequentialCommandGroup(
                     // lowerRobot,
                     pathfindCommand,
-                    stopDrivetrainCommand,
                     stopDrivetrainCommand,
                     // fieldAlign,
                     alignComponents

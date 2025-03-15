@@ -51,6 +51,7 @@ import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.seafinder2.SF2Constants;
 import frc.robot.seafinder2.commands.ExactAlign;
+import frc.robot.seafinder2.commands.limbControl.WristCommand;
 
 public class Core {
 
@@ -224,7 +225,9 @@ public class Core {
         TagRelativePose testingTagRelativePose = new TagRelativePose(18,
                 SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET, -0.7, 0.0); // idk what units this is in - x is left
                                                                              // right & y is front back
-        driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
+
+        driveController.x().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MIN_POSITION, true));
+        driveController.y().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MAX_POSITION, true));
 
         // Climber
 

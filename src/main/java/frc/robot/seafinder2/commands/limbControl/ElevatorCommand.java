@@ -32,11 +32,11 @@ public class ElevatorCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        if (Math.abs(elevatorSubsystem.elevatorMotor1.getPosition().getValueAsDouble() - position) < ((isPosition) ? 0.3 : 13.00)) { // Magic number sorrryyyy
+        if (Math.abs(elevatorSubsystem.elevatorMotor1.getPosition().getValueAsDouble() - position) < ((isPosition) ? 0.3 : 13.00)) { // Magic number sorrryyyy - ask kevin ig
             return true;
         } else {
             clock++;
-            if (clock >= 20) {
+            if (clock >= 15) {
                 System.out.println("ELEVATOR COMMAND ERROR: " + Math.abs(elevatorSubsystem.elevatorMotor1.getPosition().getValueAsDouble() - position));
                 clock = 0;
             }

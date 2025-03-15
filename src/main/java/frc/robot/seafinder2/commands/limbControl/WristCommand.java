@@ -4,11 +4,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.ArmSubsystem;
 
-public class ArmCommand extends Command {
+public class WristCommand extends Command {
     private ArmSubsystem armSubsystem;
     private double position;
 
-    public ArmCommand(ArmSubsystem armSubsystem, double value, boolean isPosition) {
+    public WristCommand(ArmSubsystem armSubsystem, double value, boolean isPosition) {
         this.armSubsystem = armSubsystem;
 
         if (isPosition) {
@@ -22,22 +22,22 @@ public class ArmCommand extends Command {
 
     @Override
     public void initialize() {
-        armSubsystem.armGoTo(position);
+        armSubsystem.wristGoTo(position);
     }
 
     private int clock = 0;
 
     @Override
     public boolean isFinished() {
-        if (Math.abs(armSubsystem.armMotor2.getPosition().getValueAsDouble() - position) < 30 * (Math.PI / 180.0)) { // Magic number ish - Ask kevin ig
+        if (Math.abs(armSubsystem.armMotor2.getPosition().getValueAsDouble() - position) < 260) { // Magic value - Ask kevin ig
             return true;
         } else {
-            clock++;
-            if (clock >= 15) {
+            if (clock++ >= 15) {
                 System.out.println("ARM ERROR: " + ((180.0 / Math.PI) * Math.abs(armSubsystem.armMotor2.getPosition().getValueAsDouble() - position)));
                 clock = 0;
             }
         }
+
         return false;
     }
 
