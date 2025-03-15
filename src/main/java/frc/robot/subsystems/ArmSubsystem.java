@@ -84,7 +84,7 @@ public class ArmSubsystem extends SubsystemBase {
         Slot0Configs slot0Configs = talonFXConfigs.Slot0;
         MotionMagicConfigs motionMagicConfigs = talonFXConfigs.MotionMagic;
 
-        slot0Configs.kG = 8.5; // Output of voltage to overcome gravity
+        slot0Configs.kG = 5.7; // Output of voltage to overcome gravity
         slot0Configs.kV = 2; // Output per unit target velocity, perhaps not needed
         slot0Configs.kA = 0.3; // Output per unit target acceleration, perhaps not needed
         slot0Configs.kP = 15; // Controls the response to position error—how much the motor reacts to the
@@ -96,8 +96,8 @@ public class ArmSubsystem extends SubsystemBase {
 
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        motionMagicConfigs.MotionMagicCruiseVelocity = 50; // Target velocity in rps
-        motionMagicConfigs.MotionMagicAcceleration = 32; // Target acceleration in rps/s
+        motionMagicConfigs.MotionMagicCruiseVelocity = 80; // Target velocity in rps
+        motionMagicConfigs.MotionMagicAcceleration = 68; // Target acceleration in rps/s
         motionMagicConfigs.MotionMagicJerk = 400; // Target jerk in rps/s/s
 
         armMotor2.getConfigurator().apply(talonFXConfigs);

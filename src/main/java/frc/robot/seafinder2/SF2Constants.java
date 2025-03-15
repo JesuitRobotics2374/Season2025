@@ -36,5 +36,7 @@ public class SF2Constants {
     public static final Setpoint SETPOINT_ALGAE_T2 = new Setpoint(74.5, -1.81, WRIST_MAX_POSITION);
     public static final Setpoint SETPOINT_ALGAE_T3 = new Setpoint(110.76, -2.68, WRIST_MAX_POSITION);
     public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION);
+
+    public static final double CAN_RANGE_FORWARD_DISTANCE = 0.53;
     
 }

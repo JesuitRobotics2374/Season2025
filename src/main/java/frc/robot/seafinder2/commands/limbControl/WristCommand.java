@@ -17,7 +17,7 @@ public class WristCommand extends Command {
             this.position = this.armSubsystem.armMotor2.getPosition().getValueAsDouble() + value;
         }
         
-        addRequirements(armSubsystem);
+        // addRequirements(armSubsystem);
     }
 
     @Override

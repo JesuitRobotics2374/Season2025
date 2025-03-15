@@ -40,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.seafinder2.SF2Constants;
 import frc.robot.subsystems.drivetrain.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.utils.LimelightObject.LLType;
 import frc.robot.utils.LimelightHelpers;
@@ -71,7 +72,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveDrivePoseEstimator estimator;
     Field2d field = new Field2d();
 
-    // public CoreCANrange robotRangeRight = new CoreCANrange(18, "FastFD");
+    public CoreCANrange robotRangeRight = new CoreCANrange(18, "FastFD");
     public CoreCANrange robotRangeLeft = new CoreCANrange(19, "FastFD");
 
     private final SwerveRequest.ApplyRobotSpeeds autoRequest = new SwerveRequest.ApplyRobotSpeeds();
@@ -476,7 +477,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getForwardRangeRight() {
         // StatusSignal<Distance> d = robotRangeRight.getDistance();
-        StatusSignal<Distance> d = robotRangeLeft.getDistance();
+        StatusSignal<Distance> d = robotRangeRight.getDistance();
         // return (robotRangeRight.getIsDetected().getValueAsDouble()==1) ?
         // d.getValueAsDouble() : Double.MAX_VALUE;
         return Math.min(d.getValueAsDouble(), 1.5);
@@ -484,9 +485,31 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public boolean isCANRangeInThreshold() {
         StatusSignal<Distance> dL = robotRangeLeft.getDistance();
-        StatusSignal<Distance> dR = robotRangeLeft.getDistance();
+        StatusSignal<Distance> dR = robotRangeRight.getDistance();
         double dMin = Math.min(dL.getValueAsDouble(), dR.getValueAsDouble());
         return (dMin > 0.5 && dMin < 0.55);
+    }
+
+    int rnhpClock = 0;
+
+    public boolean robotNearHP() {
+        for (LimelightObject limelight : SF2Constants.LIMELIGHTS_ON_BOARD) {
+            if ((int) LimelightHelpers.getFiducialID(limelight.name) != -1) {
+                rnhpClock++;
+                if (rnhpClock > 8) {
+                    System.out.println("TAG VISIBLE: " + LimelightHelpers.getFiducialID(limelight.name));
+                    rnhpClock = 0;
+                }
+                return false;
+            }
+        }
+        StatusSignal<Distance> dL = robotRangeLeft.getDistance();
+        StatusSignal<Distance> dR = robotRangeRight.getDistance();
+        // double fL = robotRangeLeft.getIsDetected().getValueAsDouble() == 1 ? dL.getValueAsDouble() : 10000;
+        // double fR = robotRangeRight.getIsDetected().getValueAsDouble() == 1 ? dR.getValueAsDouble() : 10000;
+        // double dMin = Math.min(fL, fR);
+        // return (dMin < 1.4);
+        return (robotRangeLeft.getIsDetected().getValueAsDouble() == 1 || robotRangeRight.getIsDetected().getValueAsDouble() == 1);
     }
 
     public void setLabel(Pose2d pose2d, String label) {

@@ -18,6 +18,8 @@ public class StopDrivetrain extends Command {
 
     @Override
     public void initialize() {
+
+        System.out.println("STOPPING DRIVETRAIN");
         drivetrain.configNeutralMode(NeutralModeValue.Brake);
         drivetrain.setControl(driveRequest.withVelocityX(0.0).withVelocityY(0.0).withRotationalRate(0.0));
     }

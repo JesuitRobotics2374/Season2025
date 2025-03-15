@@ -36,6 +36,8 @@ public class ManipulatorSubsystem extends SubsystemBase {
     private boolean isIntaking = false;
     public boolean isOuttaking = false;
 
+    public boolean overriding = false;
+
     public ManipulatorSubsystem() {
 
         // this.eject = new SparkMax(33, MotorType.kBrushless);
@@ -95,13 +97,13 @@ public class ManipulatorSubsystem extends SubsystemBase {
         control.stopMotor();
     }
 
-    public Command spinIntakeCommand(double speed) {
-        return this.startEnd(() -> {
-            this.spinAt(speed);
-        }, () -> {
-            this.stop();
-        });
-    }
+    // public Command spinIntakeCommand(double speed) {
+    //     return this.startEnd(() -> {
+    //         this.spinAt(speed);
+    //     }, () -> {
+    //         this.stop();
+    //     });
+    // }
 
     public boolean getIsIntaking() {
         return isIntaking;
@@ -111,6 +113,10 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
     public void holdAlgae() {
         algaeIntake = !algaeIntake;
+    }
+
+    public void setOverride(boolean x) {
+        overriding = x;
     }
 
     int clock = 11;
@@ -128,19 +134,19 @@ public class ManipulatorSubsystem extends SubsystemBase {
             clock = 5;
         }
 
-        if (isIntaking && !isOuttaking && withinRange && clock == 10 && !algaeIntake) {
-            stop();
+        if (!overriding && isIntaking && !isOuttaking && withinRange && clock == 10 && !algaeIntake) {
+            // stop();
             isIntaking = false;
         }
 
         if (algaeIntake && algaeClock == 20) {
-            spinAt(0.6);
+            // spinAt(0.6);
         }
 
         if (algaeClock == 27) {
             algaeClock = 0;
-            if (algaeIntake) {
-                stop();
+            if (!overriding && algaeIntake) {
+                // stop();
             }
         }
 

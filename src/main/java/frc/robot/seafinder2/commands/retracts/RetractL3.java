@@ -44,10 +44,10 @@ public class RetractL3 extends Command {
         SequentialCommandGroup waitAndBack = new SequentialCommandGroup(
                 new WaitCommand(2.4),
                 (new StaticBackCommand(drivetrain, -0.4, -1)).withTimeout(1.5));
-        Command manipulatorCommand = manipulatorSubsystem.spinIntakeCommand(0.4).withTimeout(3.2);
+        // Command manipulatorCommand = manipulatorSubsystem.spinIntakeCommand(0.4).withTimeout(3.2);
         
-        ParallelCommandGroup commandGroup = new ParallelCommandGroup(elevatorCommand, armCommand, manipulatorCommand, waitAndBack);
-        commandGroup.schedule();
+        // ParallelCommandGroup commandGroup = new ParallelCommandGroup(elevatorCommand, armCommand, manipulatorCommand, waitAndBack);
+        // commandGroup.schedule();
     }
 
     @Override

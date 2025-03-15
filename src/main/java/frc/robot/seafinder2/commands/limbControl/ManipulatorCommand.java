@@ -26,14 +26,27 @@ public class ManipulatorCommand extends Command {
         addRequirements(armSubsystem);
     }
 
-    public ManipulatorCommand(ArmSubsystem armSubsystem, double valueArm, boolean isPositionArm) {
+    public ManipulatorCommand(ArmSubsystem armSubsystem, double value, boolean isPosition, boolean isArm) {
         this.armSubsystem = armSubsystem;
-        if (isPositionArm) {
-            this.positionArm = valueArm;
+
+        if (isArm) {
+            if (isPosition) {
+                this.positionArm = value;
+            } else {
+                this.positionArm = this.armSubsystem.armMotor2.getPosition().getValueAsDouble() + value;
+            }
+    
+            this.positionWrist = this.armSubsystem.wristMotor.getPosition().getValueAsDouble();
         } else {
-            this.positionArm = this.armSubsystem.armMotor2.getPosition().getValueAsDouble() + valueArm;
+            this.positionArm = this.armSubsystem.armMotor2.getPosition().getValueAsDouble();
+
+            if(isPosition){
+                this.positionWrist = value;
+            } else {
+                this.positionWrist = this.armSubsystem.wristMotor.getPosition().getValueAsDouble() + value;
+            }
+            
         }
-        // this.positionWrist = this.armSubsystem.
         
         addRequirements(armSubsystem);
     }
@@ -42,7 +55,7 @@ public class ManipulatorCommand extends Command {
     public void initialize() {
         armSubsystem.armGoTo(positionArm);
         armSubsystem.wristGoTo(positionWrist);
-        System.out.println("wristGoToRun: " +positionWrist);
+        System.out.println("wristGoToRun: " + positionWrist);
     }
 
     private int clock = 0;
@@ -60,15 +73,18 @@ public class ManipulatorCommand extends Command {
                 clock = 0;
             }
         }
-        if (Math.abs(armSubsystem.armMotor2.getPosition().getValueAsDouble() - position) < 260) { // Magic value - Ask kevin ig
+
+        if (Math.abs(armSubsystem.armMotor2.getPosition().getValueAsDouble() - positionWrist) < 260) { // Magic value - Ask kevin ig
             numDone++;
         } else {
             if (clock++ >= 15) {
-                System.out.println("ARM ERROR: " + ((180.0 / Math.PI) * Math.abs(armSubsystem.armMotor2.getPosition().getValueAsDouble() - position)));
+                System.out.println("ARM ERROR: " + ((180.0 / Math.PI) * Math.abs(armSubsystem.armMotor2.getPosition().getValueAsDouble() - positionWrist)));
                 clock = 0;
             }
         }
-        return false;
+
+
+        return numDone == 2;
     }
 
     @Override

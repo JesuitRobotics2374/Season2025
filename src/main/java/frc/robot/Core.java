@@ -51,6 +51,7 @@ import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.seafinder2.SF2Constants;
 import frc.robot.seafinder2.commands.ExactAlign;
+import frc.robot.seafinder2.commands.limbControl.IntakeCommand;
 import frc.robot.seafinder2.commands.limbControl.WristCommand;
 
 public class Core {
@@ -183,7 +184,7 @@ public class Core {
         // .withWidget("Number Bar");
         tab.addDouble("Robot X", () -> drivetrain.getRobotX());
 
-        tab.addBoolean("IN RANGE", () -> drivetrain.isCANRangeInThreshold());
+        tab.addBoolean("IN RANGE", () -> drivetrain.robotNearHP());
 
         tab.addBoolean("FAST MODE", () -> {
             return isTurbo;
@@ -228,6 +229,8 @@ public class Core {
 
         driveController.x().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MIN_POSITION, true));
         driveController.y().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MAX_POSITION, true));
+
+        driveController.a().onTrue(new IntakeCommand(manipulatorSubsystem));
 
         // Climber
 
@@ -388,7 +391,16 @@ public class Core {
             }
         }
 
-        if (operatorController.getLeftY() < 0) {
+        if (manipulatorSubsystem.overriding == true && operatorController.getLeftY() == 0) {
+            return;
+        }
+
+        manipulatorSubsystem.overriding = false;
+        if (pathfinderSubsystem.intakeCommand != null) {
+            pathfinderSubsystem.intakeCommand.cancel();
+        }
+
+        if ((operatorController.getLeftY() < 0)) {
             manipulatorSubsystem.spinAt(operatorController.getLeftY() / 4);
         } else {
             manipulatorSubsystem.spinAt(operatorController.getLeftY());

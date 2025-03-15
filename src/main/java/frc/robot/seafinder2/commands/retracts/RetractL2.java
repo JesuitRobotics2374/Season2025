@@ -39,8 +39,9 @@ public class RetractL2 extends Command {
         ArmCommand armCommand = new ArmCommand(armSubsystem, -9, false);
 
         SequentialCommandGroup waitAndOuttake = new SequentialCommandGroup(
-                new WaitCommand(1.0),
-                manipulatorSubsystem.spinIntakeCommand(0.4).withTimeout(3.2));
+                // new WaitCommand(1.0),
+                // manipulatorSubsystem.spinIntakeCommand(0.4).withTimeout(3.2)
+                );
         SequentialCommandGroup waitAndBack = new SequentialCommandGroup(
                 new WaitCommand(1.7),
                 (new StaticBackCommand(drivetrain, -0.4, -1)).withTimeout(1.5));
