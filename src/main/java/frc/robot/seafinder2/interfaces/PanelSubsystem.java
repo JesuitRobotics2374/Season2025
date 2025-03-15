@@ -61,16 +61,16 @@ public class PanelSubsystem extends SubsystemBase {
                                                 .queueFind(new Location(Landmark.REEF_BACK_LEFT, Side.RIGHT))));
                 new JoystickButton(navControllerA, 11)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.LEFT))));
+                                                .queueFind(new Location(Landmark.REEF_FRONT_LEFT, Side.LEFT))));
                 new JoystickButton(navControllerA, 12)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.RIGHT))));
+                                                .queueFind(new Location(Landmark.REEF_FRONT_LEFT, Side.RIGHT))));
                 new JoystickButton(navControllerB, 2)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.STATION_LEFT, Side.CENTER))));
+                                                .queueFind(new Location(Landmark.STATION_RIGHT, Side.CENTER))));
                 new JoystickButton(navControllerA, 18)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.STATION_RIGHT, Side.CENTER))));
+                                                .queueFind(new Location(Landmark.STATION_LEFT, Side.CENTER))));
                 new JoystickButton(navControllerA, 13)
                                 .onTrue(new InstantCommand(
                                                 () -> pathfinderSubsystem.queueAlign(Height.TROUGH)));

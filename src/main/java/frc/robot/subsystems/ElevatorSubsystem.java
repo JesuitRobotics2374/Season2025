@@ -96,6 +96,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void stopElevator() {
+        double elevatorPosition = elevatorMotor1.getPosition().getValueAsDouble();
+
+        MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorPosition);
+        elevatorMotor1.setControl(m_request);
+
         elevatorMotor1.stopMotor();
         elevatorMotor1.setNeutralMode(NeutralModeValue.Brake);
         currentlyMovingDown = false;

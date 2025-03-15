@@ -47,11 +47,6 @@ public class StaticBackCommand extends Command {
             System.out.println("Provided Distance:  " + providedDistance + " startingdistance " + startingDistance + " distance " + distance);
             System.out.println("delta " + (distance - startingDistance));
         }
-        if (distance - startingDistance < providedDistance) {
-            done = true;
-
-            if (clock >= 20) {System.out.print("Setback done");}
-        }
 
         if (clock >= 20) {clock = 0;}
     }

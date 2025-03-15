@@ -64,18 +64,29 @@ public class ManipulatorSubsystem extends SubsystemBase {
     }
 
     public void outtake(double speed) {
+        System.out.println("OUTTKAIGN DKFK");
         isIntaking = false;
         isOuttaking = true;
         control.set(speed);
     }
 
     public void stopOuttake() {
+        System.out.println("TSOPING OUTTAKIGN");
+        isIntaking = false;
         isOuttaking = false;
         control.set(0);
     }
 
     public void spinAt(double speed) {
         control.set(-speed);
+
+        if (speed > 0.0) {
+            isIntaking = false;
+            isOuttaking = true;
+        } else {
+            isIntaking = true;
+            isOuttaking = false;
+        }
     }
 
     public void stop() {

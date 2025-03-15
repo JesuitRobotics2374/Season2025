@@ -53,38 +53,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-// public class ArmSubsystem extends SubsystemBase {
-
-//     // Members
-//     public TalonFX armMotor2;
-//     public TalonFX wristMotor;
-//     public CANcoder armEncoder;
-//     public CANcoder wristEncoder;
-//     public double armGoal;
-
-//     // Constructor
-//     public ArmSubsystem(){}
-
-//     // Methods
-//     public void zeroArm(){}
-//     public boolean armPassedGoal(){return true;}
-//     public void armUp(){}
-//     public void armDown(){}
-//     public void armGoTo(double pos){}
-//     public void armChangeBy(double pos){}
-//     public void setZero(){}
-//     public void stopArm(){}
-//     public void rotateWristIntake(){}
-//     public void rotateWristOuttake(){}
-//     public void wristCW(){}
-//     public void wristCCW(){}
-//     public void wristGoTo(double pos){}
-//     @Override
-//     public void periodic(){}
-
-// }
-
-
 public class ArmSubsystem extends SubsystemBase {
 
     // public TalonFX armMotor1;
@@ -225,6 +193,11 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public void stopArm() {
+        armGoal = armMotor2.getPosition().getValueAsDouble();
+
+        MotionMagicVoltage m_request = new MotionMagicVoltage(armGoal);
+        armMotor2.setControl(m_request);
+
         armMotor2.stopMotor();
         armMotor2.setNeutralMode(NeutralModeValue.Brake);
     }

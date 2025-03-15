@@ -8,9 +8,14 @@ public class ArmCommand extends Command {
     private ArmSubsystem armSubsystem;
     private double position;
 
-    public ArmCommand(ArmSubsystem armSubsystem, double position) {
+    public ArmCommand(ArmSubsystem armSubsystem, double value, boolean isPosition) {
         this.armSubsystem = armSubsystem;
-        this.position = position;
+
+        if (isPosition) {
+            this.position = value;
+        } else {
+            this.position = this.armSubsystem.armMotor2.getPosition().getValueAsDouble() + value;
+        }
         
         addRequirements(armSubsystem);
     }

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -46,6 +47,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
 
         System.out.println("Auto-Iit");
         Command seedForAuto = new InstantCommand(() -> m_core.getDrivetrain().seedRobotAuto());
@@ -86,11 +88,12 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousExit() {
+        m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Coast);
     }
 
     @Override
     public void teleopInit() {
-
+        m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake); // TODO: REMOVE
     //     System.out.println("Teleop-Iit");
     //     InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(5));
     //     WaitCommand waitCommand = new WaitCommand(0.7);
@@ -108,6 +111,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopExit() {
+        m_core.getArmSubsystem().stopArm();
+        m_core.getElevatorSubsystem().stopElevator();
     }
 
     @Override
