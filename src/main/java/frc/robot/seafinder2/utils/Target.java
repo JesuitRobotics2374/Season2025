@@ -151,7 +151,6 @@ public class Target {
     Setpoint setpoint;
     TagRelativePose tagRelativePose;
     Command retractCommand;
-    boolean isReef = true;
 
     public Target(Core core) {
         this.core = core;
@@ -176,11 +175,11 @@ public class Target {
     }
 
     public boolean isValid() {
-        if (isReef) {
-            return location != null && height != null;
-        } else {
-            return location != null;
+        if (location == null) {return false;}
+        if (this.location.isReef) {
+            return height != null;
         }
+        return true;
     }
 
     public boolean isComputed() {
@@ -212,7 +211,7 @@ public class Target {
     }
 
     public boolean isReef() {
-        return isReef;
+        return this.location != null && this.location.isReef;
     }
 
     public String toString() {
@@ -272,8 +271,8 @@ public class Target {
                 break;
         }
 
-        System.out.println("ISREEF: " + isReef);
-        if (isReef) {
+        System.out.println("ISREEF: " + this.location.isReef);
+        if (this.location.isReef) {
             switch (this.height) {
                 case TROUGH:
                     setpoint = SF2Constants.SETPOINT_REEF_T1;

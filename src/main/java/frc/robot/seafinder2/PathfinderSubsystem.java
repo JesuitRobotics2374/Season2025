@@ -86,13 +86,24 @@ public class PathfinderSubsystem {
         // PATHFIND - Both
         Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
 
+        // Pose3d pathfindTarget3d = new Pose3d(
+        //         tagTarget.getX() + SF2Constants.SEAFINDER2_ASTAR_PADDING * Math.cos(tagRotation.getZ())
+        //                 + Math.sin(tagRotation.getZ()) + Constants.FIELD_X_MIDPOINT,
+        //         tagTarget.getY() + SF2Constants.SEAFINDER2_ASTAR_PADDING * Math.sin(tagRotation.getZ())
+        //                 - Math.cos(tagRotation.getZ()) + Constants.FIELD_Y_MIDPOINT,
+        //         tagTarget.getZ(),
+        //         tagRotation);
+
         Pose3d pathfindTarget3d = new Pose3d(
-                tagTarget.getX() + SF2Constants.SEAFINDER2_ASTAR_PADDING * Math.cos(tagRotation.getZ())
-                        + Math.sin(tagRotation.getZ()) + Constants.FIELD_X_MIDPOINT,
-                tagTarget.getY() + SF2Constants.SEAFINDER2_ASTAR_PADDING * Math.sin(tagRotation.getZ())
-                        - Math.cos(tagRotation.getZ()) + Constants.FIELD_Y_MIDPOINT,
-                tagTarget.getZ(),
-                tagRotation);
+            tagTarget.getX() + 
+                SF2Constants.SEAFINDER2_ASTAR_PADDING * Math.cos(tagRotation.getZ()) + 
+                Constants.FIELD_X_MIDPOINT,
+            tagTarget.getY() +
+                SF2Constants.SEAFINDER2_ASTAR_PADDING * Math.sin(tagRotation.getZ()) + 
+                Constants.FIELD_Y_MIDPOINT,
+            tagTarget.getZ(),
+            tagRotation
+        );
 
         Pose2d pathfindTarget = pathfindTarget3d.toPose2d();
 
@@ -127,10 +138,12 @@ public class PathfinderSubsystem {
         Command retractComponents = target.getRetractCommand();
 
         System.out.println(target.isReef());
+        System.out.println(target.isReef());
+        System.out.println(target.isReef());
+        System.out.println(target.isReef());
 
         if (target.isReef()) {
             System.out.println("RUNNING REEF SEQUENCE");
-
 
             Command exactAlign = new ExactAlign(drivetrain, target.getTagRelativePose());
             Command alignBoth = new ParallelCommandGroup(exactAlign, alignComponents);
@@ -157,10 +170,11 @@ public class PathfinderSubsystem {
             runningCommand = new SequentialCommandGroup(
                     // lowerRobot,
                     pathfindCommand,
-                    stopDrivetrainCommand
+                    stopDrivetrainCommand,
+                    stopDrivetrainCommand,
                     // fieldAlign,
-                    // alignComponents
-                    // intakeCommand,
+                    alignComponents
+                    // intakeCommand
                     // retractComponents
             );
 
@@ -168,5 +182,4 @@ public class PathfinderSubsystem {
 
         }
     }
-
 }

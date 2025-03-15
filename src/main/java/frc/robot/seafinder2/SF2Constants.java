@@ -17,7 +17,7 @@ public class SF2Constants {
     // .55 is flush against reeff
     //public static final double SEAFINDER2_REEF_FRONT_PADDING = -0.55 ;  //0.55 sems to work for L2,L3
     public static final double SEAFINDER2_REEF_FRONT_PADDING = -0.55;  //0.75 seems correct for L4
-    public static final double SEAFINDER2_ASTAR_PADDING = -1.7;
+    public static final double SEAFINDER2_ASTAR_PADDING = -1.5;
   //  public static final double SEAFINDER2_REEF_FRONT_PADDING = -1.0;  //safety
     public static final double SEAFINDER2_REEF_LEFT_BRANCH_OFFSET = -0.1363;
     public static final double SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET = 0.1964;
