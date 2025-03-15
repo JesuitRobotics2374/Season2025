@@ -18,7 +18,7 @@ import frc.robot.seafinder2.utils.Target.Side;
 import frc.robot.seafinder2.utils.Apriltags;
 import frc.robot.seafinder2.commands.ExactAlign;
 import frc.robot.seafinder2.commands.StopDrivetrain;
-import frc.robot.seafinder2.commands.limbControl.HPStationCommand;
+import frc.robot.seafinder2.commands.limbControl.ManipulatorCommand;
 import frc.robot.seafinder2.commands.limbControl.IntakeCommand;
 import frc.robot.seafinder2.commands.limbControl.ArmCommand;
 import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
@@ -140,11 +140,11 @@ public class PathfinderSubsystem {
         );
         Command alignComponentsHP = new ParallelCommandGroup(
             new ElevatorCommand(core.getElevatorSubsystem(), target.getSetpoint().getElevator(), true),
-            new HPStationCommand(core.getArmSubsystem(), target.getSetpoint().getArm(), true, target.getSetpoint().getWrist(), true)
+            new ManipulatorCommand(core.getArmSubsystem(), target.getSetpoint().getArm(), true, target.getSetpoint().getWrist(), true)
         );
 
         Command retractComponents = target.getRetractCommand();
-        Command wristToScoringPosCommand = new WristCommand(core.getArmSubsystem(), SF2Constants.WRIST_MIN_POSITION, true); 
+        // Command wristToScoringPosCommand = new WristCommand(core.getArmSubsystem(), SF2Constants.WRIST_MIN_POSITION, true); 
 
         if (target.isReef()) {
             System.out.println("RUNNING REEF SEQUENCE");
@@ -182,8 +182,8 @@ public class PathfinderSubsystem {
             
                     // fieldAlign,
                     // alignComponentsHP
-                    intakeCommand,
-                    wristToScoringPosCommand 
+                    intakeCommand
+                    // wristToScoringPosCommand 
                     // retractComponents
             );
 

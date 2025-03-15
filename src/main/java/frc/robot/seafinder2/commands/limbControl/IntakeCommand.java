@@ -10,42 +10,42 @@ public class IntakeCommand extends Command {
     private ManipulatorSubsystem manipulatorSubsystem;
     private CoreCANrange sensor;
     private int clock;
-    private boolean isIntaking;
-    
 
-    public IntakeCommand(ManipulatorSubsystem manipulatorSubsystem){
+    public IntakeCommand(ManipulatorSubsystem manipulatorSubsystem) {
         this.manipulatorSubsystem = manipulatorSubsystem;
         this.sensor = manipulatorSubsystem.sensor;
     }
-    
+
     @Override
     public void initialize() {
-        System.out.println("INTAKE COMMAND START");
-        isIntaking= true;
+
+        System.out.println("Intake command started");
+
+        clock = 0;
+        manipulatorSubsystem.spinAt(-.75);
     }
 
-    public void periodic() {
-        
+    @Override
+    public void execute() {
+
         boolean withinRange = sensor.getDistance().getValueAsDouble() <= 0.06
                 && sensor.getIsDetected().getValueAsDouble() == 1.0;
-        
-        manipulatorSubsystem.spinAt(-.75);
 
-        if (clock > 10 && withinRange) {
-            clock = 5;
+        if (withinRange) {
+            clock++;
+        } else {
+            clock = 0;
         }
 
-        if (isIntaking && withinRange) {
+        if (withinRange && clock == 7) {
             manipulatorSubsystem.stop();
-            isIntaking = false;
             end(false);
         }
-        
-    }
 
+    }
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("Init Intake Command Ended");
+        System.out.println("Intake Command Ended");
     }
 }

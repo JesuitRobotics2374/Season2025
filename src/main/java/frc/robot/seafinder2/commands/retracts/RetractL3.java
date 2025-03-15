@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Core;
 import frc.robot.seafinder2.commands.StaticBackCommand;
-import frc.robot.seafinder2.commands.limbControl.HPStationCommand;
+import frc.robot.seafinder2.commands.limbControl.ManipulatorCommand;
 import frc.robot.seafinder2.commands.limbControl.ArmCommand;
 import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
 import frc.robot.subsystems.ArmSubsystem;

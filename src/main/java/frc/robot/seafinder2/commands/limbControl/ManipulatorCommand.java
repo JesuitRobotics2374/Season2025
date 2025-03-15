@@ -5,12 +5,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.ArmSubsystem;
 
-public class HPStationCommand extends Command {
+public class ManipulatorCommand extends Command {
     private ArmSubsystem armSubsystem;
     private double positionArm;
     private double positionWrist;
 
-    public HPStationCommand(ArmSubsystem armSubsystem, double valueArm, boolean isPositionArm, double valueWrist, boolean isPositionWrist) {
+    public ManipulatorCommand(ArmSubsystem armSubsystem, double valueArm, boolean isPositionArm, double valueWrist, boolean isPositionWrist) {
         this.armSubsystem = armSubsystem;
         if (isPositionArm) {
             this.positionArm = valueArm;
@@ -26,6 +26,18 @@ public class HPStationCommand extends Command {
         addRequirements(armSubsystem);
     }
 
+    public ManipulatorCommand(ArmSubsystem armSubsystem, double valueArm, boolean isPositionArm) {
+        this.armSubsystem = armSubsystem;
+        if (isPositionArm) {
+            this.positionArm = valueArm;
+        } else {
+            this.positionArm = this.armSubsystem.armMotor2.getPosition().getValueAsDouble() + valueArm;
+        }
+        // this.positionWrist = this.armSubsystem.
+        
+        addRequirements(armSubsystem);
+    }
+
     @Override
     public void initialize() {
         armSubsystem.armGoTo(positionArm);
@@ -37,12 +49,22 @@ public class HPStationCommand extends Command {
 
     @Override
     public boolean isFinished() {
+        int numDone = 0;
+
         if (Math.abs(armSubsystem.armMotor2.getPosition().getValueAsDouble() - positionArm) < 30 * (Math.PI / 180.0)) { // Magic number ish - Ask kevin ig
-            return true;
+            numDone++;
         } else {
             clock++;
             if (clock >= 15) {
                 System.out.println("ARM ERROR: " + ((180.0 / Math.PI) * Math.abs(armSubsystem.armMotor2.getPosition().getValueAsDouble() - positionArm)));
+                clock = 0;
+            }
+        }
+        if (Math.abs(armSubsystem.armMotor2.getPosition().getValueAsDouble() - position) < 260) { // Magic value - Ask kevin ig
+            numDone++;
+        } else {
+            if (clock++ >= 15) {
+                System.out.println("ARM ERROR: " + ((180.0 / Math.PI) * Math.abs(armSubsystem.armMotor2.getPosition().getValueAsDouble() - position)));
                 clock = 0;
             }
         }
