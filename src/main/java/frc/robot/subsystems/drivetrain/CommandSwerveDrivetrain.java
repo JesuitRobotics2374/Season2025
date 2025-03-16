@@ -429,7 +429,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         if (!doRejectUpdate) {
             if (snap) {
-                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.00001, 0.00001, 0.00001));
+                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.00001, 0.00001, 9999999));
             } else {
                 estimator.setVisionMeasurementStdDevs(VecBuilder.fill(ll.trust, ll.trust, 9999999));
             }
@@ -495,11 +495,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public boolean robotNearHP() {
         for (LimelightObject limelight : SF2Constants.LIMELIGHTS_ON_BOARD) {
             if ((int) LimelightHelpers.getFiducialID(limelight.name) != -1) {
-                rnhpClock++;
-                if (rnhpClock > 8) {
-                    System.out.println("TAG VISIBLE: " + LimelightHelpers.getFiducialID(limelight.name));
-                    rnhpClock = 0;
-                }
+                // rnhpClock++; // helper to make sure that we aren't seeing tag
+                // if (rnhpClock > 8) {
+                //     System.out.println("TAG VISIBLE: " + LimelightHelpers.getFiducialID(limelight.name));
+                //     rnhpClock = 0;
+                // }
                 return false;
             }
         }

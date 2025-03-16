@@ -89,7 +89,7 @@ public class Core {
 
     public final PanelSubsystem panelSubsystem = new PanelSubsystem(pathfinderSubsystem);
 
-    SequentialCommandGroup autoCommandGroup;
+    public SequentialCommandGroup autoCommandGroup;
 
     Pose3d llp;
     Pose3d llp2;
@@ -126,6 +126,7 @@ public class Core {
             });
 
         }
+        autoCommandGroup = pathfinderSubsystem.autoSequence;
     }
 
     // A setpoint is a "macro" state. Find its definition in utils folder.

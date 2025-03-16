@@ -7,7 +7,7 @@ import frc.robot.utils.LimelightObject;
 
 public class SF2Constants {
 
-    public static final LimelightObject[] LIMELIGHTS_ON_BOARD = Constants.LIMELIGHTS_ON_BOARD;
+    public static final LimelightObject[] LIMELIGHTS_ON_BOARD = Constants.LIMELIGHTS_ON_BOARD; // Which Limelights should SF2 use?
 
     public static final double SEAFINDER2_MAX_VELOCITY = 3.5;
     public static final double SEAFINDER2_MAX_ACCELERATION = 1;

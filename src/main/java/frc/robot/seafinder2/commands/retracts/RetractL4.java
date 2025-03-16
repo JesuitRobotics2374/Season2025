@@ -62,7 +62,7 @@ public class RetractL4 extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("RETRACT L4 STARTED");
+        System.out.println("RETRACT L4 ENDED");
     }
 
     @Override

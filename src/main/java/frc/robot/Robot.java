@@ -14,18 +14,25 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.seafinder2.SF2Constants;
+import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
 import frc.robot.seafinder2.utils.Apriltags;
+import frc.robot.seafinder2.utils.Target.Height;
+import frc.robot.seafinder2.utils.Target.Landmark;
+import frc.robot.seafinder2.utils.Target.Location;
+import frc.robot.seafinder2.utils.Target.Side;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.LimelightHelpers.PoseEstimate;
 import frc.robot.utils.LimelightObject;
 
 public class Robot extends TimedRobot {
-    private Command m_autonomousCommand;
 
     private final Core m_core;
 
     public Robot() {
         m_core = new Core();
         Apriltags.loadField();
+
+        m_core.getDrivetrain().seedRobotAuto();
     }
 
     @Override
@@ -52,16 +59,57 @@ public class Robot extends TimedRobot {
         System.out.println("Auto-Iit");
         Command seedForAuto = new InstantCommand(() -> m_core.getDrivetrain().seedRobotAuto());
 
-        LimelightObject llRight = Constants.LIMELIGHTS_ON_BOARD[0];
-        // Command snapToLimelight = new InstantCommand(() -> m_core.getDrivetrain().alignToVision(llRight, (LimelightHelpers.getBotPoseEstimate_wpiBlue(llRight.name)).pose, true));
+        // LimelightObject llRight = Constants.LIMELIGHTS_ON_BOARD[0];
+        Command snapToLimelight = new InstantCommand(() -> {
+            for (LimelightObject llo : Constants.LIMELIGHTS_ON_BOARD) {
+                PoseEstimate fp = LimelightHelpers.getBotPoseEstimate_wpiBlue(llo.name);
+                if (fp != null) {
+                    // field.getObject("Vision" + displayCounter).setPose(fp.pose);
+                    m_core.getDrivetrain().alignToVision(llo, fp.pose, true);
+                }
+            }
+        });
+        
+        // m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT), isAutonomous());
+        // m_core.autoCommandGroup
+
 
         // Command waitForSync = new WaitCommand(3);
 
-        InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(10));
-        WaitCommand waitCommand = new WaitCommand(1);
-        InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(9));
-        InstantCommand lower_to_limt = new InstantCommand( () -> m_core.getElevatorSubsystem().lower_to_limt() );
-        Command goToSetpoint = new InstantCommand(() -> m_core.moveToSetpoint(SF2Constants.SETPOINT_MIN));
+        Command raiseElevator = new ElevatorCommand(m_core.getElevatorSubsystem(), 1, false);
+        // Command goToSetpoint = new InstantCommand(() -> m_core.moveToSetpoint(SF2Constants.SETPOINT_MIN));
+
+        Command autoLocation = new InstantCommand(() -> m_core.pathfinderSubsystem
+        .queueFind(new Location(Landmark.REEF_BACK, Side.RIGHT), true));
+
+        Command autoHeight = new InstantCommand( () -> m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4));
+        Command scheduleAutoInit = new InstantCommand(() -> m_core.getPathfinderSubsystem().autoSequence.schedule());
+      //  Command scheduleAutoInit2 = new InstantCommand(() -> m_core.getPathfinderSubsystem().autoSequence.schedule());
+
+ 
+       Command hp= new InstantCommand(() -> m_core.pathfinderSubsystem
+        .queueFind(new Location(Landmark.STATION_RIGHT)));
+
+        Command waitcmd = new WaitCommand(5);
+
+       // Command scheduleAutoInit2 = new InstantCommand(() -> m_core.getPathfinderSubsystem().autoSequence.schedule());
+        m_core.autoCommandGroup = new SequentialCommandGroup(seedForAuto, snapToLimelight, raiseElevator, autoLocation, autoHeight, waitcmd, hp, scheduleAutoInit);
+
+       // m_core.autoCommandGroup = new SequentialCommandGroup(seedForAuto, snapToLimelight, raiseElevator, autoLocation, autoHeight, scheduleAutoInit, hp, scheduleAutoInit2);
+        m_core.autoCommandGroup.schedule();
+
+        System.err.println("reef sched: " + autoLocation.isScheduled());
+        System.err.println("HU sched: " + hp.isScheduled());
+
+      //  while (!m_core.autoCommandGroup.isFinished());
+
+
+
+       
+      //  InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
+      //  ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
+        
+        //SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator, pathfinder)
 
 
         // m_core.getPathfinderSubsystem().clearSequence();
@@ -70,16 +118,6 @@ public class Robot extends TimedRobot {
         // InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
 
         // Command moveForward = new TimedForward(m_core.getDrivetrain(), 1.5);
-        
-        m_core.autoCommandGroup = new SequentialCommandGroup(seedForAuto, raiseElevator, raiseArm, waitCommand, goToSetpoint); 
-        m_core.autoCommandGroup.schedule();
-
-
-      //  InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
-      //  ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
-        
-        //SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator, pathfinder)
-
     }
 
     @Override

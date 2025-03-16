@@ -7,6 +7,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -18,6 +19,7 @@ import frc.robot.seafinder2.utils.Target.Side;
 import frc.robot.seafinder2.utils.Apriltags;
 import frc.robot.seafinder2.commands.CanRangeDynamicForward;
 import frc.robot.seafinder2.commands.ExactAlign;
+import frc.robot.seafinder2.commands.FieldAlign;
 import frc.robot.seafinder2.commands.StaticBack;
 import frc.robot.seafinder2.commands.StopDrivetrain;
 import frc.robot.seafinder2.commands.limbControl.ManipulatorCommand;
@@ -38,18 +40,36 @@ public class PathfinderSubsystem {
 
     private Target target;
 
+    private boolean skipAStar = false;
+
     public Command intakeCommand;
     private Command runningCommand; // Keep track of the currently running command so we can override it later
+
+    public SequentialCommandGroup autoSequence;
 
     public PathfinderSubsystem(Core core) {
         this.core = core;
         this.drivetrain = core.getDrivetrain();
+
+        autoSequence = new SequentialCommandGroup();
 
         target = new Target(core);
     }
 
     // Queue a pathfind; done by clicking a button on the panel
     public void queueFind(Location location) {
+        skipAStar = false;
+        System.out.println("queueFind ran");
+        target.setLocation(location);
+        if (target.isComputed()) {
+            System.out.println("Target was computed");
+            executeSequence(target);
+            target = new Target(core);
+        }
+    }
+
+    public void queueFind(Location location, boolean skipAStar) {
+        this.skipAStar = skipAStar;
         System.out.println("queueFind ran");
         target.setLocation(location);
         if (target.isComputed()) {
@@ -93,6 +113,8 @@ public class PathfinderSubsystem {
         // PATHFIND - Both
         Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
 
+        double hpExtraPadding = target.isReef() ? 0 : -1.5;
+
         // Pose3d pathfindTarget3d = new Pose3d(
         //         tagTarget.getX() + SF2Constants.SEAFINDER2_ASTAR_PADDING * Math.cos(tagRotation.getZ())
         //                 + Math.sin(tagRotation.getZ()) + Constants.FIELD_X_MIDPOINT,
@@ -101,13 +123,18 @@ public class PathfinderSubsystem {
         //         tagTarget.getZ(),
         //         tagRotation);
 
+        double fieldX = tagTarget.getX() + 
+        (SF2Constants.SEAFINDER2_ASTAR_PADDING + hpExtraPadding) * Math.cos(tagRotation.getZ()) + 
+        Constants.FIELD_X_MIDPOINT;
+
+        double fieldY = tagTarget.getY() +
+        (SF2Constants.SEAFINDER2_ASTAR_PADDING + hpExtraPadding) * Math.sin(tagRotation.getZ()) + 
+        Constants.FIELD_Y_MIDPOINT;
+
+
         Pose3d pathfindTarget3d = new Pose3d(
-            tagTarget.getX() + 
-                SF2Constants.SEAFINDER2_ASTAR_PADDING * Math.cos(tagRotation.getZ()) + 
-                Constants.FIELD_X_MIDPOINT,
-            tagTarget.getY() +
-                SF2Constants.SEAFINDER2_ASTAR_PADDING * Math.sin(tagRotation.getZ()) + 
-                Constants.FIELD_Y_MIDPOINT,
+            fieldX,
+            fieldY,
             tagTarget.getZ(),
             tagRotation
         );
@@ -158,23 +185,61 @@ public class PathfinderSubsystem {
 
             drivetrain.setLabel(target.getTagRelativePose().getPose2d(), "EXA");
 
-            runningCommand = new SequentialCommandGroup(
-                    // lowerRobot,
-                    pathfindCommand,
-                    stopDrivetrainCommand,
-                    alignBoth,
-                    waitCommand, // Wait for elevator to stop moving/shaking
-                    retractComponents
-            );
+            if (DriverStation.isAutonomous()) {
 
-            runningCommand.schedule();
+                if (skipAStar) {
+                    autoSequence.addCommands(
+                        // lowerRobot,
+                        alignBoth,
+                        waitCommand, // Wait for elevator to stop moving/shaking
+                        retractComponents
+                );
+                } else {
+                    autoSequence.addCommands(
+                        // lowerRobot,
+                        pathfindCommand,
+                        stopDrivetrainCommand,
+                        alignBoth,
+                        waitCommand, // Wait for elevator to stop moving/shaking
+                        retractComponents
+                );
+                }
+                // autoSequence.schedule();
+
+            } else {
+
+                if (skipAStar) {
+                    runningCommand = new SequentialCommandGroup(
+                        // lowerRobot,
+                        alignBoth,
+                        waitCommand, // Wait for elevator to stop moving/shaking
+                        retractComponents
+                );
+                } else {
+                    runningCommand = new SequentialCommandGroup(
+                        // lowerRobot,
+                        pathfindCommand,
+                        stopDrivetrainCommand,
+                        alignBoth,
+                        waitCommand, // Wait for elevator to stop moving/shaking
+                        retractComponents
+                );
+                }
+                runningCommand.schedule();
+
+            }
+
+            
 
         } else { // Human Station
             System.out.println("RUNNING HUMAN STATION SEQUENCE");
 
+            Command hpFieldAlign = new FieldAlign(drivetrain, target.getTag(), fieldX, fieldY, tagRotation.getZ());
+
             // Command intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
             Command bothHP = new ParallelCommandGroup(
-                pathfindCommand.until(() -> drivetrain.robotNearHP()),
+                // pathfindCommand.until(() -> drivetrain.robotNearHP()),
+                pathfindCommand,
                 alignComponentsHP
             );
 
@@ -182,10 +247,11 @@ public class PathfinderSubsystem {
             intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
 
             Command staticBack = new StaticBack(drivetrain).withTimeout(0.5);
-            runningCommand = new SequentialCommandGroup(
-                    // lowerRobot,
-                    // pathfindCommand,
+
+            if (DriverStation.isAutonomous()) {
+                autoSequence.addCommands(
                     bothHP,
+                    hpFieldAlign.until(() -> drivetrain.robotNearHP()),
                     stopDrivetrainCommand,
                     // fieldAlign,
                     // alignComponentsHP,
@@ -195,11 +261,28 @@ public class PathfinderSubsystem {
                     wristToScoringPosCommand 
                     // retractComponents
             );
+            // autoSequence.schedule();
+            } else {
+                runningCommand = new SequentialCommandGroup(
+                    bothHP,
+                    hpFieldAlign.until(() -> drivetrain.robotNearHP()),
+                    stopDrivetrainCommand,
+                    // fieldAlign,
+                    // alignComponentsHP,
+                    canForward,
+                    intakeCommand,
+                    staticBack,
+                    wristToScoringPosCommand 
+                    // retractComponents
+            );
+            runningCommand.schedule();
+            }
 
             
 
-            runningCommand.schedule();
+            
 
         }
     }
+
 }
