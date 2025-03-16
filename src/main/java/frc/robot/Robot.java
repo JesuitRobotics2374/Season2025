@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
     m_robotContainer = new Core();
 
     drivetrain = m_robotContainer.drivetrain;
-    visionSubsystem = new VisionSubsystem(drivetrain);
+    visionSubsystem = m_robotContainer.visionSubsystem;
 
     // PathfindingCommand.warmupCommand().schedule();
   }
@@ -40,11 +40,12 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     clock++;
 
-    if (clock == 1) {
+    if (clock == 5) {
       //System.out.println(visionSubsystem.getEstimatedGlobalPose());
       //System.out.println(visionSubsystem.getRelativeRobotPose());
       //drivetrain.updatePose(visionSubsystem.getRelativeRobotPose());
       m_robotContainer.updatePose2d();
+      drivetrain.setPose(visionSubsystem.robotPoseField());
       clock = 0;
     }
   }

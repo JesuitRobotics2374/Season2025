@@ -55,16 +55,19 @@ public class VisionSubsystem {
     private VisionSystemSim visionSim;
 
     public VisionSubsystem(CommandSwerveDrivetrain drivetrain) { //perhaps remove the drivetrain if not using
+
         this.drivetrain = drivetrain;
         System.out.println(NetworkTableInstance.getDefault());
         camera = new PhotonCamera(NetworkTableInstance.getDefault(), "camera");
         field = new Field2d();
-        // try {
-        //     aprilTagFieldLayout = new AprilTagFieldLayout("Season2025/src/main/deploy/2025-AprilTags-Layout.json");
-        // } catch (Exception e) {
-        //     System.out.println("April tags failed to initialize!");
-        // }
 
+        try {
+            aprilTagFieldLayout = AprilTagFieldLayout.fromJSON("Season2025/src/main/deploy/AprilTag2025Layout.json");
+        } catch (Exception e) {
+            System.out.println("April tags failed to initialize!");
+        }
+        
+        //Just here idk what this is
         // robotToCam = new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0,
         // 0));
         // aprilTagFieldLayout =
@@ -74,7 +77,7 @@ public class VisionSubsystem {
         // photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         // visionSim = new VisionSystemSim("main");
 
-        // PoseEstimator wEstimator = new Pose
+        //PoseEstimator wEstimator = new Pose
     }
 
     public void setLabel(Pose2d pose2d, String label) {
@@ -99,14 +102,6 @@ public class VisionSubsystem {
     // return -1;
     // }
     // }
-
-    //coordinates of apriltag relative to the camera (Juli's)(don't touch if you can't finish/fix it)
-    // public Pose2d AprilTagPoseEstimator(){
-    //     AprilTagPoseEstimator.Config config = new AprilTagPoseEstimator.Config();
-    //     AprilTagPoseEstimator estimator = new AprilTagPoseEstimator(config);
-    // }
-    //can u jut use the getestimated global pose and do sum math to convert it backwards (such as flip signs or 360-angle)
-
     
     //KEVIN'S CODE (with a few minor tweaks)
     //NOTE TO SELF(JULI) DON'T FORGET TO MAKE IT WORK WITH ELASTIC
@@ -167,7 +162,8 @@ public class VisionSubsystem {
 
             Translation2d translation2d = transform3d.getTranslation().toTranslation2d();
            
-            Translation2d newTranslation2d = new Translation2d(translation2d.getMeasureX().times(-1), translation2d.getMeasureY().times(-1));
+            Translation2d newTranslation2d = new Translation2d(translation2d.getMeasureX().times(-1),
+                                                               translation2d.getMeasureY().times(-1));
             
             Rotation2d rotation2d = transform3d.getRotation().toRotation2d();
            
@@ -182,6 +178,18 @@ public class VisionSubsystem {
 
     public boolean canSeeTag() {
         return camera.getLatestResult().hasTargets();
+    }
+
+    public Pose2d robotPoseField() {
+        int aprilTagID = camera.getFiducialID();
+        Pose2d aprilTagPose = aprilTagFieldLayout.getTagPose(aprilTagID).toPose2d();
+        Pose2d robotTagRelativePose = getRelativeRobotPose();
+
+        Pose2d updatedRobotPose = new Pose2d(aprilTagPose.getX().plus(robotTagRelativePose.getX()),
+                                             aprilTagPose.getY().plus(robotTagRelativePose.getY()),
+                                             new Rotation2d(drivetrain.getRobotR().getRadians()));
+        
+        return updatedRobotPose;
     }
 
     // public PhotonPoseEstimator getPhotonPoseEstimator() {
