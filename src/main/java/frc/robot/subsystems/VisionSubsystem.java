@@ -59,11 +59,11 @@ public class VisionSubsystem {
         System.out.println(NetworkTableInstance.getDefault());
         camera = new PhotonCamera(NetworkTableInstance.getDefault(), "camera");
         field = new Field2d();
-        try {
-            aprilTagFieldLayout = new AprilTagFieldLayout("Season2025/src/main/deploy/2025-AprilTags-Layout.json");
-        } catch (Exception e) {
-            System.out.println("April tags failed to initialize!");
-        }
+        // try {
+        //     aprilTagFieldLayout = new AprilTagFieldLayout("Season2025/src/main/deploy/2025-AprilTags-Layout.json");
+        // } catch (Exception e) {
+        //     System.out.println("April tags failed to initialize!");
+        // }
 
         // robotToCam = new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0,
         // 0));
@@ -184,13 +184,13 @@ public class VisionSubsystem {
         return camera.getLatestResult().hasTargets();
     }
 
-    public PhotonPoseEstimator getPhotonPoseEstimator() {
-        return new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.LOWEST_AMBIGUITY, transform3d);
-    }
+    // public PhotonPoseEstimator getPhotonPoseEstimator() {
+    //     return new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.LOWEST_AMBIGUITY, transform3d);
+    // }
 
-    public PhotonPipelineResult getLatestPhotonPipelineResult() {
-        return camera.getLatestResult();
-    }
+    // public PhotonPipelineResult getLatestPhotonPipelineResult() {
+    //     return camera.getLatestResult();
+    // }
 
         // Optional<EstimatedRobotPose> visionEst = Optional.empty();
         // for (var change : camera.getAllUnreadResults()) {
