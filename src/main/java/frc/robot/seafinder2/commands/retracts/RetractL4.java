@@ -18,7 +18,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
-public class RetractL4 extends Command {
+public class RetractL4 extends SequentialCommandGroup {
 
     CommandSwerveDrivetrain drivetrain;
     ManipulatorSubsystem manipulatorSubsystem;
@@ -33,9 +33,7 @@ public class RetractL4 extends Command {
         manipulatorSubsystem = core.getManipulatorSubsystem();
         elevatorSubsystem = core.getElevatorSubsystem();
         armSubsystem = core.getArmSubsystem();
-    }
 
-    public void initialize() {
         System.out.println("RETRACT L4 STARTED");
 
         double elevatorDelta = -Constants.RETRACT_ELEVATOR_DOWNSHIFT;
@@ -44,29 +42,34 @@ public class RetractL4 extends Command {
         double backDistance = -0.6;
         double backSpeed = -0.6;
 
-        Command elevatorCommand = new ElevatorCommand(elevatorSubsystem, elevatorDelta, false);
-        Command armCommand = new ArmCommand(armSubsystem, armDelta, false);
-        Command scoreCoral = new ParallelCommandGroup(elevatorCommand, armCommand);
+        //This elevator command goes straight to 0 now not just down by -9.  Needs investigation.
+        Command elevatorCommand = new ElevatorCommand(elevatorSubsystem, elevatorDelta, false); 
+       
+        //This arm command is now dangerous, appears to be an absolute change, not relative
+        Command armCommand = new ArmCommand(armSubsystem, armDelta, false);  // With these changes this 
+       // Command scoreCoral = new ParallelCommandGroup(elevatorCommand, armCommand);
 
         Command outtakeCommand = (new OuttakeCommand(manipulatorSubsystem, outtakeSpeed)).withTimeout(3.0);
         Command backCommand = (new StaticBackCommand(drivetrain, backDistance, backSpeed)).withTimeout(1.0);
         Command removeRobot = new ParallelCommandGroup(outtakeCommand, backCommand);
 
-        SequentialCommandGroup commandGroup = new SequentialCommandGroup(scoreCoral, removeRobot);
-        commandGroup.schedule();
+        this.addCommands(elevatorCommand, removeRobot);
+
+        //SequentialCommandGroup commandGroup = new SequentialCommandGroup(scoreCoral, removeRobot);
+        //commandGroup.schedule();
     }
 
-    @Override
-    public void execute() {
-    }
+    // @Override
+    // public void execute() {
+    // }
 
-    @Override
-    public void end(boolean interrupted) {
-        System.out.println("RETRACT L4 ENDED");
-    }
+    // @Override
+    // public void end(boolean interrupted) {
+    //     System.out.println("RETRACT L4 ENDED");
+    // }
 
-    @Override
-    public boolean isFinished() {
-        return true;
-    }
+    // @Override
+    // public boolean isFinished() {
+    //     return true;
+    // }
 }
