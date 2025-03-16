@@ -46,12 +46,14 @@ public class PathfinderSubsystem {
     private Command runningCommand; // Keep track of the currently running command so we can override it later
 
     public SequentialCommandGroup autoSequence;
+    public SequentialCommandGroup autoSequence2;
 
     public PathfinderSubsystem(Core core) {
         this.core = core;
         this.drivetrain = core.getDrivetrain();
 
         autoSequence = new SequentialCommandGroup();
+        autoSequence2 = new SequentialCommandGroup();
 
         target = new Target(core);
     }
@@ -249,7 +251,8 @@ public class PathfinderSubsystem {
             Command staticBack = new StaticBack(drivetrain).withTimeout(0.5);
 
             if (DriverStation.isAutonomous()) {
-                autoSequence.addCommands(
+                System.out.println("Auto to Human Station");
+                autoSequence2.addCommands(
                     bothHP,
                     hpFieldAlign.until(() -> drivetrain.robotNearHP()),
                     stopDrivetrainCommand,

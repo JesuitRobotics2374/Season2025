@@ -67,17 +67,25 @@ public class Robot extends TimedRobot {
             }
         }
 
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK, Side.RIGHT), true);
-
-        m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
-
         Command raiseElevator = new ElevatorCommand(m_core.getElevatorSubsystem(), 1, false);
 
-        m_core.autoCommandGroup = new SequentialCommandGroup(raiseElevator, m_core.getPathfinderSubsystem().autoSequence);
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT));
+        System.out.println("Auto Sequence 2: " + m_core.pathfinderSubsystem.autoSequence2.toString());
+
+
+        // L4 First Auto
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK, Side.RIGHT), true);
+        m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
+        System.out.println("Auto Sequence 1: " + m_core.pathfinderSubsystem.autoSequence.toString());
+
+        // Human Station
+
+        //all command should be in pathfinder auto sequence now
+        m_core.autoCommandGroup = new SequentialCommandGroup(raiseElevator, m_core.getPathfinderSubsystem().autoSequence, m_core.getPathfinderSubsystem().autoSequence2);
         m_core.autoCommandGroup.schedule();
- 
-    //    Command hp= new InstantCommand(() -> m_core.pathfinderSubsystem
-    //     .queueFind(new Location(Landmark.STATION_RIGHT)));
+
+        System.out.println("Auto schedule complete");
+
 
     //     Command waitcmd = new WaitCommand(5);
 
@@ -87,7 +95,7 @@ public class Robot extends TimedRobot {
   
       //  while (!m_core.autoCommandGroup.isFinished());
 
-
+      
 
        
       //  InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
