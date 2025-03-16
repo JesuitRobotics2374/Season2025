@@ -517,6 +517,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public void seedRobotAuto() {
+        System.out.println("Seed Robot Auto");
         if (DriverStation.getAlliance().get() == Alliance.Red) {
             resetRotation(new Rotation2d(0));
         } else {
