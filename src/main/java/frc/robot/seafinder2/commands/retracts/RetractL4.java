@@ -39,8 +39,8 @@ public class RetractL4 extends SequentialCommandGroup {
         double elevatorDelta = -Constants.RETRACT_ELEVATOR_DOWNSHIFT;
         double armDelta = -9;
         double outtakeSpeed = 1.0;
-        double backDistance = -0.6;
-        double backSpeed = -0.6;
+        double backDistance = -0.8;
+        double backSpeed = -0.7;
 
         //This elevator command goes straight to 0 now not just down by -9.  Needs investigation.
         Command elevatorCommand = new ElevatorCommand(elevatorSubsystem, elevatorDelta, false); 
@@ -49,11 +49,11 @@ public class RetractL4 extends SequentialCommandGroup {
         Command armCommand = new ArmCommand(armSubsystem, armDelta, false);  // With these changes this 
        // Command scoreCoral = new ParallelCommandGroup(elevatorCommand, armCommand);
 
-        Command outtakeCommand = (new OuttakeCommand(manipulatorSubsystem, outtakeSpeed)).withTimeout(3.0);
+        Command outtakeCommand = (new OuttakeCommand(manipulatorSubsystem, outtakeSpeed)).withTimeout(1.0);
         Command backCommand = (new StaticBackCommand(drivetrain, backDistance, backSpeed)).withTimeout(1.0);
         Command removeRobot = new ParallelCommandGroup(outtakeCommand, backCommand);
 
-        this.addCommands(elevatorCommand, removeRobot);
+        this.addCommands(elevatorCommand,removeRobot);
 
         //SequentialCommandGroup commandGroup = new SequentialCommandGroup(scoreCoral, removeRobot);
         //commandGroup.schedule();
