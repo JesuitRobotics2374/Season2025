@@ -45,7 +45,7 @@ public class Robot extends TimedRobot {
       //System.out.println(visionSubsystem.getRelativeRobotPose());
       //drivetrain.updatePose(visionSubsystem.getRelativeRobotPose());
       m_robotContainer.updatePose2d();
-      drivetrain.setPose(visionSubsystem.robotPoseField());
+      drivetrain.setRobotPose(visionSubsystem.robotPoseField());
       clock = 0;
     }
   }

@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.io.File;
 import java.lang.StackWalker.Option;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
@@ -54,7 +56,7 @@ public class VisionSubsystem {
 
     private VisionSystemSim visionSim;
 
-    public VisionSubsystem(CommandSwerveDrivetrain drivetrain) { //perhaps remove the drivetrain if not using
+    public VisionSubsystem(CommandSwerveDrivetrain drivetrain) { // perhaps remove the drivetrain if not using
 
         this.drivetrain = drivetrain;
         System.out.println(NetworkTableInstance.getDefault());
@@ -62,12 +64,13 @@ public class VisionSubsystem {
         field = new Field2d();
 
         try {
-            aprilTagFieldLayout = AprilTagFieldLayout.fromJSON("Season2025/src/main/deploy/AprilTag2025Layout.json");
+            File file = new File(Filesystem.getDeployDirectory(), "AprilTag2025Layout.json");
+            aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(file.getPath());
         } catch (Exception e) {
             System.out.println("April tags failed to initialize!");
         }
-        
-        //Just here idk what this is
+
+        // Just here idk what this is
         // robotToCam = new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0,
         // 0));
         // aprilTagFieldLayout =
@@ -77,14 +80,14 @@ public class VisionSubsystem {
         // photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         // visionSim = new VisionSystemSim("main");
 
-        //PoseEstimator wEstimator = new Pose
+        // PoseEstimator wEstimator = new Pose
     }
 
     public void setLabel(Pose2d pose2d, String label) {
         field.getObject(label).setPose(pose2d);
     }
 
-    //MY(JULI'S) PROTOTYPE CODE
+    // MY(JULI'S) PROTOTYPE CODE
     // public class AprilTagDistance {
     // public double getDistanceToAprilTag() {
     // var result = camera.getLatestResult();
@@ -102,9 +105,11 @@ public class VisionSubsystem {
     // return -1;
     // }
     // }
-    
-    //KEVIN'S CODE (with a few minor tweaks)
-    //NOTE TO SELF(JULI) DON'T FORGET TO MAKE IT WORK WITH ELASTIC
+
+    // KEVIN'S CODE (with a few minor tweaks)
+    // NOTE TO SELF(JULI) DON'T FORGET TO MAKE IT WORK WITH ELASTIC
+
+    // tag relative to bot
     public Pose2d getEstimatedGlobalPose() {
         if (!canSeeTag()) {
             result = null;
@@ -112,32 +117,32 @@ public class VisionSubsystem {
         }
 
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-        //System.out.println(results.size() + " " + camera.isConnected() + " " + camera.getName() + " " + camera.getPipelineIndex());
+        // System.out.println(results.size() + " " + camera.isConnected() + " " +
+        // camera.getName() + " " + camera.getPipelineIndex());
         var latestResult = camera.getLatestResult();
-       
+
         if (results.size() > 0 && latestResult.hasTargets()) {
             try {
                 result = results.get(results.size() - 1);
                 transform3d = result.getBestTarget().bestCameraToTarget;
             } catch (Exception e) {
                 if (result == null || transform3d == null) {
-                    return new Pose2d(0,0,new Rotation2d(0,0));
+                    return new Pose2d(0, 0, new Rotation2d(0, 0));
                 }
             }
 
             Translation2d translation2d = transform3d.getTranslation().toTranslation2d();
             Rotation2d rotation2d = transform3d.getRotation().toRotation2d();
-            
-            Pose2d targetPose = new Pose2d(translation2d, rotation2d.minus(Rotation2d.fromDegrees(180))); //TEST THIS
-           
+
+            Pose2d targetPose = new Pose2d(translation2d, rotation2d.minus(Rotation2d.fromDegrees(180))); // TEST THIS
+
             return targetPose;
         } else {
-            return new Pose2d(0,0,new Rotation2d(0,0));
-            //return null;
+            return new Pose2d(0, 0, new Rotation2d(0, 0));
         }
     }
 
-    //bot relative to tag
+    // bot relative to tag
     public Pose2d getRelativeRobotPose() {
         if (!canSeeTag()) {
             result = null;
@@ -145,128 +150,142 @@ public class VisionSubsystem {
         }
 
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-        //System.out.println(results.size() + " " + camera.isConnected() + " " + camera.getName() + " " + camera.getPipelineIndex());
+        // System.out.println(results.size() + " " + camera.isConnected() + " " +
+        // camera.getName() + " " + camera.getPipelineIndex());
         var latestResult = camera.getLatestResult();
-        
-        if (results.size() > 0 && latestResult.hasTargets()) {       
+
+        if (results.size() > 0 && latestResult.hasTargets()) {
             try {
                 result = results.get(results.size() - 1);
                 transform3d = result.getBestTarget().bestCameraToTarget;
             } catch (Exception e) {
                 if (result == null || transform3d == null) {
-                    return new Pose2d(0,0,new Rotation2d(0,0));
+                    return new Pose2d(0, 0, new Rotation2d(0, 0));
                 }
             }
 
-            //Transform3d transform3d = latestResult.getBestTarget().bestCameraToTarget;
+            // Transform3d transform3d = latestResult.getBestTarget().bestCameraToTarget;
 
             Translation2d translation2d = transform3d.getTranslation().toTranslation2d();
-           
+
             Translation2d newTranslation2d = new Translation2d(translation2d.getMeasureX().times(-1),
-                                                               translation2d.getMeasureY().times(-1));
-            
+                    translation2d.getMeasureY().times(-1));
+
             Rotation2d rotation2d = transform3d.getRotation().toRotation2d();
-           
-            Pose2d targetPose = new Pose2d(newTranslation2d, rotation2d.minus(Rotation2d.fromDegrees(180))); //TEST THIS
-            
+
+            Pose2d targetPose = new Pose2d(newTranslation2d, rotation2d.minus(Rotation2d.fromDegrees(180)));
+
             return targetPose;
         } else {
-            return new Pose2d(0,0,new Rotation2d(0,0));
-            //return null;
+            return new Pose2d(0, 0, new Rotation2d(0, 0));
         }
+    }
+
+    public Pose2d robotPoseField() {
+        if (canSeeTag()) {
+            int aprilTagID = getTagID();
+
+            Pose2d aprilTagPose = aprilTagFieldLayout.getTagPose(aprilTagID).get().toPose2d();
+            Pose2d robotTagRelativePose = getRelativeRobotPose();
+
+            Pose2d updatedRobotPose = new Pose2d(aprilTagPose.getX() + robotTagRelativePose.getX(),
+                                                 aprilTagPose.getY() + robotTagRelativePose.getY(),
+                                                 drivetrain.getRobotRInR2D());
+
+            return updatedRobotPose;
+        }
+        else return drivetrain.getRobotPose2d();
     }
 
     public boolean canSeeTag() {
         return camera.getLatestResult().hasTargets();
     }
 
-    public Pose2d robotPoseField() {
-        int aprilTagID = camera.getFiducialID();
-        Pose2d aprilTagPose = aprilTagFieldLayout.getTagPose(aprilTagID).toPose2d();
-        Pose2d robotTagRelativePose = getRelativeRobotPose();
-
-        Pose2d updatedRobotPose = new Pose2d(aprilTagPose.getX().plus(robotTagRelativePose.getX()),
-                                             aprilTagPose.getY().plus(robotTagRelativePose.getY()),
-                                             new Rotation2d(drivetrain.getRobotR().getRadians()));
-        
-        return updatedRobotPose;
+    public int getTagID() {
+        if (canSeeTag()) {
+            result = camera.getLatestResult();
+            PhotonTrackedTarget target = result.getBestTarget();
+            return target.getFiducialId();
+        }
+        else return -1;
     }
 
     // public PhotonPoseEstimator getPhotonPoseEstimator() {
-    //     return new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.LOWEST_AMBIGUITY, transform3d);
+    // return new PhotonPoseEstimator(aprilTagFieldLayout,
+    // PoseStrategy.LOWEST_AMBIGUITY, transform3d);
     // }
 
     // public PhotonPipelineResult getLatestPhotonPipelineResult() {
-    //     return camera.getLatestResult();
+    // return camera.getLatestResult();
     // }
 
-        // Optional<EstimatedRobotPose> visionEst = Optional.empty();
-        // for (var change : camera.getAllUnreadResults()) {
-        // visionEst = photonPoseEstimator.update(change);
-        // updateEstimationStdDevs(visionEst, change.getTargets());
+    // Optional<EstimatedRobotPose> visionEst = Optional.empty();
+    // for (var change : camera.getAllUnreadResults()) {
+    // visionEst = photonPoseEstimator.update(change);
+    // updateEstimationStdDevs(visionEst, change.getTargets());
 
-        // if (Robot.isSimulation()) {
-        // visionEst.ifPresentOrElse(
-        // est ->
-        // getSimDebugField()
-        // .getObject("VisionEstimation")
-        // .setPose(est.estimatedPose.toPose2d()),
-        // () -> {
-        // getSimDebugField().getObject("VisionEstimation").setPoses();
-        // });
-        // }
-        // }
-        // return visionEst;
-        // }
+    // if (Robot.isSimulation()) {
+    // visionEst.ifPresentOrElse(
+    // est ->
+    // getSimDebugField()
+    // .getObject("VisionEstimation")
+    // .setPose(est.estimatedPose.toPose2d()),
+    // () -> {
+    // getSimDebugField().getObject("VisionEstimation").setPoses();
+    // });
+    // }
+    // }
+    // return visionEst;
+    // }
 
-        // private void updateEstimationStdDevs(
-        // Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget>
-        // targets) {
-        // if (estimatedPose.isEmpty()) {
-        // // No pose input. Default to single-tag std devs
-        // curStdDevs = kSingleTagStdDevs;
+    // private void updateEstimationStdDevs(
+    // Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget>
+    // targets) {
+    // if (estimatedPose.isEmpty()) {
+    // // No pose input. Default to single-tag std devs
+    // curStdDevs = kSingleTagStdDevs;
 
-        // } else {
-        // // Pose present. Start running Heuristic
-        // var estStdDevs = kSingleTagStdDevs;
-        // int numTags = 0;
-        // double avgDist = 0;
+    // } else {
+    // // Pose present. Start running Heuristic
+    // var estStdDevs = kSingleTagStdDevs;
+    // int numTags = 0;
+    // double avgDist = 0;
 
-        // // Precalculation - see how many tags we found, and calculate an
-        // average-distance metric
-        // for (var tgt : targets) {
-        // var tagPose =
-        // photonPoseEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
-        // if (tagPose.isEmpty()) continue;
-        // numTags++;
-        // avgDist +=
-        // tagPose
-        // .get()
-        // .toPose2d()
-        // .getTranslation()
-        // .getDistance(estimatedPose.get().estimatedPose.toPose2d().getTranslation());
-        // }
+    // // Precalculation - see how many tags we found, and calculate an
+    // average-distance metric
+    // for (var tgt : targets) {
+    // var tagPose =
+    // photonPoseEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
+    // if (tagPose.isEmpty()) continue;
+    // numTags++;
+    // avgDist +=
+    // tagPose
+    // .get()
+    // .toPose2d()
+    // .getTranslation()
+    // .getDistance(estimatedPose.get().estimatedPose.toPose2d().getTranslation());
+    // }
 
-        // if (numTags == 0) {
-        // // No tags visible. Default to single-tag std devs
-        // curStdDevs = kSingleTagStdDevs;
-        // } else {
-        // // One or more tags visible, run the full heuristic.
-        // avgDist /= numTags;
-        // // Decrease std devs if multiple targets are visible
-        // if (numTags > 1) estStdDevs = kMultiTagStdDevs;
-        // // Increase std devs based on (average) distance
-        // if (numTags == 1 && avgDist > 4)
-        // estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE,
-        // Double.MAX_VALUE);
-        // else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
-        // curStdDevs = estStdDevs;
-        // }
-        // }
-        // }
+    // if (numTags == 0) {
+    // // No tags visible. Default to single-tag std devs
+    // curStdDevs = kSingleTagStdDevs;
+    // } else {
+    // // One or more tags visible, run the full heuristic.
+    // avgDist /= numTags;
+    // // Decrease std devs if multiple targets are visible
+    // if (numTags > 1) estStdDevs = kMultiTagStdDevs;
+    // // Increase std devs based on (average) distance
+    // if (numTags == 1 && avgDist > 4)
+    // estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE,
+    // Double.MAX_VALUE);
+    // else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
+    // curStdDevs = estStdDevs;
+    // }
+    // }
+    // }
 
-        // public Field2d getSimDebugField() {
-        // if (!Robot.isSimulation()) return null;
-        // return visionSim.getDebugField();
-        // }
+    // public Field2d getSimDebugField() {
+    // if (!Robot.isSimulation()) return null;
+    // return visionSim.getDebugField();
+    // }
 }
