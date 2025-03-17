@@ -115,7 +115,8 @@ public class PathfinderSubsystem {
         // PATHFIND - Both
         Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
 
-        double hpExtraPadding = target.isReef() ? 0 : -1.5;
+       //double hpExtraPadding = target.isReef() ? 0 : -1.5;  This seems to leave it too far back, reducing
+        double hpExtraPadding = target.isReef() ? 0 : -.5;
 
         // Pose3d pathfindTarget3d = new Pose3d(
         //         tagTarget.getX() + SF2Constants.SEAFINDER2_ASTAR_PADDING * Math.cos(tagRotation.getZ())
@@ -254,7 +255,8 @@ public class PathfinderSubsystem {
                 System.out.println("Auto to Human Station");
                 autoSequence.addCommands(
                     bothHP,
-                    hpFieldAlign.until(() -> drivetrain.robotNearHP()),
+                    //hpFieldAlign.until(() -> drivetrain.robotNearHP()),
+                    hpFieldAlign,
                     stopDrivetrainCommand,
                     // fieldAlign,
                     // alignComponentsHP,
