@@ -440,10 +440,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Pose2d getRobotPose2d() {
         return estimator.getEstimatedPosition();
     }
-    
+
     public Rotation2d getRobotRInR2D() {
         return estimator.getEstimatedPosition().getRotation();
     }
+    
     public void updatePose(Pose2d newPose) {
         xEntry.setDouble(newPose.getX());
         yEntry.setDouble(newPose.getY());

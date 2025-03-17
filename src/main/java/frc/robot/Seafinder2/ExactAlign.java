@@ -8,9 +8,9 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Seafinder2.SF2Constants;
+import frc.robot.Seafinder2.TagRelativePose;
 import frc.robot.subsystems.VisionSubsystem;
-//import frc.robot.seafinder2.SF2Constants;
-//import frc.robot.seafinder2.utils.Target.TagRelativePose;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.LimelightObject;
@@ -50,7 +50,7 @@ public class ExactAlign extends Command {
     private static final int MAX_FRAMES_WITHOUT_TARGET = 10;
 
     private final CommandSwerveDrivetrain drivetrain;
-    private final VisionSubsystem vision;
+    private final VisionSubsystem visionSubsystem;
     private final int tagId;
     private final double x_offset;
     private final double y_offset;
@@ -63,7 +63,7 @@ public class ExactAlign extends Command {
         finishedOverride = false;
 
         this.drivetrain = drivetrain;
-        this.vision = vision;
+        this.visionSubsystem = vision;
         this.tagId = tagRelativePose.getTagId();
         this.x_offset = tagRelativePose.getX();
         this.y_offset = tagRelativePose.getY();
@@ -90,12 +90,6 @@ public class ExactAlign extends Command {
     public void initialize() {
 
         finishedOverride = false;
-
-        System.out.println("EXACTALIGN STARTED");
-
-        // for (LimelightObject limelight : SF2Constants.LIMELIGHTS_ON_BOARD) {
-        //     LimelightHelpers.setPriorityTagID(limelight.name, tagId);
-        // }
         
         // Reset controllers and rate limiters
         xController.reset();
@@ -116,30 +110,25 @@ public class ExactAlign extends Command {
         clock++;
 
         // Average pose from each limelight
-        double avg_x = x_offset;
-        double avg_y = y_offset;
-        double avg_yaw = yaw_offset;
+        double avg_x = 0;
+        double avg_y = 0;
+        double avg_yaw = 0;
         int count = 0;
         
-        // for (LimelightObject limelight : SF2Constants.LIMELIGHTS_ON_BOARD) {
-        //     if ((int) LimelightHelpers.getFiducialID(limelight.name) != tagId) {
-        //         System.out.println("EXACT ALIGN " + limelight.name + " TAG: " + (int) LimelightHelpers.getFiducialID(limelight.name));
-        //         continue;
-        //     }
+            for (int i = 0; i < 1; i++) {
+                if ((int) visionSubsystem.getTagID() != tagId) {
+               // System.out.println("EXACT ALIGN " + limelight.name + " TAG: " + (int) LimelightHelpers.getFiducialID(limelight.name));
+                continue;
+            }
             
-        //     Pose3d pose3d = LimelightHelpers.getBotPose3d_TargetSpace(limelight.name);
-        //     if (pose3d == null) {
-        //         System.out.println("EXACT ALIGN POSE NO SEE");
-        //         continue;
-        //     }
+            if (!visionSubsystem.canSeeTag()) {
+                System.out.println("EXACT ALIGN POSE NO SEE");
+                continue;
+            }
 
-        //     avg_x += pose3d.getX();
-        //     avg_y += pose3d.getZ();
-        //     avg_yaw += pose3d.getRotation().getY();
-        //     count++;
-        // }
-
-        if (vision.canSeeTag()) {
+            avg_x += visionSubsystem.getEstimatedGlobalPose().getX();
+            avg_y += visionSubsystem.getEstimatedGlobalPose().getY();
+            avg_yaw += visionSubsystem.getEstimatedGlobalPose().getRotation().getDegrees(); //check with aries if deg or rad
             count++;
         }
 
@@ -171,9 +160,9 @@ public class ExactAlign extends Command {
         // avg_yaw = Rotation2d.fromRadians(avg_yaw).getRadians();
 
         // Calculate errors (target offset - current position)
-        double error_x = 0;
-        double error_y = 0;
-        double error_yaw = 0;
+        double error_x = avg_x - x_offset;
+        double error_y = avg_y - y_offset;
+        double error_yaw = avg_yaw - yaw_offset;
         
         // Normalize yaw error to -π to π range
         error_yaw = Rotation2d.fromRadians(error_yaw).getRadians();
