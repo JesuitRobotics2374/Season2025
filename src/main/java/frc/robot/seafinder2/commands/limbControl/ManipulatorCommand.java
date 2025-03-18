@@ -48,7 +48,7 @@ public class ManipulatorCommand extends Command {
             
         }
         
-        addRequirements(armSubsystem);
+        // addRequirements(armSubsystem);
     }
 
     @Override

@@ -67,20 +67,24 @@ public class Robot extends TimedRobot {
             }
         }
 
+        m_core.getElevatorSubsystem().doEstimatedZero();
+
         Command raiseElevator = new ElevatorCommand(m_core.getElevatorSubsystem(), 1, false);
 
 
-
-
         // L4 First Auto
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK, Side.RIGHT), true);
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_LEFT, Side.RIGHT), false);
         m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
 
 
         // Human Station
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT));
- 
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_LEFT));
 
+
+        // L1 Second Auto
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT, Side.CENTER), false);
+        m_core.pathfinderSubsystem.queueAlign(Height.TROUGH);
+ 
 
         //all command should be in pathfinder auto sequence now
         m_core.autoCommandGroup = new SequentialCommandGroup(raiseElevator, m_core.getPathfinderSubsystem().autoSequence);

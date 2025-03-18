@@ -23,6 +23,8 @@ import frc.robot.seafinder2.commands.FieldAlign;
 import frc.robot.seafinder2.commands.StaticBack;
 import frc.robot.seafinder2.commands.StopDrivetrain;
 import frc.robot.seafinder2.commands.limbControl.ManipulatorCommand;
+import frc.robot.seafinder2.commands.limbControl.NewOuttake;
+import frc.robot.seafinder2.commands.limbControl.OuttakeCommand;
 import frc.robot.seafinder2.commands.limbControl.IntakeCommand;
 import frc.robot.seafinder2.commands.limbControl.ArmCommand;
 import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
@@ -184,7 +186,15 @@ public class PathfinderSubsystem {
             
             Command exactAlign = new SequentialCommandGroup(new WaitCommand(1), new ExactAlign(drivetrain, target.getTagRelativePose()));
             Command alignBoth = new ParallelCommandGroup(exactAlign, alignComponents);
-            Command waitCommand = new WaitCommand(0.3);
+            // Command waitCommand = new WaitCommand(0.3);
+
+            
+            Command troughOuttake;
+            if (target.getHeight() == Height.TROUGH) {
+                troughOuttake = new NewOuttake(core.getManipulatorSubsystem()).withTimeout(1.0);
+            } else {
+                troughOuttake = new WaitCommand(0.3); // Otherwise use it as our wait
+            }
 
             drivetrain.setLabel(target.getTagRelativePose().getPose2d(), "EXA");
 
@@ -194,7 +204,7 @@ public class PathfinderSubsystem {
                     autoSequence.addCommands(
                         // lowerRobot,
                         alignBoth,
-                        waitCommand, // Wait for elevator to stop moving/shaking
+                        troughOuttake, // Wait for elevator to stop moving/shaking
                         retractComponents
                 );
                 } else {
@@ -203,7 +213,7 @@ public class PathfinderSubsystem {
                         pathfindCommand,
                         stopDrivetrainCommand,
                         alignBoth,
-                        waitCommand, // Wait for elevator to stop moving/shaking
+                        troughOuttake, // Wait for elevator to stop moving/shaking
                         retractComponents
                 );
                 }
@@ -215,7 +225,7 @@ public class PathfinderSubsystem {
                     runningCommand = new SequentialCommandGroup(
                         // lowerRobot,
                         alignBoth,
-                        waitCommand, // Wait for elevator to stop moving/shaking
+                        troughOuttake, // Wait for elevator to stop moving/shaking
                         retractComponents
                 );
                 } else {
@@ -224,7 +234,7 @@ public class PathfinderSubsystem {
                         pathfindCommand,
                         stopDrivetrainCommand,
                         alignBoth,
-                        waitCommand, // Wait for elevator to stop moving/shaking
+                        troughOuttake, // Wait for elevator to stop moving/shaking
                         retractComponents
                 );
                 }

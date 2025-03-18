@@ -83,6 +83,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotor1.setPosition(absPosition * Constants.ELEVATOR_RATIO);
     }
 
+    public void doEstimatedZero() {
+        double absPosition = shaftEncoder.getAbsolutePosition().getValueAsDouble() + elevatorCycleOnStart;
+        elevatorMotor1.setPosition(absPosition * Constants.ELEVATOR_RATIO);
+    }
+
     public void setElevatorZero() {
         shaftEncoder.setPosition(0.0);
         elevatorMotor1.setPosition(0.0);

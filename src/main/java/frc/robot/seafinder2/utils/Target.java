@@ -271,12 +271,16 @@ public class Target {
                 break;
         }
 
+        double extraFrontBuffer = 0;
+        boolean isTrough = false;
+
         System.out.println("ISREEF: " + this.location.isReef);
         if (this.location.isReef) {
             switch (this.height) {
                 case TROUGH:
                     setpoint = SF2Constants.SETPOINT_REEF_T1;
                     retractCommand = (new StaticBackCommand(core.getDrivetrain(), -0.4, -1)).withTimeout(1.5);
+                    isTrough = true;
                     break;
                 case BRANCH_L2:
                     setpoint = SF2Constants.SETPOINT_REEF_T2;
@@ -306,6 +310,11 @@ public class Target {
                     x = (SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET
                             + SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET) / 2;
                     break;
+            }
+            if (isTrough) {
+                y = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING + (isTrough ? -0.4 : 0);
+                x = (SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET
+                            + SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET) / 2;
             }
         } else {
             setpoint = SF2Constants.SETPOINT_HP_INTAKE;

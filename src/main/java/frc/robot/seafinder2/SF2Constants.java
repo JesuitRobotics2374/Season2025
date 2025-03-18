@@ -9,8 +9,8 @@ public class SF2Constants {
 
     public static final LimelightObject[] LIMELIGHTS_ON_BOARD = Constants.LIMELIGHTS_ON_BOARD; // Which Limelights should SF2 use?
 
-    public static final double SEAFINDER2_MAX_VELOCITY = 3.5;
-    public static final double SEAFINDER2_MAX_ACCELERATION = 1;
+    public static final double SEAFINDER2_MAX_VELOCITY = 4;
+    public static final double SEAFINDER2_MAX_ACCELERATION = 2.4;
     public static final double SEAFINDER2_MAX_ROTATIONAL_VELOCITY = Units.degreesToRadians(540);
     public static final double SEAFINDER2_MAX_ROTATIONAL_ACCELERATION = Units.degreesToRadians(720);
 
@@ -29,10 +29,10 @@ public class SF2Constants {
     public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(0.00, 14.08, WRIST_MAX_POSITION);
     public static final Setpoint SETPOINT_PROCESSOR = new Setpoint(33.27, 2, WRIST_MAX_POSITION);
     public static final Setpoint SETPOINT_BARGE = new Setpoint(128.1, 22.26, WRIST_MAX_POSITION);
-    public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(27.63, 1.857, WRIST_MAX_POSITION);
+    public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(14, 1.857, WRIST_MAX_POSITION);
     public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(12.51, 20.37, WRIST_MIN_POSITION);
-    public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(60.76, 18.68, WRIST_MIN_POSITION);
-    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(99.2, 14.25, WRIST_MIN_POSITION);
+    public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(60.76 - 38, 18.68, WRIST_MIN_POSITION);
+    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(105.8-2.75, 13.75, WRIST_MIN_POSITION); //around 110 //12.25
     public static final Setpoint SETPOINT_ALGAE_T2 = new Setpoint(74.5, -1.81, WRIST_MAX_POSITION);
     public static final Setpoint SETPOINT_ALGAE_T3 = new Setpoint(110.76, -2.68, WRIST_MAX_POSITION);
     public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION);

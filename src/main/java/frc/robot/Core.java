@@ -213,8 +213,8 @@ public class Core {
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
         driveController.start().onTrue(armSubsystem.runOnce(() -> armSubsystem.zeroArm()));
 
-        // driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T2))); // RESET POSE
-        // driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_ALGAE_T3))); // RESET POSE
+        driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T2))); // RESET POSE
+        driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T3))); // RESET POSE
         // // driveController.x().onTrue(armSubsystem.runOnce(() -> {
         // // armSubsystem.setZero();
         // // }));
@@ -228,10 +228,10 @@ public class Core {
                 SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET, -0.7, 0.0); // idk what units this is in - x is left
                                                                              // right & y is front back
 
-        driveController.x().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MIN_POSITION, true));
-        driveController.y().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MAX_POSITION, true));
+        // driveController.x().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MIN_POSITION, true));
+        // driveController.y().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MAX_POSITION, true));
 
-        driveController.a().onTrue(new IntakeCommand(manipulatorSubsystem));
+        // driveController.a().onTrue(new IntakeCommand(manipulatorSubsystem));
 
         // Climber
 
@@ -250,9 +250,9 @@ public class Core {
         operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
         operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
 
-        // operatorController.y().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_BARGE)));
-        // operatorController.b().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_HP_INTAKE)));
-        // operatorController.a().onTrue(new InstantCommand(() -> moveToSetpoint(Constants.SETPOINT_MIN)));
+        operatorController.y().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_BARGE)));
+        operatorController.b().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_HP_INTAKE)));
+        operatorController.a().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_MIN)));
         // operatorController.x().onTrue(new InstantCommand(() -> performRetract()));
 
         // operatorController.back().onTrue(armSubsystem.runOnce(() ->
