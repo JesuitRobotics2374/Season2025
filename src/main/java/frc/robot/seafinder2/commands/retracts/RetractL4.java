@@ -26,15 +26,12 @@ public class RetractL4 extends SequentialCommandGroup {
     ArmSubsystem armSubsystem;
 
     public RetractL4(Core core) {
-        if (core == null) {
-            throw new IllegalArgumentException("Robot core is null");
-        }
+        if (core == null) {throw new IllegalArgumentException("Robot core is null");}
+
         drivetrain = core.getDrivetrain();
         manipulatorSubsystem = core.getManipulatorSubsystem();
         elevatorSubsystem = core.getElevatorSubsystem();
         armSubsystem = core.getArmSubsystem();
-
-        System.out.println("RETRACT L4 STARTED");
 
         double elevatorDelta = -Constants.RETRACT_ELEVATOR_DOWNSHIFT;
         double armDelta = -9;
@@ -42,34 +39,19 @@ public class RetractL4 extends SequentialCommandGroup {
         double backDistance = -0.8;
         double backSpeed = -0.7;
 
-        //This elevator command goes straight to 0 now not just down by -9.  Needs investigation.
         Command elevatorCommand = new ElevatorCommand(elevatorSubsystem, elevatorDelta, false); 
-       
-        //This arm command is now dangerous, appears to be an absolute change, not relative
+        // TODO: This arm command is now dangerous, appears to be an absolute change, not relative
         Command armCommand = new ArmCommand(armSubsystem, armDelta, false);  // With these changes this 
-       // Command scoreCoral = new ParallelCommandGroup(elevatorCommand, armCommand);
+        
+        Command scoreCoral = new ParallelCommandGroup(elevatorCommand); //, armCommand);
 
         Command outtakeCommand = (new OuttakeCommand(manipulatorSubsystem, outtakeSpeed)).withTimeout(1.0);
         Command backCommand = (new StaticBackCommand(drivetrain, backDistance, backSpeed)).withTimeout(1.0);
         Command removeRobot = new ParallelCommandGroup(outtakeCommand, backCommand);
 
-        this.addCommands(elevatorCommand,removeRobot);
+        Command logStart = new InstantCommand(() -> {System.out.println("RETRACT L4 STARTED");});
+        Command logEnd = new InstantCommand(() -> {System.out.println("RETRACT L4 ENDED");});
 
-        //SequentialCommandGroup commandGroup = new SequentialCommandGroup(scoreCoral, removeRobot);
-        //commandGroup.schedule();
+        this.addCommands(logStart, scoreCoral, removeRobot, logEnd);
     }
-
-    // @Override
-    // public void execute() {
-    // }
-
-    // @Override
-    // public void end(boolean interrupted) {
-    //     System.out.println("RETRACT L4 ENDED");
-    // }
-
-    // @Override
-    // public boolean isFinished() {
-    //     return true;
-    // }
 }

@@ -8,10 +8,12 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.controls.Follower;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -52,6 +54,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
         Slot0Configs slot0Configs = talonFXConfigs.Slot0;
         MotionMagicConfigs motionMagicConfigs = talonFXConfigs.MotionMagic;
+        MagnetSensorConfigs magnetSensorConfigs = new MagnetSensorConfigs();
+        magnetSensorConfigs.SensorDirection = SensorDirectionValue.Clockwise_Positive;
 
         slot0Configs.kG = 0.2; // Output of voltage to overcome gravity
         slot0Configs.kV = 0.1; // Output per unit target velocity, perhaps not needed
@@ -70,6 +74,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotor1.getConfigurator().apply(talonFXConfigs);
         elevatorMotor1.getConfigurator().apply(slot0Configs);
         elevatorMotor1.getConfigurator().apply(motionMagicConfigs);
+        // elevatorMotor1.getConfigurator().apply(magnetSensorConfigs);
 
         elevatorMotor2.setControl(new Follower(elevatorMotor1.getDeviceID(), true));
 

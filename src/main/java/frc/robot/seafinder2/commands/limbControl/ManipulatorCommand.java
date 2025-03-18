@@ -26,36 +26,11 @@ public class ManipulatorCommand extends Command {
         addRequirements(armSubsystem);
     }
 
-    public ManipulatorCommand(ArmSubsystem armSubsystem, double value, boolean isPosition, boolean isArm) {
-        this.armSubsystem = armSubsystem;
-
-        if (isArm) {
-            if (isPosition) {
-                this.positionArm = value;
-            } else {
-                this.positionArm = this.armSubsystem.armMotor2.getPosition().getValueAsDouble() + value;
-            }
-    
-            this.positionWrist = this.armSubsystem.wristMotor.getPosition().getValueAsDouble();
-        } else {
-            this.positionArm = this.armSubsystem.armMotor2.getPosition().getValueAsDouble();
-
-            if(isPosition){
-                this.positionWrist = value;
-            } else {
-                this.positionWrist = this.armSubsystem.wristMotor.getPosition().getValueAsDouble() + value;
-            }
-            
-        }
-        
-        // addRequirements(armSubsystem);
-    }
-
     @Override
     public void initialize() {
         armSubsystem.armGoTo(positionArm);
         armSubsystem.wristGoTo(positionWrist);
-        System.out.println("wristGoToRun: " + positionWrist);
+        System.out.println("MANIPULATOR COMMAND STARTED");
     }
 
     private int clock = 0;
@@ -78,17 +53,16 @@ public class ManipulatorCommand extends Command {
             numDone++;
         } else {
             if (clock++ >= 15) {
-                System.out.println("ARM ERROR: " + ((180.0 / Math.PI) * Math.abs(armSubsystem.armMotor2.getPosition().getValueAsDouble() - positionWrist)));
+                System.out.println("WRIST ERROR: " + ((180.0 / Math.PI) * Math.abs(armSubsystem.armMotor2.getPosition().getValueAsDouble() - positionWrist)));
                 clock = 0;
             }
         }
-
 
         return numDone == 2;
     }
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("Init Arm Command Ended");
+        System.out.println("MANIPULATOR COMMAND ENDED");
     }
 }

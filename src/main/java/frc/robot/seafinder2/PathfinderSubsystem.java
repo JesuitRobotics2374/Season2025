@@ -159,15 +159,6 @@ public class PathfinderSubsystem {
                 0);
         Command stopDrivetrainCommand = new StopDrivetrain(drivetrain);
 
-        // ALIGN - Both
-        // Command alignComponents = new InstantCommand(() -> {
-        //     core.moveToSetpoint(target.getSetpoint());
-        // });
-
-        // elevatorSubsystem.elevatorGoToDouble(setpoint.getElevator());
-        // armSubsystem.armGoTo(setpoint.getArm());
-        // armSubsystem.wristGoTo(setpoint.getWrist());
-
         Command alignComponents = new ParallelCommandGroup(
             new ElevatorCommand(core.getElevatorSubsystem(), target.getSetpoint().getElevator(), true),
             new ArmCommand(core.getArmSubsystem(),target.getSetpoint().getArm(), true),
@@ -184,10 +175,9 @@ public class PathfinderSubsystem {
         if (target.isReef()) {
             System.out.println("RUNNING REEF SEQUENCE");
             
-            Command exactAlign = new SequentialCommandGroup(new WaitCommand(1), new ExactAlign(drivetrain, target.getTagRelativePose()));
+            Command exactAlign = new SequentialCommandGroup(new WaitCommand(0.0), new ExactAlign(drivetrain, target.getTagRelativePose()));
             Command alignBoth = new ParallelCommandGroup(exactAlign, alignComponents);
             // Command waitCommand = new WaitCommand(0.3);
-
             
             Command troughOuttake;
             if (target.getHeight() == Height.TROUGH) {
@@ -206,7 +196,7 @@ public class PathfinderSubsystem {
                         alignBoth,
                         troughOuttake, // Wait for elevator to stop moving/shaking
                         retractComponents
-                );
+                    );
                 } else {
                     autoSequence.addCommands(
                         // lowerRobot,

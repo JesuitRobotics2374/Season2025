@@ -2,20 +2,23 @@
 package frc.robot.seafinder2.commands.retracts;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Constants;
 import frc.robot.Core;
 import frc.robot.seafinder2.commands.StaticBackCommand;
 import frc.robot.seafinder2.commands.limbControl.ManipulatorCommand;
 import frc.robot.seafinder2.commands.limbControl.ArmCommand;
 import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
+import frc.robot.seafinder2.commands.limbControl.OuttakeCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
-public class RetractL2 extends Command {
+public class RetractL2 extends SequentialCommandGroup {
 
     CommandSwerveDrivetrain drivetrain;
     ManipulatorSubsystem manipulatorSubsystem;
@@ -23,44 +26,33 @@ public class RetractL2 extends Command {
     ArmSubsystem armSubsystem;
 
     public RetractL2(Core core) {
-        if (core == null) {
-            throw new IllegalArgumentException("Robot core is null");
-        }
+        if (core == null) {throw new IllegalArgumentException("Robot core is null");}
+
         drivetrain = core.getDrivetrain();
         manipulatorSubsystem = core.getManipulatorSubsystem();
         elevatorSubsystem = core.getElevatorSubsystem();
         armSubsystem = core.getArmSubsystem();
-    }
 
-    public void initialize() {
-        System.out.println("RETRACT L2 STARTED");
+        double elevatorDelta = -11;
+        double armDelta = -9;
+        double outtakeSpeed = 1.0;
+        double backDistance = -0.8;
+        double backSpeed = -0.7;
 
-        ElevatorCommand elevatorCommand = new ElevatorCommand(elevatorSubsystem, -11, false);
-        ArmCommand armCommand = new ArmCommand(armSubsystem, -9, false);
+        // TODO: This elevator command goes straight to 0 now not just down by -9.  Needs investigation.
+        Command elevatorCommand = new ElevatorCommand(elevatorSubsystem, elevatorDelta, false); 
+        // TODO: This arm command is now dangerous, appears to be an absolute change, not relative
+        Command armCommand = new ArmCommand(armSubsystem, armDelta, false);  // With these changes this 
+        
+        Command scoreCoral = new ParallelCommandGroup(elevatorCommand); //, armCommand);
 
-        SequentialCommandGroup waitAndOuttake = new SequentialCommandGroup(
-                // new WaitCommand(1.0),
-                // manipulatorSubsystem.spinIntakeCommand(0.4).withTimeout(3.2)
-                );
-        SequentialCommandGroup waitAndBack = new SequentialCommandGroup(
-                new WaitCommand(1.7),
-                (new StaticBackCommand(drivetrain, -0.4, -1)).withTimeout(1.5));
+        Command outtakeCommand = (new OuttakeCommand(manipulatorSubsystem, outtakeSpeed)).withTimeout(1.0);
+        Command backCommand = (new StaticBackCommand(drivetrain, backDistance, backSpeed)).withTimeout(1.0);
+        Command removeRobot = new ParallelCommandGroup(outtakeCommand, backCommand);
 
-        ParallelCommandGroup commandGroup = new ParallelCommandGroup(elevatorCommand, armCommand, waitAndOuttake, waitAndBack);
-        commandGroup.schedule();
-    }
+        Command logStart = new InstantCommand(() -> {System.out.println("RETRACT L2 STARTED");});
+        Command logEnd = new InstantCommand(() -> {System.out.println("RETRACT L2 ENDED");});
 
-    @Override
-    public void execute() {
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        System.out.println("RETRACT L2 ENDED");
-    }
-
-    @Override
-    public boolean isFinished() {
-        return true;
+        this.addCommands(logStart, scoreCoral, removeRobot, logEnd);
     }
 }
