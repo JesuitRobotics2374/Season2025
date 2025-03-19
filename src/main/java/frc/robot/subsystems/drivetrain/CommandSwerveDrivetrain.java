@@ -53,10 +53,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private double m_lastSimTime;
 
     //for elastic
-    private final NetworkTable table = NetworkTableInstance.getDefault().getTable("rRelativePose");
-    private final NetworkTableEntry xEntry = table.getEntry("X");
-    private final NetworkTableEntry yEntry = table.getEntry("Y");
-    private final NetworkTableEntry rotationEntry = table.getEntry("Rotation");
+    private final NetworkTable tableR = NetworkTableInstance.getDefault().getTable("RobotRelativePose");
+    private final NetworkTableEntry xREntry = tableR.getEntry("X");
+    private final NetworkTableEntry yREntry = tableR.getEntry("Y");
+    private final NetworkTableEntry rotationREntry = tableR.getEntry("Rotation");
+
+    private final NetworkTable tableT = NetworkTableInstance.getDefault().getTable("TagRelativePose");
+    private final NetworkTableEntry xTEntry = tableT.getEntry("X");
+    private final NetworkTableEntry yTEntry = tableT.getEntry("Y");
+    private final NetworkTableEntry rotationTEntry = tableT.getEntry("Rotation");
+
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -445,10 +451,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return estimator.getEstimatedPosition().getRotation();
     }
     
-    public void updatePose(Pose2d newPose) {
-        xEntry.setDouble(newPose.getX());
-        yEntry.setDouble(newPose.getY());
-        rotationEntry.setDouble(newPose.getRotation().getDegrees());
+    public void updateTagRelativePose(Pose2d newPose) {
+        xTEntry.setDouble(newPose.getX());
+        yTEntry.setDouble(newPose.getY());
+        rotationTEntry.setDouble(newPose.getRotation().getDegrees());
     }
 
+    public void updateRobotRelativePose(Pose2d newPose) {
+        xREntry.setDouble(newPose.getX());
+        yREntry.setDouble(newPose.getY());
+        rotationREntry.setDouble(newPose.getRotation().getDegrees());
+    }
 }

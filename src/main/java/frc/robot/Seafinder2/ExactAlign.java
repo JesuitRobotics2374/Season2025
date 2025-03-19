@@ -126,9 +126,9 @@ public class ExactAlign extends Command {
                 continue;
             }
 
-            avg_x += visionSubsystem.getEstimatedGlobalPose().getX();
-            avg_y += visionSubsystem.getEstimatedGlobalPose().getY();
-            avg_yaw += visionSubsystem.getEstimatedGlobalPose().getRotation().getDegrees(); //check with aries if deg or rad
+            avg_x += visionSubsystem.getRobotRelativeTagPose().getX();
+            avg_y += visionSubsystem.getRobotRelativeTagPose().getY();
+            avg_yaw += visionSubsystem.getRobotRelativeTagPose().getRotation().getDegrees(); //check with aries if deg or rad
             count++;
         }
 

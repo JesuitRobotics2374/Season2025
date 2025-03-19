@@ -74,9 +74,11 @@ public class Core {
 
     public final VisionSubsystem visionSubsystem = new VisionSubsystem(drivetrain);
 
-    public Pose2d pose;
+    public Pose2d poseR;
+    public Pose2d poseT;
 
     private TagRelativePose tagRelativePose;
+    private TagRelativePose robotRelativePose;
 
     private final SendableChooser<Command> autoChooser;
 
@@ -90,7 +92,8 @@ public class Core {
 
         drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
         
-        pose = visionSubsystem.getEstimatedGlobalPose();
+        poseR = visionSubsystem.getRobotRelativeTagPose();
+        poseT = visionSubsystem.getTagRelativeRobotPose();
     }
 
     public void registerAutoCommands() {
@@ -248,9 +251,15 @@ public class Core {
        return (1 - (driveController.getRightTriggerAxis() * 0.5));
     }
 
-    public void updatePose2d() {
-        pose = visionSubsystem.getEstimatedGlobalPose();
-        tagRelativePose = new TagRelativePose(22, pose.getX(), pose.getY(), pose.getRotation().getDegrees());
-        drivetrain.updatePose(pose);
+    public void updateRobotRelativePose2d() {
+        poseR = visionSubsystem.getRobotRelativeTagPose();
+        tagRelativePose = new TagRelativePose(22, poseR.getX(), poseR.getY(), poseR.getRotation().getDegrees());
+        drivetrain.updateRobotRelativePose(poseR);
     }
+
+    public void updateTagRelativePose2d() {
+        poseT = visionSubsystem.getTagRelativeRobotPose();
+        drivetrain.updateTagRelativePose(poseT);
+    }
+    
 }

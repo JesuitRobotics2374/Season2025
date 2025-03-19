@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.io.File;
 import java.lang.StackWalker.Option;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,8 +65,8 @@ public class VisionSubsystem {
         field = new Field2d();
 
         try {
-            File file = new File(Filesystem.getDeployDirectory(), "AprilTag2025Layout.json");
-            aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(file.getPath());
+            Path path = Filesystem.getDeployDirectory().toPath().resolve("AprilTag2025Layout.json");
+            aprilTagFieldLayout = new AprilTagFieldLayout(path);
         } catch (Exception e) {
             System.out.println("April tags failed to initialize!");
         }
@@ -110,7 +111,7 @@ public class VisionSubsystem {
     // NOTE TO SELF(JULI) DON'T FORGET TO MAKE IT WORK WITH ELASTIC
 
     // tag relative to bot
-    public Pose2d getEstimatedGlobalPose() {
+    public Pose2d getRobotRelativeTagPose() {
         if (!canSeeTag()) {
             result = null;
             transform3d = null;
@@ -126,6 +127,7 @@ public class VisionSubsystem {
                 result = results.get(results.size() - 1);
                 transform3d = result.getBestTarget().bestCameraToTarget;
             } catch (Exception e) {
+                System.out.println("estimated poes failed");
                 if (result == null || transform3d == null) {
                     return new Pose2d(0, 0, new Rotation2d(0, 0));
                 }
@@ -143,7 +145,7 @@ public class VisionSubsystem {
     }
 
     // bot relative to tag
-    public Pose2d getRelativeRobotPose() {
+    public Pose2d getTagRelativeRobotPose() {
         if (!canSeeTag()) {
             result = null;
             transform3d = null;
@@ -154,17 +156,16 @@ public class VisionSubsystem {
         // camera.getName() + " " + camera.getPipelineIndex());
         var latestResult = camera.getLatestResult();
 
-        if (results.size() > 0 && latestResult.hasTargets()) {
+        if (latestResult.hasTargets()) {
             try {
                 result = results.get(results.size() - 1);
                 transform3d = result.getBestTarget().bestCameraToTarget;
             } catch (Exception e) {
+                System.out.println("relrobo failed");
                 if (result == null || transform3d == null) {
                     return new Pose2d(0, 0, new Rotation2d(0, 0));
                 }
             }
-
-            // Transform3d transform3d = latestResult.getBestTarget().bestCameraToTarget;
 
             Translation2d translation2d = transform3d.getTranslation().toTranslation2d();
 
@@ -173,28 +174,33 @@ public class VisionSubsystem {
 
             Rotation2d rotation2d = transform3d.getRotation().toRotation2d();
 
-            Pose2d targetPose = new Pose2d(newTranslation2d, rotation2d.minus(Rotation2d.fromDegrees(180)));
+            Pose2d targetPose = new Pose2d(newTranslation2d, rotation2d);
 
             return targetPose;
         } else {
-            return new Pose2d(0, 0, new Rotation2d(0, 0));
+            return new Pose2d(0, 0, drivetrain.getRobotRInR2D());
         }
     }
 
     public Pose2d robotPoseField() {
-        if (canSeeTag()) {
-            int aprilTagID = getTagID();
+        if (canSeeTag() && getTagID() > 0) {
+            try {
+                int aprilTagID = getTagID();
 
-            Pose2d aprilTagPose = aprilTagFieldLayout.getTagPose(aprilTagID).get().toPose2d();
-            Pose2d robotTagRelativePose = getRelativeRobotPose();
+                Pose2d aprilTagPose = aprilTagFieldLayout.getTagPose(aprilTagID).get().toPose2d();
+                Pose2d robotTagRelativePose = getTagRelativeRobotPose();
 
-            Pose2d updatedRobotPose = new Pose2d(aprilTagPose.getX() + robotTagRelativePose.getX(),
-                                                 aprilTagPose.getY() + robotTagRelativePose.getY(),
-                                                 drivetrain.getRobotRInR2D());
+                Pose2d updatedRobotPose = new Pose2d(aprilTagPose.getX() + robotTagRelativePose.getY(),
+                                                     aprilTagPose.getY() + robotTagRelativePose.getX(),
+                                                     aprilTagPose.getRotation().plus(robotTagRelativePose.getRotation()));
 
-            return updatedRobotPose;
-        }
-        else return drivetrain.getRobotPose2d();
+                return updatedRobotPose;
+            } catch (Exception e) {
+                System.out.println("robotPoseField error");
+                return drivetrain.getRobotPose2d();
+            }
+        } else
+            return drivetrain.getRobotPose2d();
     }
 
     public boolean canSeeTag() {
@@ -203,11 +209,16 @@ public class VisionSubsystem {
 
     public int getTagID() {
         if (canSeeTag()) {
-            result = camera.getLatestResult();
-            PhotonTrackedTarget target = result.getBestTarget();
-            return target.getFiducialId();
-        }
-        else return -1;
+            try {
+                result = camera.getLatestResult();
+                PhotonTrackedTarget target = result.getBestTarget();
+                return target.getFiducialId();
+            } catch (Exception e) {
+                System.out.println("failed gettag");
+                return -1;
+            }
+        } else
+            return -1;
     }
 
     // public PhotonPoseEstimator getPhotonPoseEstimator() {

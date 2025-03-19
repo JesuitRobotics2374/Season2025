@@ -15,9 +15,6 @@ public class Outtake extends Command {
 
   /** Creates a new Outtake. */
   public Outtake(OuttakeSubsystem outtake) {
-
-    System.out.println("Outtake started.");
-
     this.outtake = outtake;
 
     addRequirements(outtake);

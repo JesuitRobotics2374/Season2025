@@ -41,11 +41,11 @@ public class Robot extends TimedRobot {
     clock++;
 
     if (clock == 5) {
-      //System.out.println(visionSubsystem.getEstimatedGlobalPose());
-      //System.out.println(visionSubsystem.getRelativeRobotPose());
-      //drivetrain.updatePose(visionSubsystem.getRelativeRobotPose());
-      m_robotContainer.updatePose2d();
-      drivetrain.setRobotPose(visionSubsystem.robotPoseField());
+      m_robotContainer.updateRobotRelativePose2d();
+      m_robotContainer.updateTagRelativePose2d();
+      if (visionSubsystem.canSeeTag()) {
+        drivetrain.setRobotPose(visionSubsystem.robotPoseField());
+      }
       clock = 0;
     }
   }
