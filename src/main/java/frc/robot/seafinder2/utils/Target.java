@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Core;
 import frc.robot.seafinder2.SF2Constants;
 import frc.robot.seafinder2.commands.StaticBackCommand;
+import frc.robot.seafinder2.commands.retracts.RetractL1;
 import frc.robot.seafinder2.commands.retracts.RetractL2;
 import frc.robot.seafinder2.commands.retracts.RetractL3;
 import frc.robot.seafinder2.commands.retracts.RetractL4;
@@ -271,7 +272,6 @@ public class Target {
                 break;
         }
 
-        double extraFrontBuffer = 0;
         boolean isTrough = false;
 
         System.out.println("ISREEF: " + this.location.isReef);
@@ -279,7 +279,7 @@ public class Target {
             switch (this.height) {
                 case TROUGH:
                     setpoint = SF2Constants.SETPOINT_REEF_T1;
-                    retractCommand = (new StaticBackCommand(core.getDrivetrain(), -0.4, -1)).withTimeout(1.5);
+                    retractCommand = new RetractL1(core);
                     isTrough = true;
                     break;
                 case BRANCH_L2:
@@ -296,7 +296,6 @@ public class Target {
                     break;
             }
             switch (this.location.side) {
-                
                 case LEFT:
                     y = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
                     x = SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET;

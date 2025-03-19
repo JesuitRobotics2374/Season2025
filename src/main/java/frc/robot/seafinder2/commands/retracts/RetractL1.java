@@ -18,14 +18,14 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
-public class RetractL3 extends SequentialCommandGroup {
+public class RetractL1 extends SequentialCommandGroup {
 
     CommandSwerveDrivetrain drivetrain;
     ManipulatorSubsystem manipulatorSubsystem;
     ElevatorSubsystem elevatorSubsystem;
     ArmSubsystem armSubsystem;
 
-    public RetractL3(Core core) {
+    public RetractL1(Core core) {
         if (core == null) {throw new IllegalArgumentException("Robot core is null");}
 
         drivetrain = core.getDrivetrain();
@@ -35,12 +35,12 @@ public class RetractL3 extends SequentialCommandGroup {
 
         double waitDuration = 0.0;
 
-        double elevatorDelta = -30;
-        double armDelta = -9;
-        
+        double elevatorDelta = 0;
+        double armDelta = 0;
+
         double outtakeSpeed = 1.0;
-        double backDistance = -0.8;
-        double backSpeed = -0.7;
+        double backDistance = -0.4;
+        double backSpeed = -1;
         double backTimeout = 0.7;
 
         Command waitCommand = new WaitCommand(waitDuration);
@@ -54,8 +54,8 @@ public class RetractL3 extends SequentialCommandGroup {
         Command backCommand = (new StaticBackCommand(drivetrain, backDistance, backSpeed)).withTimeout(backTimeout);
         Command removeRobot = new ParallelCommandGroup(outtakeCommand, backCommand);
 
-        Command logStart = new InstantCommand(() -> {System.out.println("RETRACT L3 STARTED");});
-        Command logEnd = new InstantCommand(() -> {System.out.println("RETRACT L3 ENDED");});
+        Command logStart = new InstantCommand(() -> {System.out.println("RETRACT L1 STARTED");});
+        Command logEnd = new InstantCommand(() -> {System.out.println("RETRACT L1 ENDED");});
 
         this.addCommands(logStart, waitCommand, scoreCoral, removeRobot, logEnd);
     }

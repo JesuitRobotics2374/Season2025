@@ -23,8 +23,7 @@ import frc.robot.seafinder2.commands.FieldAlign;
 import frc.robot.seafinder2.commands.StaticBack;
 import frc.robot.seafinder2.commands.StopDrivetrain;
 import frc.robot.seafinder2.commands.limbControl.ManipulatorCommand;
-import frc.robot.seafinder2.commands.limbControl.NewOuttake;
-import frc.robot.seafinder2.commands.limbControl.OuttakeCommand;
+import frc.robot.seafinder2.commands.limbControl.IntakeOuttakeCommand;
 import frc.robot.seafinder2.commands.limbControl.IntakeCommand;
 import frc.robot.seafinder2.commands.limbControl.ArmCommand;
 import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
@@ -153,141 +152,86 @@ public class PathfinderSubsystem {
         System.out.println(pathfindTarget);
         drivetrain.setLabel(pathfindTarget, "pathfind_target");
 
-        Command pathfindCommand = AutoBuilder.pathfindToPose(
+        Command pathfindMovementCommand = AutoBuilder.pathfindToPose(
                 pathfindTarget,
                 constraints,
                 0);
         Command stopDrivetrainCommand = new StopDrivetrain(drivetrain);
-
-        Command alignComponents = new ParallelCommandGroup(
-            new ElevatorCommand(core.getElevatorSubsystem(), target.getSetpoint().getElevator(), true),
-            new ArmCommand(core.getArmSubsystem(),target.getSetpoint().getArm(), true),
-            new WristCommand(core.getArmSubsystem(), target.getSetpoint().getWrist(), true)
-        );
-        Command alignComponentsHP = new ParallelCommandGroup(
-            new ElevatorCommand(core.getElevatorSubsystem(), target.getSetpoint().getElevator(), true),
-            new ManipulatorCommand(core.getArmSubsystem(), target.getSetpoint().getArm(), true, target.getSetpoint().getWrist(), true)
-        );
-
-        Command retractComponents = target.getRetractCommand();
-        Command wristToScoringPosCommand = new WristCommand(core.getArmSubsystem(), SF2Constants.WRIST_MIN_POSITION, true); 
+        Command pathfindCommand = new SequentialCommandGroup(pathfindMovementCommand, stopDrivetrainCommand);
 
         if (target.isReef()) {
             System.out.println("RUNNING REEF SEQUENCE");
-            
-            Command exactAlign = new SequentialCommandGroup(new WaitCommand(0.0), new ExactAlign(drivetrain, target.getTagRelativePose()));
-            Command alignBoth = new ParallelCommandGroup(exactAlign, alignComponents);
-            // Command waitCommand = new WaitCommand(0.3);
-            
-            Command troughOuttake;
-            if (target.getHeight() == Height.TROUGH) {
-                troughOuttake = new NewOuttake(core.getManipulatorSubsystem()).withTimeout(1.0);
-            } else {
-                troughOuttake = new WaitCommand(0.3); // Otherwise use it as our wait
-            }
-
             drivetrain.setLabel(target.getTagRelativePose().getPose2d(), "EXA");
 
-            if (DriverStation.isAutonomous()) {
+            Command alignComponents = new ParallelCommandGroup(
+                new ElevatorCommand(core.getElevatorSubsystem(), target.getSetpoint().getElevator(), true),
+                new ArmCommand(core.getArmSubsystem(),target.getSetpoint().getArm(), true),
+                new WristCommand(core.getArmSubsystem(), target.getSetpoint().getWrist(), true)
+            );
+            Command exactAlign = new SequentialCommandGroup(
+                new WaitCommand(0.0), 
+                new ExactAlign(drivetrain, target.getTagRelativePose())
+            );
+            Command exactAlignAndAlignComponents = new ParallelCommandGroup(exactAlign, alignComponents);
 
-                if (skipAStar) {
-                    autoSequence.addCommands(
-                        // lowerRobot,
-                        alignBoth,
-                        troughOuttake, // Wait for elevator to stop moving/shaking
-                        retractComponents
-                    );
-                } else {
-                    autoSequence.addCommands(
-                        // lowerRobot,
-                        pathfindCommand,
-                        stopDrivetrainCommand,
-                        alignBoth,
-                        troughOuttake, // Wait for elevator to stop moving/shaking
-                        retractComponents
+            Command retractComponents = target.getRetractCommand();
+
+            SequentialCommandGroup commandGroup = new SequentialCommandGroup();
+            if (skipAStar) {
+                commandGroup.addCommands(
+                    exactAlignAndAlignComponents,
+                    retractComponents
                 );
-                }
-                // autoSequence.schedule();
-
             } else {
-
-                if (skipAStar) {
-                    runningCommand = new SequentialCommandGroup(
-                        // lowerRobot,
-                        alignBoth,
-                        troughOuttake, // Wait for elevator to stop moving/shaking
-                        retractComponents
+                commandGroup.addCommands(
+                    pathfindCommand,
+                    exactAlignAndAlignComponents,
+                    retractComponents
                 );
-                } else {
-                    runningCommand = new SequentialCommandGroup(
-                        // lowerRobot,
-                        pathfindCommand,
-                        stopDrivetrainCommand,
-                        alignBoth,
-                        troughOuttake, // Wait for elevator to stop moving/shaking
-                        retractComponents
-                );
-                }
-                runningCommand.schedule();
-
             }
 
-            
-
-        } else { // Human Station
+            if (DriverStation.isAutonomous()) {
+                autoSequence = commandGroup;
+            } else {
+                commandGroup.schedule();
+            }
+        } else {
             System.out.println("RUNNING HUMAN STATION SEQUENCE");
 
-            Command hpFieldAlign = new FieldAlign(drivetrain, target.getTag(), fieldX, fieldY, tagRotation.getZ());
+            Command alignComponents = new ParallelCommandGroup(
+                new ElevatorCommand(core.getElevatorSubsystem(), target.getSetpoint().getElevator(), true),
+                new ManipulatorCommand(core.getArmSubsystem(), target.getSetpoint().getArm(), true, target.getSetpoint().getWrist(), true)
+            );
+            Command fieldAlign = new FieldAlign(drivetrain, target.getTag(), fieldX, fieldY, tagRotation.getZ());
 
             // Command intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
-            Command bothHP = new ParallelCommandGroup(
+            Command pathFindAndAlignComponents = new ParallelCommandGroup(
                 // pathfindCommand.until(() -> drivetrain.robotNearHP()),
-                pathfindCommand,
-                alignComponentsHP
+                pathfindCommand.until(() -> drivetrain.robotNearHP()),
+                alignComponents
             );
 
-            Command canForward = new CanRangeDynamicForward(drivetrain);
+            Command canRangeForward = new CanRangeDynamicForward(drivetrain);
             intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
 
             Command staticBack = new StaticBack(drivetrain).withTimeout(0.5);
+            Command wristToScoringPos = new InstantCommand(() -> core.getArmSubsystem().armGoTo(SF2Constants.WRIST_MIN_POSITION)); 
+
+            SequentialCommandGroup commandGroup = new SequentialCommandGroup();
+            commandGroup.addCommands(
+                pathFindAndAlignComponents,
+                fieldAlign,
+                canRangeForward,
+                intakeCommand,
+                staticBack,
+                wristToScoringPos
+            );
 
             if (DriverStation.isAutonomous()) {
-                System.out.println("Auto to Human Station");
-                autoSequence.addCommands(
-                    bothHP,
-                    //hpFieldAlign.until(() -> drivetrain.robotNearHP()),
-                    hpFieldAlign,
-                    stopDrivetrainCommand,
-                    // fieldAlign,
-                    // alignComponentsHP,
-                    canForward,
-                    intakeCommand,
-                    staticBack,
-                    wristToScoringPosCommand 
-                    // retractComponents
-            );
-            // autoSequence.schedule();
+                autoSequence = commandGroup;
             } else {
-                runningCommand = new SequentialCommandGroup(
-                    bothHP,
-                    hpFieldAlign.until(() -> drivetrain.robotNearHP()),
-                    stopDrivetrainCommand,
-                    // fieldAlign,
-                    // alignComponentsHP,
-                    canForward,
-                    intakeCommand,
-                    staticBack,
-                    wristToScoringPosCommand 
-                    // retractComponents
-            );
-            runningCommand.schedule();
+                runningCommand.schedule();
             }
-
-            
-
-            
-
         }
     }
-
 }
