@@ -170,7 +170,7 @@ public class VisionSubsystem {
             Translation2d translation2d = transform3d.getTranslation().toTranslation2d();
 
             Translation2d newTranslation2d = new Translation2d(translation2d.getMeasureX().times(-1),
-                    translation2d.getMeasureY().times(-1));
+                                                               translation2d.getMeasureY().times(-1));
 
             Rotation2d rotation2d = transform3d.getRotation().toRotation2d();
 
@@ -188,11 +188,25 @@ public class VisionSubsystem {
                 int aprilTagID = getTagID();
 
                 Pose2d aprilTagPose = aprilTagFieldLayout.getTagPose(aprilTagID).get().toPose2d();
-                Pose2d robotTagRelativePose = getTagRelativeRobotPose();
+                Pose2d robotRelativeTagPose = getRobotRelativeTagPose();
 
-                Pose2d updatedRobotPose = new Pose2d(aprilTagPose.getX() + robotTagRelativePose.getY(),
-                                                     aprilTagPose.getY() + robotTagRelativePose.getX(),
-                                                     aprilTagPose.getRotation().plus(robotTagRelativePose.getRotation()));
+                int xMult;
+                int yMult;
+
+                if ((drivetrain.getRobotPose2d().getY() > 3.9624 && robotRelativeTagPose.getY() > 0) || (drivetrain.getRobotPose2d().getY() < 3.9624 && robotRelativeTagPose.getY() < 0)) {
+                    yMult = 1;
+                }
+                else yMult = -1;
+
+
+                if (drivetrain.getRobotPose2d().getRotation().getDegrees() >= 91 && drivetrain.getRobotPose2d().getRotation().getDegrees() <= 269) {
+                    xMult = 1;
+                }
+                else xMult = -1;
+
+                Pose2d updatedRobotPose = new Pose2d(aprilTagPose.getX() + xMult * robotRelativeTagPose.getX(),
+                                                     aprilTagPose.getY() + yMult * robotRelativeTagPose.getY(),
+                                                     aprilTagPose.getRotation().plus(robotRelativeTagPose.getRotation()));
 
                 return updatedRobotPose;
             } catch (Exception e) {

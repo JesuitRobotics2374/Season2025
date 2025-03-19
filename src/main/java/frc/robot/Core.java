@@ -44,18 +44,9 @@ import frc.robot.utils.LimelightObject;
 import frc.robot.utils.LimelightObject.LLType;
 
 public class Core {
-    public double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED; // kSpeedAt12Volts
-                                                                                                        // desired top
-                                                                                                        // speed
-    public double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE; // 3/4
-                                                                                                                   // of
-                                                                                                                   // a
-                                                                                                                   // rotation
-                                                                                                                   // per
-                                                                                                                   // second
-                                                                                                                   // max
-                                                                                                                   // angular
-                                                                                                                   // velocity
+    public double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.MAX_SPEED; // kSpeedAt12Volts desired top speed
+
+    public double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE; // 3/4 of a rotation per second max angular velocity         
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -90,7 +81,41 @@ public class Core {
         configureBindings();
         configureShuffleBoard();
 
-        drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
+        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
+        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
+        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
+        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
+        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
+        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
+        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
+        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
+        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
+        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
+
+        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
+        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
+        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
+        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
+        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
+        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
+        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
+        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
+        //See below :D
+
+        // drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
+        // //drivetrain.getField().setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
+
+        //  // Define the new origin (e.g., (5,5) is now (0,0))
+        //  Pose2d newOrigin = new Pose2d(0, 0, new Rotation2d());
+
+        //  // Get the robot's actual position (from odometry, sim, etc.)
+        //  Pose2d actualPose = drivetrain.getRobotPose2d();
+ 
+        //  // Compute the pose relative to the new origin
+        //  Pose2d relativePose = actualPose.relativeTo(newOrigin);
+ 
+        //  drivetrain.setRobotPose(relativePose);
+        //  drivetrain.getField().setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
         
         poseR = visionSubsystem.getRobotRelativeTagPose();
         poseT = visionSubsystem.getTagRelativeRobotPose();

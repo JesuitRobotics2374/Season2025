@@ -52,7 +52,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
-    //for elastic
+    // for elastic
     private final NetworkTable tableR = NetworkTableInstance.getDefault().getTable("RobotRelativePose");
     private final NetworkTableEntry xREntry = tableR.getEntry("X");
     private final NetworkTableEntry yREntry = tableR.getEntry("Y");
@@ -62,7 +62,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final NetworkTableEntry xTEntry = tableT.getEntry("X");
     private final NetworkTableEntry yTEntry = tableT.getEntry("Y");
     private final NetworkTableEntry rotationTEntry = tableT.getEntry("Rotation");
-
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -176,14 +175,27 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             e.printStackTrace();
         }
 
+        // Define the new origin (e.g., (5,5) is now (0,0))
+        Pose2d newOrigin = new Pose2d(0, 0, new Rotation2d());
+
+        // Get the robot's actual position (from odometry, sim, etc.)
+        Pose2d actualPose = getRobotPose2d();
+
+        // Compute the pose relative to the new origin
+        Pose2d relativePose = actualPose.relativeTo(newOrigin);
+
+        // Update the field visualization
+        field.setRobotPose(relativePose);
+
         // Configure AutoBuilder last
         AutoBuilder.configure(
                 () -> this.estimator.getEstimatedPosition(), // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getCurrentRobotChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                (speeds) -> this.setControl(autoRequest.withSpeeds(speeds)), // Method that will drive the robot given ROBOT
-                                                                      // RELATIVE ChassisSpeeds. Also optionally outputs
-                                                                      // individual module feedforwards
+                (speeds) -> this.setControl(autoRequest.withSpeeds(speeds)), // Method that will drive the robot given
+                                                                             // ROBOT
+                // RELATIVE ChassisSpeeds. Also optionally outputs
+                // individual module feedforwards
                 new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
                                                 // holonomic drive trains
                         new PIDConstants(0.0, 0.0, 0.0), // Translation PID constants
@@ -345,14 +357,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         // // Limelight not available in sim env
         // if (!Utils.isSimulation()) {
-        //     // Align to all limelights
-        //     for (LimelightObject ll : Constants.LIMELIGHTS_ON_BOARD) {
-        //         alignToVision(ll, false);
-        //     }
-
+        // // Align to all limelights
+        // for (LimelightObject ll : Constants.LIMELIGHTS_ON_BOARD) {
+        // alignToVision(ll, false);
         // }
 
-        
+        // }
 
     }
 
@@ -384,7 +394,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private SwerveModulePosition[] getSwerveModulePositions() {
         SwerveModulePosition[] smp = new SwerveModulePosition[4];
         @SuppressWarnings("rawtypes")
-		SwerveModule[] sms = getModules();
+        SwerveModule[] sms = getModules();
         for (int i = 0; i < 4; i++) {
             smp[i] = sms[i].getPosition(false);
         }
@@ -400,7 +410,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2 * Math.PI) {
             doRejectUpdate = true;
             // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to high rot of "
-            //         + getState().Speeds.omegaRadiansPerSecond);
+            // + getState().Speeds.omegaRadiansPerSecond);
         }
         if (llEstimate.tagCount == 0) {
             doRejectUpdate = true;
@@ -408,7 +418,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
         if (llEstimate.avgTagDist > 8) {
             doRejectUpdate = true;
-            // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of " + mt2.avgTagDist);
+            // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of
+            // " + mt2.avgTagDist);
         }
 
         if (!doRejectUpdate) {
@@ -418,8 +429,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 estimator.setVisionMeasurementStdDevs(VecBuilder.fill(ll.trust, ll.trust, 9999999));
             }
             estimator.addVisionMeasurement(
-                llEstimate.pose,
-                llEstimate.timestampSeconds);
+                    llEstimate.pose,
+                    llEstimate.timestampSeconds);
         }
     }
 
@@ -450,7 +461,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Rotation2d getRobotRInR2D() {
         return estimator.getEstimatedPosition().getRotation();
     }
-    
+
     public void updateTagRelativePose(Pose2d newPose) {
         xTEntry.setDouble(newPose.getX());
         yTEntry.setDouble(newPose.getY());
