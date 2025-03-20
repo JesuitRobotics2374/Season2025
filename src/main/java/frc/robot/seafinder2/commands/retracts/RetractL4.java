@@ -39,6 +39,9 @@ public class RetractL4 extends SequentialCommandGroup {
         double outtakeSpeed = 0.3;
         double backDistance = -0.8;
         double backSpeed = -0.7;
+        double waitDuration = 0.1;
+
+        Command waitCommand = new WaitCommand(waitDuration);
 
         Command elevatorCommand = new SequentialCommandGroup(new WaitCommand(0.6), new ElevatorCommand(elevatorSubsystem, elevatorDelta, false)); 
         // TODO: This arm command is now dangerous, appears to be an absolute change, not relative
@@ -52,6 +55,6 @@ public class RetractL4 extends SequentialCommandGroup {
         Command logEnd = new InstantCommand(() -> {System.out.println("RETRACT L4 ENDED");});
 
 
-        this.addCommands(logStart, scoreCoral, backCommand, logEnd);
+        this.addCommands(logStart, waitCommand, scoreCoral, backCommand, logEnd);
     }
 }

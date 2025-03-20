@@ -118,7 +118,7 @@ public class PathfinderSubsystem {
         Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
 
        //double hpExtraPadding = target.isReef() ? 0 : -1.5;  This seems to leave it too far back, reducing
-        double hpExtraPadding = target.isReef() ? 0 : -.5;
+        double padding = target.isReef() ? SF2Constants.SEAFINDER2_ASTAR_PADDING : SF2Constants.SEAFINDER2_ASTAR_PADDING_HP;
 
         // Pose3d pathfindTarget3d = new Pose3d(
         //         tagTarget.getX() + SF2Constants.SEAFINDER2_ASTAR_PADDING * Math.cos(tagRotation.getZ())
@@ -128,13 +128,9 @@ public class PathfinderSubsystem {
         //         tagTarget.getZ(),
         //         tagRotation);
 
-        double fieldX = tagTarget.getX() + 
-        (SF2Constants.SEAFINDER2_ASTAR_PADDING + hpExtraPadding) * Math.cos(tagRotation.getZ()) + 
-        Constants.FIELD_X_MIDPOINT;
+        double fieldX = tagTarget.getX() + padding * Math.cos(tagRotation.getZ()) + Constants.FIELD_X_MIDPOINT;
 
-        double fieldY = tagTarget.getY() +
-        (SF2Constants.SEAFINDER2_ASTAR_PADDING + hpExtraPadding) * Math.sin(tagRotation.getZ()) + 
-        Constants.FIELD_Y_MIDPOINT;
+        double fieldY = tagTarget.getY() + padding * Math.sin(tagRotation.getZ()) + Constants.FIELD_Y_MIDPOINT;
 
 
         Pose3d pathfindTarget3d = new Pose3d(
@@ -175,8 +171,6 @@ public class PathfinderSubsystem {
         if (target.isReef()) {
             System.out.println("RUNNING REEF SEQUENCE");
             
-            Command exactAlign = new SequentialCommandGroup(new WaitCommand(0.0), new ExactAlign(drivetrain, target.getTagRelativePose()));
-            Command alignBoth = new ParallelCommandGroup(exactAlign, alignComponents);
             // Command waitCommand = new WaitCommand(0.3);
             
             Command troughOuttake;
@@ -189,6 +183,8 @@ public class PathfinderSubsystem {
             drivetrain.setLabel(target.getTagRelativePose().getPose2d(), "EXA");
 
             if (DriverStation.isAutonomous()) {
+                Command exactAlign = new SequentialCommandGroup(new WaitCommand(0.0), new ExactAlign(drivetrain, target.getTagRelativePose()));
+                Command alignBoth = new ParallelCommandGroup(exactAlign, alignComponents);
 
                 if (skipAStar) {
                     autoSequence.addCommands(
@@ -210,6 +206,8 @@ public class PathfinderSubsystem {
                 // autoSequence.schedule();
 
             } else {
+                Command exactAlign = new SequentialCommandGroup(new WaitCommand(0.5), new ExactAlign(drivetrain, target.getTagRelativePose()));
+                Command alignBoth = new ParallelCommandGroup(exactAlign, alignComponents);
 
                 if (skipAStar) {
                     runningCommand = new SequentialCommandGroup(

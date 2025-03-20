@@ -9,15 +9,16 @@ public class SF2Constants {
 
     public static final LimelightObject[] LIMELIGHTS_ON_BOARD = Constants.LIMELIGHTS_ON_BOARD; // Which Limelights should SF2 use?
 
-    public static final double SEAFINDER2_MAX_VELOCITY = 4.5;
+    public static final double SEAFINDER2_MAX_VELOCITY = 5.2;
     public static final double SEAFINDER2_MAX_ACCELERATION = 5;
     public static final double SEAFINDER2_MAX_ROTATIONAL_VELOCITY = Units.degreesToRadians(720);
     public static final double SEAFINDER2_MAX_ROTATIONAL_ACCELERATION = Units.degreesToRadians(940);
 
     // .55 is flush against reeff
     //public static final double SEAFINDER2_REEF_FRONT_PADDING = -0.55 ;  //0.55 sems to work for L2,L3
-    public static final double SEAFINDER2_REEF_FRONT_PADDING = -0.55;  //0.75 seems correct for L4
-    public static final double SEAFINDER2_ASTAR_PADDING = -0.9;
+    public static final double SEAFINDER2_REEF_FRONT_PADDING = -0.6;
+    public static final double SEAFINDER2_ASTAR_PADDING = -1.2;
+    public static final double SEAFINDER2_ASTAR_PADDING_HP = -1.4;
   //  public static final double SEAFINDER2_REEF_FRONT_PADDING = -1.0;  //safety
     public static final double SEAFINDER2_REEF_LEFT_BRANCH_OFFSET = -0.1363;
     public static final double SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET = 0.1464;

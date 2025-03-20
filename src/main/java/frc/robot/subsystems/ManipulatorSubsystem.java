@@ -37,6 +37,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
     public boolean isOuttaking = false;
 
     public boolean overriding = false;
+    public boolean allowMaxOuttake = false;
 
     public ManipulatorSubsystem() {
 
@@ -96,14 +97,6 @@ public class ManipulatorSubsystem extends SubsystemBase {
         isOuttaking = false;
         control.stopMotor();
     }
-
-    // public Command spinIntakeCommand(double speed) {
-    //     return this.startEnd(() -> {
-    //         this.spinAt(speed);
-    //     }, () -> {
-    //         this.stop();
-    //     });
-    // }
 
     public boolean getIsIntaking() {
         return isIntaking;

@@ -19,6 +19,7 @@ import com.pathplanner.lib.pathfinding.Pathfinder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -219,17 +220,15 @@ public class Core {
 
         driveController.x().onTrue(new RetractL4(this));
         // // driveController.x().onTrue(armSubsystem.runOnce(() -> {
-        // // armSubsystem.setZero();
-        // // }));
-        // driveController.x().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_PROCESSOR)));
-
-        driveController.povLeft().onTrue(new InstantCommand(() -> {
-            isTurbo = !isTurbo;
-        }));
-
-        TagRelativePose testingTagRelativePose = new TagRelativePose(18,
-                SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET, -0.7, 0.0); // idk what units this is in - x is left
-                                                                             // right & y is front back
+            // // armSubsystem.setZero();
+            // // }));
+            // driveController.x().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_PROCESSOR)));
+            
+        driveController.povLeft().onTrue(new InstantCommand(() -> {isTurbo = !isTurbo;}));
+        
+        TagRelativePose testingTagRelativePose = new TagRelativePose(21, SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET, -0.7, 0.0); // idk what units this is in - x is left
+        // right & y is front back
+        driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
 
         // driveController.x().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MIN_POSITION, true));
         // driveController.y().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MAX_POSITION, true));
@@ -256,6 +255,7 @@ public class Core {
         operatorController.y().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_BARGE)));
         operatorController.b().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_HP_INTAKE)));
         operatorController.a().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_MIN)));
+        // X is used for allowing max outtake in core.periodic
         // operatorController.x().onTrue(new InstantCommand(() -> performRetract()));
 
         // operatorController.back().onTrue(armSubsystem.runOnce(() ->
@@ -405,7 +405,11 @@ public class Core {
         }
 
         if ((operatorController.getLeftY() < 0)) {
-            manipulatorSubsystem.spinAt(operatorController.getLeftY() / 4);
+            if (operatorController.x().getAsBoolean()) {
+                manipulatorSubsystem.spinAt(operatorController.getLeftY());
+            } else {
+                manipulatorSubsystem.spinAt(operatorController.getLeftY() / 4);
+            }
         } else {
             manipulatorSubsystem.spinAt(operatorController.getLeftY());
         }
