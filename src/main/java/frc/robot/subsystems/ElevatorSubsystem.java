@@ -33,13 +33,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private boolean currentlyMovingDown = false;
     private boolean zeroingElevator = false;
 
-    private static final double POSITION_0 = 2; // Lowest Height
-    private static final double POSITION_1 = 25; // Position of the lowest reef level
-    private static final double POSITION_2 = 50; // Position of lowest branch
-    private static final double POSITION_3 = 75; // Position of middle branch
-    private static final double POSITION_4 = 100; // Position of highest branch
-    private static final double IH = 125; // Position of intake (number 5)
-    private static final double AH = 125; // Position of algae outtake height (number 6)
+    private boolean hasReachedLimit = false;
 
     private int elevatorCycleOnStart = 2;
 
@@ -116,17 +110,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         currentlyMovingDown = false;
     }
 
-    public void elevatorGoTo(int newPos) {
-        double posGoTo = convertPos(newPos);
-        if (posGoTo < elevatorMotor1.getPosition().getValueAsDouble()) {
-            currentlyMovingDown = true;
-        } else {
-            currentlyMovingDown = false;
-        }
-        MotionMagicVoltage m_request = new MotionMagicVoltage(posGoTo);
-        elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
-    }
-
     public void elevatorGoToDouble(double pos) {
         if (pos < elevatorMotor1.getPosition().getValueAsDouble()) {
             currentlyMovingDown = true;
@@ -138,6 +121,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void lower() {
+        if (hasReachedLimit) {
+            System.out.println("Cancelled elevator move down: at bottom!");
+            return;
+        }
        // if (!limitSwitch.get()) {
             currentlyMovingDown = true;
             MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - Constants.ELEVATOR_MOVE_AMOUNT);
@@ -145,7 +132,7 @@ public class ElevatorSubsystem extends SubsystemBase {
        // }
     }
 
-    public void lower_to_limt() {
+    public void lowerToLimit() {
         // if (!limitSwitch.get()) {
              currentlyMovingDown = true;
              while (currentlyMovingDown) {
@@ -162,6 +149,10 @@ public class ElevatorSubsystem extends SubsystemBase {
      }
 
     public void lower(double amount) {
+        if (hasReachedLimit) {
+            System.out.println("Cancelled elevator move down: at bottom!");
+            return;
+        }
       //  if (!limitSwitch.get()) {
             currentlyMovingDown = true;
             MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - amount);
@@ -189,25 +180,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         // The delta essentiallly is the speed of the lower
     }
 
-    private double convertPos(int heightLevel) { // Get values once elevator is finished
-        if (heightLevel == 0) {
-            return POSITION_0;
-        } else if (heightLevel == 1) {
-            return POSITION_1;
-        } else if (heightLevel == 2) {
-            return POSITION_2;
-        } else if (heightLevel == 3) {
-            return POSITION_3;
-        } else if (heightLevel == 4) {
-            return POSITION_4;
-        } else if (heightLevel == 5) {
-            return IH;
-        } else if (heightLevel == 6) {
-            return AH;
-        } else
-            throw new InvalidParameterException("Number is not in accepted height range");
-    }
-
     @Override
     public void periodic() {
         // Robot tilting
@@ -228,8 +200,14 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
 
         // elevatorMotor1.getSupplyCurrent().getValueAsDouble() > 0.8 // But from T4 to Min elevator uses 0.8 amps
-        if (currentlyMovingDown && !limitSwitch.get()) { // limit is reversed
+        if (currentlyMovingDown && !limitSwitch.get() && !hasReachedLimit) { // limit is reversed
             setElevatorZero();
+            hasReachedLimit = true;
+            currentlyMovingDown = false;
+        }
+
+        if (hasReachedLimit && limitSwitch.get()) {
+            hasReachedLimit = false;
         }
         
     }

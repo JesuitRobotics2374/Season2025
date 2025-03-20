@@ -135,8 +135,8 @@ public class Robot extends TimedRobot {
     //     WaitCommand waitCommand = new WaitCommand(0.7);
     //     InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
     //    // InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(18.68));
-    //     InstantCommand lower_to_limt = new InstantCommand( () -> m_core.getElevatorSubsystem().lower_to_limt() );
-    //     SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseElevator, waitCommand, moveArm, lower_to_limt); 
+    //     InstantCommand lowerToLimit = new InstantCommand( () -> m_core.getElevatorSubsystem().lowerToLimit() );
+    //     SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseElevator, waitCommand, moveArm, lowerToLimit); 
     //     commandGroup.schedule();
     }
 
