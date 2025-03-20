@@ -33,6 +33,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Seafinder2.ExactAlign;
 import frc.robot.Seafinder2.TagRelativePose;
+import frc.robot.commands.EthanAlign.TeleopMoveX;
+import frc.robot.commands.EthanAlign.TeleopMoveY;
+import frc.robot.commands.EthanAlign.TeleopRotate;
 import frc.robot.commands.auto.Outtake;
 import frc.robot.commands.auto.Pathfind;
 import frc.robot.commands.auto.PathfindBasic;
@@ -75,6 +78,11 @@ public class Core {
 
     private Command pathfindingCommand;
 
+    //ETHAN'S CODE 2024
+    public TeleopMoveX teleopMoveX;
+    public TeleopMoveY teleopMoveY;
+    public TeleopRotate teleopRotate;
+
     public Core() {
         registerAutoCommands();
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -103,7 +111,7 @@ public class Core {
         //See below :D
 
         // drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
-        // //drivetrain.getField().setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
+        drivetrain.getField().setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
 
         //  // Define the new origin (e.g., (5,5) is now (0,0))
         //  Pose2d newOrigin = new Pose2d(0, 0, new Rotation2d());
@@ -190,9 +198,9 @@ public class Core {
         driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
         driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
-        // TagRelativePose tagPose = new TagRelativePose(22, 1, 0, 0);
+        TagRelativePose tagPose = new TagRelativePose(22, 1, 0, 0);
 
-        // driveController.a().onTrue(new InstantCommand(() -> new ExactAlign(drivetrain, tagPose, visionSubsystem)));
+        driveController.a().onTrue(new InstantCommand(() -> new ExactAlign(drivetrain, tagPose, visionSubsystem)));
 
         // driveController.a()
         //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));

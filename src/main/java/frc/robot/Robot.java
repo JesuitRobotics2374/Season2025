@@ -42,7 +42,7 @@ public class Robot extends TimedRobot {
 
     if (clock == 5) {
       m_robotContainer.updateRobotRelativePose2d();
-      m_robotContainer.updateTagRelativePose2d();
+      //m_robotContainer.updateTagRelativePose2d();
       if (visionSubsystem.canSeeTag()) {
         drivetrain.setRobotPose(visionSubsystem.robotPoseField());
       }

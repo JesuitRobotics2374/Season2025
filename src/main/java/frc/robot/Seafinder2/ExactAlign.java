@@ -84,10 +84,12 @@ public class ExactAlign extends Command {
         yawController.enableContinuousInput(-Math.PI, Math.PI);
         
         addRequirements(drivetrain);
+        System.out.println("started");
     }
 
     @Override
     public void initialize() {
+        System.out.println("init");
 
         finishedOverride = false;
         
@@ -101,12 +103,14 @@ public class ExactAlign extends Command {
         
         framesAtTarget = 0;
         framesWithoutTarget = 0;
+       
     }
 
     private int clock = 0;
 
     @Override
     public void execute() {
+        System.out.println("exec");
         clock++;
 
         // Average pose from each limelight
@@ -236,10 +240,12 @@ public class ExactAlign extends Command {
         } else {
             System.out.println("EXACTALIGN FINISHED");
         }
+        System.out.println("end");
     }
 
     @Override
     public boolean isFinished() {
+        System.out.println("finish");
         return framesAtTarget >= REQUIRED_FRAMES_AT_TARGET || finishedOverride;
     }
 }

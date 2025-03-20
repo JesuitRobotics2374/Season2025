@@ -47,7 +47,7 @@ public class VisionSubsystem {
     private Field2d field;
     private PhotonPipelineResult result = null;
     private Transform3d transform3d = null;
-    private AprilTagFieldLayout aprilTagFieldLayout;
+    public AprilTagFieldLayout aprilTagFieldLayout;
     private PhotonPoseEstimator photonPoseEstimator;
 
     // private Transform3d robotToCam;
@@ -70,18 +70,6 @@ public class VisionSubsystem {
         } catch (Exception e) {
             System.out.println("April tags failed to initialize!");
         }
-
-        // Just here idk what this is
-        // robotToCam = new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0,
-        // 0));
-        // aprilTagFieldLayout =
-        // AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-        // photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-        // PoseStrategy.CLOSEST_TO_REFERENCE_POSE, robotToCam);
-        // photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-        // visionSim = new VisionSystemSim("main");
-
-        // PoseEstimator wEstimator = new Pose
     }
 
     public void setLabel(Pose2d pose2d, String label) {
@@ -206,7 +194,7 @@ public class VisionSubsystem {
 
                 Pose2d updatedRobotPose = new Pose2d(aprilTagPose.getX() + xMult * robotRelativeTagPose.getX(),
                                                      aprilTagPose.getY() + yMult * robotRelativeTagPose.getY(),
-                                                     aprilTagPose.getRotation().plus(robotRelativeTagPose.getRotation()));
+                                                     aprilTagPose.getRotation().plus(robotRelativeTagPose.getRotation().minus(new Rotation2d(Math.PI))));
 
                 return updatedRobotPose;
             } catch (Exception e) {
