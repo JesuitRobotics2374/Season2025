@@ -180,10 +180,10 @@ public class PathfinderSubsystem {
             // Command waitCommand = new WaitCommand(0.3);
             
             Command troughOuttake;
-            if (target.getHeight() == Height.TROUGH) {
-                troughOuttake = new NewOuttake(core.getManipulatorSubsystem()).withTimeout(1.0);
+            if (target.getHeight().equals(Height.TROUGH)) {
+                troughOuttake = new NewOuttake(core.getManipulatorSubsystem()).withTimeout(0.3);
             } else {
-                troughOuttake = new WaitCommand(0.3); // Otherwise use it as our wait
+                troughOuttake = new WaitCommand(0.0); // Otherwise use it as our wait
             }
 
             drivetrain.setLabel(target.getTagRelativePose().getPose2d(), "EXA");
@@ -249,7 +249,7 @@ public class PathfinderSubsystem {
             Command canForward = new CanRangeDynamicForward(drivetrain);
             intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
 
-            Command staticBack = new StaticBack(drivetrain).withTimeout(0.5);
+            Command staticBack = new StaticBack(drivetrain).withTimeout(0.2);
 
             if (DriverStation.isAutonomous()) {
                 System.out.println("Auto to Human Station");
@@ -262,8 +262,8 @@ public class PathfinderSubsystem {
                     // alignComponentsHP,
                     canForward,
                     intakeCommand,
-                    staticBack,
-                    wristToScoringPosCommand 
+                    staticBack
+                    // wristToScoringPosCommand 
                     // retractComponents
             );
             // autoSequence.schedule();
@@ -276,8 +276,8 @@ public class PathfinderSubsystem {
                     // alignComponentsHP,
                     canForward,
                     intakeCommand,
-                    staticBack,
-                    wristToScoringPosCommand 
+                    staticBack
+                    // wristToScoringPosCommand 
                     // retractComponents
             );
             runningCommand.schedule();

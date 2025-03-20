@@ -69,16 +69,16 @@ public class FieldAlign extends Command {
         
         // Initialize PID controllers
         // X PID coefficients (Adjust these values based on testing)
-        xController = new PIDController(1.8, 0.0, 1.2);
-        xController.setTolerance(X_TOLERANCE);
+        xController = new PIDController(1.6, 0.0, 1.2);
+        xController.setTolerance(0.3);
         
         // Y PID coefficients
-        yController = new PIDController(3, 0.0, 0.4);
-        yController.setTolerance(Y_TOLERANCE);
+        yController = new PIDController(2.6, 0.0, 0.4);
+        yController.setTolerance(0.3);
         
         // Yaw PID coefficients
-        yawController = new PIDController(2.0, 0.0, 0.0);
-        yawController.setTolerance(YAW_TOLERANCE);
+        yawController = new PIDController(1.6, 0.0, 0.0);
+        yawController.setTolerance(0.1);
         yawController.enableContinuousInput(-Math.PI, Math.PI);
         
         addRequirements(drivetrain);
@@ -148,9 +148,9 @@ public class FieldAlign extends Command {
         dtheta = yawRateLimiter.calculate(dtheta);
         
         // Zero out commands if we're within tolerance
-        boolean xTollerenace = Math.abs(error_x) < X_TOLERANCE;
-        boolean yTollerenace = Math.abs(error_y) < Y_TOLERANCE;
-        boolean thetaTollerenace = Math.abs(error_yaw) < YAW_TOLERANCE;
+        boolean xTollerenace = Math.abs(error_x) < 1;
+        boolean yTollerenace = Math.abs(error_y) < 1;
+        boolean thetaTollerenace = Math.abs(error_yaw) < 0.2;
         if (xTollerenace) dx = 0;
         if (yTollerenace) dy = 0;
         if (thetaTollerenace) dtheta = 0;

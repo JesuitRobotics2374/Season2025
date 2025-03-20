@@ -120,9 +120,9 @@ public class ArmSubsystem extends SubsystemBase {
         slot0ConfigsWrist.kD = 0.25; // Responds to the rate of change of the error, damping the motion as the motor
         // approaches the target. This reduces overshooting and oscillations.
 
-        motionMagicConfigsWrist.MotionMagicCruiseVelocity = 70; // Target velocity in rps
-        motionMagicConfigsWrist.MotionMagicAcceleration = 50; // Target acceleration in rps/s
-        motionMagicConfigsWrist.MotionMagicJerk = 450; // Target jerk in rps/s/s
+        motionMagicConfigsWrist.MotionMagicCruiseVelocity = 90; // Target velocity in rps
+        motionMagicConfigsWrist.MotionMagicAcceleration = 70; // Target acceleration in rps/s
+        motionMagicConfigsWrist.MotionMagicJerk = 460; // Target jerk in rps/s/s
 
         wristMotor.getConfigurator().apply(talonFXConfigsWrist);
         wristMotor.getConfigurator().apply(slot0ConfigsWrist);

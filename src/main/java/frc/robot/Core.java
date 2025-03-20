@@ -53,6 +53,7 @@ import frc.robot.seafinder2.SF2Constants;
 import frc.robot.seafinder2.commands.ExactAlign;
 import frc.robot.seafinder2.commands.limbControl.IntakeCommand;
 import frc.robot.seafinder2.commands.limbControl.WristCommand;
+import frc.robot.seafinder2.commands.retracts.RetractL4;
 
 public class Core {
 
@@ -215,6 +216,8 @@ public class Core {
 
         driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T2))); // RESET POSE
         driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T3))); // RESET POSE
+
+        driveController.x().onTrue(new RetractL4(this));
         // // driveController.x().onTrue(armSubsystem.runOnce(() -> {
         // // armSubsystem.setZero();
         // // }));
