@@ -34,13 +34,13 @@ public class TeleopRotate extends Command {
             double theta = robotRelativeTagPose.getRotation().getDegrees();
             double beta = Math.asin(Math.abs(robotRelativeTagPose.getY()) / visionSubsystem.getDistanceToAprilTag());
 
-            double delta = Math.abs(theta) + Math.abs(beta);
+            double delta = Math.abs(beta);
             
             if (robotRelativeTagPose.getY() < 0 && robotRelativeTagPose.getRotation().getDegrees() > 0 ||
                 robotRelativeTagPOse.getY() > 0 && robotRelativeTagPose.getRotation().getDegrees() < 0) {
-
                     delta += Math.abs(theta);
             }
+            else delta += Math.abs(theta);
 
             tagAlignAngle = delta;
 
