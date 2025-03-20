@@ -11,54 +11,59 @@ import frc.robot.Constants;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
-/**
- * DriveDynamic - Moves the robot forward by a specified distance.
- */
 public class TeleopMoveY extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem visionSubsystem;
-    private double distanceFromTagAlign;
-    private double moveSpeed = 0.5; // change this later, possibly make dynamic or keep constant
+    
+    private Pose2d robotRelativeTagPose; //Tag pose relative to the bot
 
-    public TeleopMoveY(CommandSwerveDrivetrain drivetrain, VisionSubsystem visionSubsystem, int tag_id) {
+    private double distanceFromTagAlign; //In meters
+    private double moveSpeed = 0.5;
+    private double moveSpeedScalar = 1; //Scales the movespeed down according to how far we are from the tag
+
+    public TeleopMoveY(CommandSwerveDrivetrain drivetrain, VisionSubsystem visionSubsystem, Pose2d robotRelativeTagPose) {
         this.drivetrain = drivetrain;
         this.visionSubsystem = visionSubsystem;
+        this.robotRelativeTagPose = robotRelativeTagPose;
 
         addRequirements(drivetrain); // Require the drivetrain subsystem
     }
 
     @Override
     public void initialize() {
+        distanceFromTagAlign = robotRelativeTagPose.getY();
+        
         if (visionSubsystem.canSeeTag()) {
-            Pose2d aprilTagPose = visionSubsystem.aprilTagFieldLayout.getTagPose(visionSubsystem.getTagID()).get().toPose2d();
-            distanceFromTagAlign = aprilTagPose.getY();
-            if (distanceFromTagAlign > 0) {
+            Pose2d robotRelativeTagPose = visionSubsystem.getRobotRelativeTagPose();
+            distanceFromTagAlign = robotRelativeTagPose.getY();
+
+            if (distanceFromTagAlign < 0) {
                 moveSpeed *= -1;
             }
-        } else
-            cancel(); // Check if this works
+        }
     }
 
     @Override
     public void execute() {
         if (visionSubsystem.canSeeTag()) {
-            Pose2d aprilTagPose = visionSubsystem.aprilTagFieldLayout.getTagPose(visionSubsystem.getTagID()).get().toPose2d();
-            distanceFromTagAlign = aprilTagPose.getY();
+            Pose2d robotRelativeTagPose = visionSubsystem.getRobotRelativeTagPose();
+            distanceFromTagAlign = robotRelativeTagPose.getY();
+            moveSpeedScalar = distanceFromTagAlign / 5;
         }
-        drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityY(moveSpeed));
+
+        drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityY(moveSpeed * moveSpeedScalar));
     }
 
     @Override
     public boolean isFinished() {
-        return Math.abs(distanceFromTagAlign) < 0.5;
+        return Math.abs(distanceFromTagAlign) < 0.1;
     }
 
     @Override
     public void end(boolean interrupted) {
         System.out.println("Movement Y complete!");
         // Stop the drivetrain when the command ends
-        drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityY(0));
+        drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
     }
-
 }

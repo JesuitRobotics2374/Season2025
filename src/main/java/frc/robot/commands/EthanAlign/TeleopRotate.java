@@ -13,12 +13,17 @@ public class TeleopRotate extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem visionSubsystem;
-    private double tagAlignAngle; // in degrees
-    private double turnSpeed = 0.5; // change this later, possibly make dynamic or keep constant, in RADIANS / SEC
 
-    public TeleopRotate(CommandSwerveDrivetrain drivetrain, VisionSubsystem visionSubsystem, int tag_id) {
+    private Pose2d robotRelativeTagPose;
+    
+    private double tagAlignAngle; // in degrees
+    private double turnSpeed = 90; // In DEGREES / SEC
+    private double turnSpeedScalar = 1; //Scales the turnspeed down according to how far we are from alignment
+
+    public TeleopRotate(CommandSwerveDrivetrain drivetrain, VisionSubsystem visionSubsystem, Pose2d robotRelativeTagPose) {
         this.drivetrain = drivetrain;
         this.visionSubsystem = visionSubsystem;
+        this.robotRelativeTagPose = robotRelativeTagPose;
 
         addRequirements(drivetrain); // Require the drivetrain subsystem
     }
@@ -26,9 +31,14 @@ public class TeleopRotate extends Command {
     @Override
     public void initialize() {
         if (visionSubsystem.canSeeTag()) {
-            Pose2d aprilTagPose = visionSubsystem.aprilTagFieldLayout.getTagPose(visionSubsystem.getTagID()).get().toPose2d();
-            tagAlignAngle = aprilTagPose.getRotation().getDegrees();
-            if (tagAlignAngle < 0) {
+            double theta = robotRelativeTagPose.getRotation().getDegrees();
+            double beta = Math.asin(Math.abs(robotRelativeTagPose.getY()) / visionSubsystem.getDistanceToAprilTag());
+
+            double delta = Math.abs(theta) + Math.abs(beta);
+
+            tagAlignAngle = delta;
+
+            if (robotRelativeTagPose.getY() > 0) {
                 turnSpeed *= -1;
             }
         } else
@@ -37,23 +47,23 @@ public class TeleopRotate extends Command {
 
     @Override
     public void execute() {
-        if (visionSubsystem.canSeeTag()) {
-            Pose2d aprilTagPose = visionSubsystem.aprilTagFieldLayout.getTagPose(visionSubsystem.getTagID()).get().toPose2d();
-            tagAlignAngle =aprilTagPose.getRotation().getDegrees(); // in degrees
-            drivetrain.setControl(new SwerveRequest.RobotCentric().withRotationalRate(turnSpeed));
-        }
+        drivetrain.setControl(new SwerveRequest.RobotCentric().withRotationalRate(turnSpeed * turnSpeedScalar));
+
+        tagAlignAngle = tagAlignAngle - (Math.abs(turnSpeed) * turnSpeedScalar * 0.02); // Subtracts how far we've turned per seconds every 0.02 seconds (20ms, the periodic time)
+
+        turnSpeedScalar = tagAlignAngle / 2;
     }
 
     @Override
     public boolean isFinished() {
-        return tagAlignAngle > -5.7 && tagAlignAngle < 5.7; // 0.1 radians in degrees
+        return tagAlignAngle < 1; // in degrees
     }
 
     @Override
     public void end(boolean interrupted) {
         System.out.println("Rotation Complete!");
         // Stop the drivetrain when the command ends
-        drivetrain.setControl(new SwerveRequest.RobotCentric().withRotationalRate(0));
+        drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
         ;
     }
 

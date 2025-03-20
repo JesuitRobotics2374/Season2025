@@ -77,23 +77,22 @@ public class VisionSubsystem {
     }
 
     // MY(JULI'S) PROTOTYPE CODE
-    // public class AprilTagDistance {
-    // public double getDistanceToAprilTag() {
-    // var result = camera.getLatestResult();
 
-    // if (result.hasTargets()) {
-    // PhotonTrackedTarget target = result.getBestTarget();
-    // Transform3d transform = target.getBestCameraToTarget();
+    public double getDistanceToAprilTag() {
+        var result = camera.getLatestResult();
 
-    // System.out.println("Tag ID: " + target.getFiducialId());
-    // System.out.println("Transform: " + transform);
+        if (result.hasTargets()) {
+            PhotonTrackedTarget target = result.getBestTarget();
+            Transform3d transform = target.getBestCameraToTarget();
 
-    // return transform.getTranslation().getNorm();
-    // }
+            System.out.println("Tag ID: " + target.getFiducialId());
+            System.out.println("Transform: " + transform);
 
-    // return -1;
-    // }
-    // }
+            return transform.getTranslation().getNorm();
+        }
+
+        return -1;
+    }
 
     // KEVIN'S CODE (with a few minor tweaks)
     // NOTE TO SELF(JULI) DON'T FORGET TO MAKE IT WORK WITH ELASTIC
@@ -158,7 +157,7 @@ public class VisionSubsystem {
             Translation2d translation2d = transform3d.getTranslation().toTranslation2d();
 
             Translation2d newTranslation2d = new Translation2d(translation2d.getMeasureX().times(-1),
-                                                               translation2d.getMeasureY().times(-1));
+                    translation2d.getMeasureY().times(-1));
 
             Rotation2d rotation2d = transform3d.getRotation().toRotation2d();
 
@@ -181,20 +180,22 @@ public class VisionSubsystem {
                 int xMult;
                 int yMult;
 
-                if ((drivetrain.getRobotPose2d().getY() > 3.9624 && robotRelativeTagPose.getY() > 0) || (drivetrain.getRobotPose2d().getY() < 3.9624 && robotRelativeTagPose.getY() < 0)) {
+                if ((drivetrain.getRobotPose2d().getY() > 3.9624 && robotRelativeTagPose.getY() > 0)
+                        || (drivetrain.getRobotPose2d().getY() < 3.9624 && robotRelativeTagPose.getY() < 0)) {
                     yMult = 1;
-                }
-                else yMult = -1;
+                } else
+                    yMult = -1;
 
-
-                if (drivetrain.getRobotPose2d().getRotation().getDegrees() >= 91 && drivetrain.getRobotPose2d().getRotation().getDegrees() <= 269) {
+                if (drivetrain.getRobotPose2d().getRotation().getDegrees() >= 91
+                        && drivetrain.getRobotPose2d().getRotation().getDegrees() <= 269) {
                     xMult = 1;
-                }
-                else xMult = -1;
+                } else
+                    xMult = -1;
 
                 Pose2d updatedRobotPose = new Pose2d(aprilTagPose.getX() + xMult * robotRelativeTagPose.getX(),
-                                                     aprilTagPose.getY() + yMult * robotRelativeTagPose.getY(),
-                                                     aprilTagPose.getRotation().plus(robotRelativeTagPose.getRotation().minus(new Rotation2d(Math.PI))));
+                        aprilTagPose.getY() + yMult * robotRelativeTagPose.getY(),
+                        aprilTagPose.getRotation()
+                                .plus(robotRelativeTagPose.getRotation().minus(new Rotation2d(Math.PI))));
 
                 return updatedRobotPose;
             } catch (Exception e) {

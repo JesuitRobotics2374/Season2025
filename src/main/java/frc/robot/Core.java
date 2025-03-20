@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Seafinder2.ExactAlign;
 import frc.robot.Seafinder2.TagRelativePose;
+import frc.robot.commands.EthanAlign.ApproachTagTeleop;
 import frc.robot.commands.EthanAlign.TeleopMoveX;
 import frc.robot.commands.EthanAlign.TeleopMoveY;
 import frc.robot.commands.EthanAlign.TeleopRotate;
@@ -89,28 +90,6 @@ public class Core {
         configureBindings();
         configureShuffleBoard();
 
-        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
-        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
-        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
-        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
-        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
-        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
-        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
-        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
-        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
-        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
-
-        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
-        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
-        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
-        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
-        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
-        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
-        //i have no idea if this works or not (probably not) NOTE FOR JULI: CHECK THISSSSSSSSSSSSSSSSSSSSSSSSS@@@@@@@!
-        //!!!!fweoijafe09283457qw093875uawefpoiujawefopiafaopiwjewo8i3u5 t0987()*&F)98a7w3405987u
-        //See below :D
-
-        // drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
         drivetrain.getField().setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI / 180))));
 
         //  // Define the new origin (e.g., (5,5) is now (0,0))
@@ -177,30 +156,17 @@ public class Core {
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed * getAxisMovementScale()) // Drive
-                                                                                                          // forward
-                                                                                                          // with
-                                                                                                          // negative Y
-                                                                                                          // (forward)
+                drivetrain.applyRequest(() -> drive.withVelocityX(-driveController.getLeftY() * MaxSpeed * getAxisMovementScale()) // Drive forward with negative Y (forward)
                         .withVelocityY(-driveController.getLeftX() * MaxSpeed * getAxisMovementScale()) // Drive left with negative X (left)
                         .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale()) // Drive counterclockwise
-                                                                                           // with negative X (left)
                 ));
-
-        // driveController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        // driveController.b().whileTrue(drivetrain.applyRequest(() ->
-        // point.withModuleDirection(new Rotation2d(-driveController.getLeftY(),
-        // -driveController.getLeftX()))
-        // ));
 
         driveController.x().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.outtake()));
         driveController.x().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
         driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
         driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
-        TagRelativePose tagPose = new TagRelativePose(22, 1, 0, 0);
-
-        driveController.a().onTrue(new InstantCommand(() -> new ExactAlign(drivetrain, tagPose, visionSubsystem)));
+        driveController.a().onTrue(new InstantCommand(() -> new ApproachTagTeleop(drivetrain, visionSubsystem, outtakeSubsystem)));
 
         // driveController.a()
         //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));
