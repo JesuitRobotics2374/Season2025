@@ -28,6 +28,7 @@ public class TeleopMoveY extends Command {
         this.robotRelativeTagPose = robotRelativeTagPose;
 
         addRequirements(drivetrain); // Require the drivetrain subsystem
+        System.out.println("Y Instantiated");
     }
 
     @Override
@@ -42,6 +43,7 @@ public class TeleopMoveY extends Command {
                 moveSpeed *= -1;
             }
         }
+        System.out.println("Y Initialized");
     }
 
     @Override
@@ -49,10 +51,11 @@ public class TeleopMoveY extends Command {
         if (visionSubsystem.canSeeTag()) {
             Pose2d robotRelativeTagPose = visionSubsystem.getRobotRelativeTagPose();
             distanceFromTagAlign = robotRelativeTagPose.getY();
-            moveSpeedScalar = distanceFromTagAlign / 5;
+            //moveSpeedScalar = distanceFromTagAlign / 5;
         }
 
         drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityY(moveSpeed * moveSpeedScalar));
+        System.out.println("Y Executed");
     }
 
     @Override

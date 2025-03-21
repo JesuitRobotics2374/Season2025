@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Seafinder2.ExactAlign;
 import frc.robot.Seafinder2.TagRelativePose;
 import frc.robot.commands.EthanAlign.ApproachTagTeleop;
+import frc.robot.commands.EthanAlign.ApproachTagTeleopGPT;
 import frc.robot.commands.EthanAlign.TeleopMoveX;
 import frc.robot.commands.EthanAlign.TeleopMoveY;
 import frc.robot.commands.EthanAlign.TeleopRotate;
@@ -166,7 +167,21 @@ public class Core {
         driveController.y().onTrue(outtakeSubsystem.runOnce(() -> outtakeSubsystem.intake()));
         driveController.y().onFalse(outtakeSubsystem.runOnce(() -> outtakeSubsystem.stopIntake()));
 
-        driveController.a().onTrue(new InstantCommand(() -> new ApproachTagTeleop(drivetrain, visionSubsystem, outtakeSubsystem)));
+        //driveController.b().onTrue(visionSubsystem.runOnce(() -> {visionSubsystem.ApproachTagTeleop(drivetrain, visionSubsystem, outtakeSubsystem);}));
+        driveController.a().onTrue((new TeleopMoveY(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose())));
+        driveController.b().onTrue((new TeleopMoveX(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose())));
+        driveController.povUp().onTrue((new TeleopRotate(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose())));
+        //driveController.b().onTrue(new TeleopMoveX(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose()));
+        //driveController.b().onTrue(new InstantCommand(() -> new TeleopMoveY(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose())));
+        //driveController.a().onTrue(new InstantCommand(() -> new TeleopRotate(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose())));
+        
+        //driveController.a().onTrue(new InstantCommand(() -> new TeleopMoveX(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose())));
+
+        // // m_driveController.b().onTrue(
+        //     m_VisionSubsystem.runOnce(() -> {
+        //         m_VisionSubsystem.approachTeleop(m_DrivetrainSubsystem,
+        //                 Constants.TEST_TARGET_TAG, m_VacummSubystem, m_ArmSubsystem);
+        //     }));
 
         // driveController.a()
         //         .onTrue(drivetrain.runOnce(() -> drivetrain.alignToVision(Constants.LIMELIGHTS_ON_BOARD[0], true)));

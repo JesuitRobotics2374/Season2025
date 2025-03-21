@@ -34,13 +34,15 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.commands.EthanAlign.ApproachTagTeleop;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
 //for alignment
 import edu.wpi.first.math.controller.PIDController;
 
-public class VisionSubsystem {
+public class VisionSubsystem{
 
     private PhotonCamera camera;
     private CommandSwerveDrivetrain drivetrain;
@@ -84,10 +86,7 @@ public class VisionSubsystem {
         if (result.hasTargets()) {
             PhotonTrackedTarget target = result.getBestTarget();
             Transform3d transform = target.getBestCameraToTarget();
-
-            System.out.println("Tag ID: " + target.getFiducialId());
-            System.out.println("Transform: " + transform);
-
+            
             return transform.getTranslation().getNorm();
         }
 
@@ -127,7 +126,7 @@ public class VisionSubsystem {
 
             return targetPose;
         } else {
-            return new Pose2d(0, 0, new Rotation2d(0, 0));
+            return new Pose2d(0.000001, 0.000001, new Rotation2d(0, 0));
         }
     }
 
@@ -165,7 +164,7 @@ public class VisionSubsystem {
 
             return targetPose;
         } else {
-            return new Pose2d(0, 0, drivetrain.getRobotRInR2D());
+            return new Pose2d(0.000001, 0.0000001, drivetrain.getRobotRInR2D());
         }
     }
 
@@ -223,7 +222,6 @@ public class VisionSubsystem {
         } else
             return -1;
     }
-
     // public PhotonPoseEstimator getPhotonPoseEstimator() {
     // return new PhotonPoseEstimator(aprilTagFieldLayout,
     // PoseStrategy.LOWEST_AMBIGUITY, transform3d);

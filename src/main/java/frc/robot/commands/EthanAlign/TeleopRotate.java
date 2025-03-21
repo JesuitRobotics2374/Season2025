@@ -26,6 +26,7 @@ public class TeleopRotate extends Command {
         this.robotRelativeTagPose = robotRelativeTagPose;
 
         addRequirements(drivetrain); // Require the drivetrain subsystem
+        System.out.println("Rotate Instantiated");
     }
 
     @Override
@@ -37,7 +38,7 @@ public class TeleopRotate extends Command {
             double delta = Math.abs(beta);
             
             if (robotRelativeTagPose.getY() < 0 && robotRelativeTagPose.getRotation().getDegrees() > 0 ||
-                robotRelativeTagPOse.getY() > 0 && robotRelativeTagPose.getRotation().getDegrees() < 0) {
+                robotRelativeTagPose.getY() > 0 && robotRelativeTagPose.getRotation().getDegrees() < 0) {
                     delta += Math.abs(theta);
             }
             else delta += Math.abs(theta);
@@ -48,7 +49,8 @@ public class TeleopRotate extends Command {
                 turnSpeed *= -1;
             }
         } else
-            cancel(); // Check if this works
+            end(true); // Check if this works
+        System.out.println("Rotate Instantiated");
     }
 
     @Override
@@ -58,6 +60,7 @@ public class TeleopRotate extends Command {
         tagAlignAngle = tagAlignAngle - (Math.abs(turnSpeed) * turnSpeedScalar * 0.02); // Subtracts how far we've turned per seconds every 0.02 seconds (20ms, the periodic time)
 
         turnSpeedScalar = tagAlignAngle / 2;
+        System.out.println("Rotate Executed");
     }
 
     @Override

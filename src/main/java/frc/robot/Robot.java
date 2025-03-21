@@ -38,16 +38,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-    clock++;
-
-    if (clock == 5) {
-      m_robotContainer.updateRobotRelativePose2d();
-      //m_robotContainer.updateTagRelativePose2d();
-      if (visionSubsystem.canSeeTag()) {
-        drivetrain.setRobotPose(visionSubsystem.robotPoseField());
-      }
-      clock = 0;
-    }
   }
 
   @Override

@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
@@ -20,7 +21,7 @@ public class TeleopMoveX extends Command {
     private Pose2d robotRelativeTagPose; //Tag pose relative to the bot
 
     private double distanceFromTag; //In meters
-    private double moveSpeed = 0.5;
+    private double moveSpeed = 2;
     private double moveSpeedScalar = 1; //Scales the movespeed down according to how far we are from the tag
     
 
@@ -30,24 +31,37 @@ public class TeleopMoveX extends Command {
         this.robotRelativeTagPose = robotRelativeTagPose;
 
         addRequirements(drivetrain); // Require the drivetrain subsystem
+        System.out.println("X Instantiated");
     }
 
     @Override
     public void initialize() {
-       distanceFromTag = robotRelativeTagPose.getX();
+       distanceFromTag = visionSubsystem.getDistanceToAprilTag();
+
+       System.out.println(distanceFromTag);
+       System.out.println("X Initialized");
     }
 
     @Override
     public void execute() {
-        distanceFromTag = visionSubsystem.getRobotRelativeTagPose().getX();
-        moveSpeedScalar = distanceFromTag / 5;
+        distanceFromTag = visionSubsystem.getDistanceToAprilTag();
 
-        drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(moveSpeed * moveSpeedScalar));
+        if (distanceFromTag < 0.5) {
+            moveSpeedScalar = Math.abs(2 * distanceFromTag);
+        }
+
+        double applySpeed = moveSpeed * moveSpeedScalar;
+
+        if (applySpeed < 0 || applySpeed > 2) {
+            applySpeed = 1;
+        }
+
+        drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(applySpeed));
     }
 
     @Override
     public boolean isFinished() {
-        return distanceFromTag < 0.5;
+        return distanceFromTag < 0.1;
     }
 
     @Override
@@ -56,8 +70,4 @@ public class TeleopMoveX extends Command {
         // Stop the drivetrain when the command ends
         drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
     }
-
-    //Step 1: Align perpendicularly to the tag
-    //Step 2: Move sideways until we are aligned to the tag
-    //Step 3: Move forward
 }
