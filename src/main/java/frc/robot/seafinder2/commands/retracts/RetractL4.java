@@ -43,10 +43,10 @@ public class RetractL4 extends SequentialCommandGroup {
 
         Command waitCommand = new WaitCommand(waitDuration);
 
-        Command elevatorCommand = new SequentialCommandGroup(new WaitCommand(0.6), new ElevatorCommand(elevatorSubsystem, elevatorDelta, false)); 
+        Command elevatorCommand = new SequentialCommandGroup(new WaitCommand(0.5), new ElevatorCommand(elevatorSubsystem, elevatorDelta, false)); 
         // TODO: This arm command is now dangerous, appears to be an absolute change, not relative
         Command armCommand = new InstantCommand(() -> armSubsystem.armGoTo(SF2Constants.SETPOINT_REEF_T4.getArm() + armDelta));
-        Command outtakeCommand = (new OuttakeCommand(manipulatorSubsystem, outtakeSpeed)).withTimeout(1.0);
+        Command outtakeCommand = new SequentialCommandGroup(new WaitCommand(0.2), new OuttakeCommand(manipulatorSubsystem, outtakeSpeed).withTimeout(1.0));
         Command scoreCoral = new ParallelCommandGroup(elevatorCommand, armCommand, outtakeCommand);
 
         Command backCommand = (new StaticBackCommand(drivetrain, backDistance, backSpeed)).withTimeout(0.4);

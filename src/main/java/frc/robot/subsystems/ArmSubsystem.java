@@ -97,8 +97,8 @@ public class ArmSubsystem extends SubsystemBase {
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         motionMagicConfigs.MotionMagicCruiseVelocity = 80; // Target velocity in rps
-        motionMagicConfigs.MotionMagicAcceleration = 68; // Target acceleration in rps/s
-        motionMagicConfigs.MotionMagicJerk = 400; // Target jerk in rps/s/s
+        motionMagicConfigs.MotionMagicAcceleration = 70; // Target acceleration in rps/s
+        motionMagicConfigs.MotionMagicJerk =    200; // Target jerk in rps/s/s
 
         armMotor2.getConfigurator().apply(talonFXConfigs);
         armMotor2.getConfigurator().apply(slot0Configs);

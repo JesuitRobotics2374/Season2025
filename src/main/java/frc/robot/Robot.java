@@ -82,7 +82,8 @@ public class Robot extends TimedRobot {
 
 
         // L1 Second Auto
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT, Side.CENTER), false);
+       // m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT, Side.CENTER), false);
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.CENTER), false);
         m_core.pathfinderSubsystem.queueAlign(Height.TROUGH);
  
 

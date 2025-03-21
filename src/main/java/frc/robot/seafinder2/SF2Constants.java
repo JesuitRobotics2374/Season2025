@@ -9,8 +9,8 @@ public class SF2Constants {
 
     public static final LimelightObject[] LIMELIGHTS_ON_BOARD = Constants.LIMELIGHTS_ON_BOARD; // Which Limelights should SF2 use?
 
-    public static final double SEAFINDER2_MAX_VELOCITY = 5.2;
-    public static final double SEAFINDER2_MAX_ACCELERATION = 5;
+    public static final double SEAFINDER2_MAX_VELOCITY = 5.6;
+    public static final double SEAFINDER2_MAX_ACCELERATION = 5.5;
     public static final double SEAFINDER2_MAX_ROTATIONAL_VELOCITY = Units.degreesToRadians(720);
     public static final double SEAFINDER2_MAX_ROTATIONAL_ACCELERATION = Units.degreesToRadians(940);
 
