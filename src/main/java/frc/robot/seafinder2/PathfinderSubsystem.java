@@ -219,7 +219,7 @@ public class PathfinderSubsystem {
                 } else {
                     runningCommand = new SequentialCommandGroup(
                         // lowerRobot,
-                        pathfindCommand,
+                        pathfindCommand,                
                         stopDrivetrainCommand,
                         alignBoth,
                         troughOuttake, // Wait for elevator to stop moving/shaking
@@ -253,10 +253,9 @@ public class PathfinderSubsystem {
                 System.out.println("Auto to Human Station");
                 autoSequence.addCommands(
                     bothHP,
+                    stopDrivetrainCommand,
                     //hpFieldAlign.until(() -> drivetrain.robotNearHP()),
                     hpFieldAlign,
-                    stopDrivetrainCommand,
-                    // fieldAlign,
                     // alignComponentsHP,
                     canForward,
                     intakeCommand,

@@ -33,7 +33,7 @@ public class SF2Constants {
     public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(14, 1.857, WRIST_MAX_POSITION);
     public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(12.51, 20.37, WRIST_MIN_POSITION);
     public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(60.76 - 38, 18.68, WRIST_MIN_POSITION);
-    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(96, 18.37, WRIST_MIN_POSITION); //around 110 //12.25
+    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(97, 18.37, WRIST_MIN_POSITION); //around 110 //12.25
     public static final Setpoint SETPOINT_ALGAE_T2 = new Setpoint(74.5, -1.81, WRIST_MAX_POSITION);
     public static final Setpoint SETPOINT_ALGAE_T3 = new Setpoint(110.76, -2.68, WRIST_MAX_POSITION);
     public static final Setpoint SETPOINT_MAX = new Setpoint(125, 0, WRIST_MIN_POSITION);

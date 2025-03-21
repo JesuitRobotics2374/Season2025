@@ -37,7 +37,7 @@ public class Robot extends TimedRobot {
         m_core.getDrivetrain().seedRobotAuto();
 
         PathfindingCommand.warmupCommand().schedule();
-        
+
     }
 
     @Override
@@ -88,8 +88,8 @@ public class Robot extends TimedRobot {
 
         // L1 Second Auto
        // m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT, Side.CENTER), false);
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.CENTER), false);
-        m_core.pathfinderSubsystem.queueAlign(Height.TROUGH);
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT), false);
+        m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
  
 
         //all command should be in pathfinder auto sequence now
@@ -130,7 +130,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousExit() {
-        m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Coast);
+        m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
+        m_core.getArmSubsystem().stopArm();
+        m_core.getElevatorSubsystem().stopElevator();
     }
 
     @Override
@@ -153,6 +155,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopExit() {
+        m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
         m_core.getArmSubsystem().stopArm();
         m_core.getElevatorSubsystem().stopElevator();
     }
