@@ -175,7 +175,7 @@ public class PathfinderSubsystem {
             
             Command troughOuttake;
             if (target.getHeight().equals(Height.TROUGH)) {
-                troughOuttake = new NewOuttake(core.getManipulatorSubsystem()).withTimeout(0.3);
+                troughOuttake = new NewOuttake(core.getManipulatorSubsystem(), 1).withTimeout(0.3);
             } else {
                 troughOuttake = new WaitCommand(0.0); // Otherwise use it as our wait
             }

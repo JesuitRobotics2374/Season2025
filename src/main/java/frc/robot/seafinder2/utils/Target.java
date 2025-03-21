@@ -312,7 +312,7 @@ public class Target {
                     break;
             }
             if (isTrough) {
-                y = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING + (isTrough ? -0.4 : 0);
+                y = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING + (isTrough ? -0.25 : 0);
                 x = (SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET
                             + SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET) / 2;
             }

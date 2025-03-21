@@ -78,7 +78,7 @@ public class Constants {
     public static final double MAX_TIP_ANGLE = 8.0;
 
     // Setpoints
-    public static final double RETRACT_ELEVATOR_DOWNSHIFT = 15.0;
+    public static final double RETRACT_ELEVATOR_DOWNSHIFT = 17.0;
     public static final double SETPOINT_ELEVATOR_OFFSET = 0;
 
     // public static final Setpoint SETPOINT_MIN = new Setpoint(5, 22.4, WRIST_MIN_POSITION, "none");

@@ -11,11 +11,14 @@ public class NewOuttake extends Command {
     private CoreCANrange sensor;
     private int clock;
 
-    boolean done = false;
+    private double speed;
 
-    public NewOuttake(ManipulatorSubsystem manipulatorSubsystem) {
+    boolean done = false;
+    
+    public NewOuttake(ManipulatorSubsystem manipulatorSubsystem, double speed) {
         this.manipulatorSubsystem = manipulatorSubsystem;
         this.sensor = manipulatorSubsystem.sensor;
+        this.speed = speed;
     }
 
     @Override
@@ -32,7 +35,7 @@ public class NewOuttake extends Command {
     public void execute() {
 
         manipulatorSubsystem.setOverride(true);
-        manipulatorSubsystem.outtake();
+        manipulatorSubsystem.outtake(speed);
 
     }
 

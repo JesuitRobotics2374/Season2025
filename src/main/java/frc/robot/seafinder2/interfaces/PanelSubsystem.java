@@ -31,40 +31,40 @@ public class PanelSubsystem extends SubsystemBase {
         public void configureBindings() {
                 new JoystickButton(navControllerA, 1)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_FRONT, Side.LEFT))));
+                                                .queueFind(new Location(Landmark.REEF_FRONT, Side.LEFT), true)));
                 new JoystickButton(navControllerA, 2)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_FRONT, Side.RIGHT))));
+                                                .queueFind(new Location(Landmark.REEF_FRONT, Side.RIGHT), true)));
                 new JoystickButton(navControllerA, 3)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.LEFT))));
+                                                .queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.LEFT), true)));
                 new JoystickButton(navControllerA, 4)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT))));
+                                                .queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT), true)));
                 new JoystickButton(navControllerA, 5)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.LEFT))));
+                                                .queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.LEFT), true)));
                 new JoystickButton(navControllerA, 6)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.RIGHT))));
+                                                .queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.RIGHT), true)));
                 new JoystickButton(navControllerA, 7)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_BACK, Side.LEFT))));
+                                                .queueFind(new Location(Landmark.REEF_BACK, Side.LEFT), true)));
                 new JoystickButton(navControllerA, 8)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_BACK, Side.RIGHT))));
+                                                .queueFind(new Location(Landmark.REEF_BACK, Side.RIGHT), true)));
                 new JoystickButton(navControllerA, 9)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_BACK_LEFT, Side.LEFT))));
+                                                .queueFind(new Location(Landmark.REEF_BACK_LEFT, Side.LEFT), true)));
                 new JoystickButton(navControllerA, 10)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_BACK_LEFT, Side.RIGHT))));
+                                                .queueFind(new Location(Landmark.REEF_BACK_LEFT, Side.RIGHT), true)));
                 new JoystickButton(navControllerA, 11)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_FRONT_LEFT, Side.LEFT))));
+                                                .queueFind(new Location(Landmark.REEF_FRONT_LEFT, Side.LEFT), true)));
                 new JoystickButton(navControllerA, 12)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
-                                                .queueFind(new Location(Landmark.REEF_FRONT_LEFT, Side.RIGHT))));
+                                                .queueFind(new Location(Landmark.REEF_FRONT_LEFT, Side.RIGHT), true)));
                 new JoystickButton(navControllerB, 2)
                                 .onTrue(new InstantCommand(() -> pathfinderSubsystem
                                                 .queueFind(new Location(Landmark.STATION_RIGHT))));

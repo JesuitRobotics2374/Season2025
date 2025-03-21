@@ -32,15 +32,15 @@ public class ExactAlign extends Command {
     // Position tolerance thresholds
     private static final double X_TOLERANCE = 0.15; // meters
     private static final double Y_TOLERANCE = 0.15; // meters
-    private static final double YAW_TOLERANCE = 3 * Math.PI / 180; // radians
+    private static final double YAW_TOLERANCE = 1 * Math.PI / 180; // radians
     
     // Maximum output values
-    private static final double MAX_LINEAR_SPEED = 0.8;
+    private static final double MAX_LINEAR_SPEED = 1.4;
     private static final double MAX_ANGULAR_SPEED = 100.0;
     
     // Minimum output to overcome static friction
-    private static final double MIN_LINEAR_COMMAND = 0.05;
-    private static final double MIN_ANGULAR_COMMAND = 0.17;
+    private static final double MIN_LINEAR_COMMAND = 0.13;
+    private static final double MIN_ANGULAR_COMMAND = 0.25;
     
     // State tracking
     private int framesAtTarget = 0;
@@ -68,15 +68,15 @@ public class ExactAlign extends Command {
         
         // Initialize PID controllers
         // X PID coefficients (Adjust these values based on testing)
-        xController = new PIDController(1.8, 0.0, 1.2);
+        xController = new PIDController(2.5, 0.0, 1.8);
         xController.setTolerance(X_TOLERANCE);
         
         // Y PID coefficients
-        yController = new PIDController(3, 0.0, 0.4);
+        yController = new PIDController(3, 0.0, 2.3);
         yController.setTolerance(Y_TOLERANCE);
         
         // Yaw PID coefficients
-        yawController = new PIDController(2.0, 0.0, 0.0);
+        yawController = new PIDController(2.2, 0.1, 0.2);
         yawController.setTolerance(YAW_TOLERANCE);
         yawController.enableContinuousInput(-Math.PI, Math.PI);
         
@@ -189,8 +189,8 @@ public class ExactAlign extends Command {
         }
         
         // Limit outputs to maximum values
-        dx = Math.max(-MAX_LINEAR_SPEED, Math.min(dx, MAX_LINEAR_SPEED));
-        dy = Math.max(-MAX_LINEAR_SPEED, Math.min(dy, MAX_LINEAR_SPEED));
+        dx = Math.max(-MAX_LINEAR_SPEED, Math.min(dx/2, MAX_LINEAR_SPEED));
+        dy = Math.max(-MAX_LINEAR_SPEED, Math.min(dy/2, MAX_LINEAR_SPEED));
         dtheta = Math.max(-MAX_ANGULAR_SPEED, Math.min(dtheta, MAX_ANGULAR_SPEED));
         
         // Apply rate limiting for smoother motion
