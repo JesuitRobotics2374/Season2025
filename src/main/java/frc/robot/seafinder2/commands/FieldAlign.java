@@ -81,7 +81,7 @@ public class FieldAlign extends Command {
         yawController.setTolerance(0.1);
         yawController.enableContinuousInput(-Math.PI, Math.PI);
         
-        addRequirements(drivetrain);
+        // addRequirements(drivetrain);
     }
 
     @Override

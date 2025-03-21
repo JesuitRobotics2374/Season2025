@@ -80,7 +80,7 @@ public class ExactAlign extends Command {
         yawController.setTolerance(YAW_TOLERANCE);
         yawController.enableContinuousInput(-Math.PI, Math.PI);
         
-        addRequirements(drivetrain);
+        // addRequirements(drivetrain);
     }
 
     @Override

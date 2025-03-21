@@ -18,7 +18,7 @@ public class CanRangeDynamicForward extends Command {
     public CanRangeDynamicForward(CommandSwerveDrivetrain drivetrain){
         this.drivetrain = drivetrain;
 
-        addRequirements(drivetrain);
+        // addRequirements(drivetrain);
     }
 
     @Override

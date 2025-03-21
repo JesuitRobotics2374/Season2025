@@ -22,7 +22,7 @@ public class StaticBackCommand extends Command {
         this.providedDistance = distance;
         this.speed = speed;
         this.startingDistance = drivetrain.getRobotX();
-        addRequirements(drivetrain);
+        // addRequirements(drivetrain);
     }
 
     @Override

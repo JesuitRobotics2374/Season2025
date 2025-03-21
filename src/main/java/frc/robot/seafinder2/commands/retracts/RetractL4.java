@@ -50,7 +50,7 @@ public class RetractL4 extends SequentialCommandGroup {
         Command armCommand = new InstantCommand(() -> armSubsystem.armGoTo(SF2Constants.SETPOINT_REEF_T4.getArm() + armDelta));
         Command outtakeCommand = new SequentialCommandGroup(new WaitCommand(0.4), new NewOuttake(manipulatorSubsystem, outtakeSpeed).withTimeout(1.0));
 
-        Command backCommand = new SequentialCommandGroup(new WaitCommand(0.7), (new StaticBackCommand(drivetrain, backDistance, backSpeed)).withTimeout(0.5));
+        Command backCommand = new SequentialCommandGroup(new WaitCommand(0.7), (new StaticBackCommand(drivetrain, backDistance, backSpeed)).withTimeout(1.0));
 
         Command scoreCoral = new ParallelCommandGroup(elevatorCommand, armCommand, outtakeCommand, backCommand);
 

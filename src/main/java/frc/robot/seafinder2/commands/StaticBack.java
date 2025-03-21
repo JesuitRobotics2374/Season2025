@@ -18,7 +18,7 @@ public class StaticBack extends Command {
     public StaticBack(CommandSwerveDrivetrain drivetrain){
         this.drivetrain = drivetrain;
 
-        addRequirements(drivetrain);
+        // addRequirements(drivetrain);
     }
 
     @Override

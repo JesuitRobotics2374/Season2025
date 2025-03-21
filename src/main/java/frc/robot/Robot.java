@@ -77,7 +77,7 @@ public class Robot extends TimedRobot {
         Command raiseElevator = new ElevatorCommand(m_core.getElevatorSubsystem(), 1, false);
 
 
-        // L4 First Auto
+        // First Auto
         m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK, Side.RIGHT), true);
         m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
 
@@ -86,8 +86,11 @@ public class Robot extends TimedRobot {
         m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT));
 
 
-        // L1 Second Auto
-       // m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT, Side.CENTER), false);
+        // Second Auto L1
+    //    m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.CENTER), false);
+    //    m_core.pathfinderSubsystem.queueAlign(Height.TROUGH);
+
+        // Second Auto L4
         m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT), false);
         m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
  

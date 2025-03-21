@@ -240,7 +240,7 @@ public class PathfinderSubsystem {
             // Command intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
             Command bothHP = new ParallelCommandGroup(
                 // pathfindCommand.until(() -> drivetrain.robotNearHP()),
-                pathfindCommand,
+                new SequentialCommandGroup(new InstantCommand(() -> {System.out.println("ABDD START");}), pathfindCommand, (new InstantCommand(() -> {System.out.println("ABDD START");}))),
                 alignComponentsHP
             );
 
@@ -253,9 +253,9 @@ public class PathfinderSubsystem {
                 System.out.println("Auto to Human Station");
                 autoSequence.addCommands(
                     bothHP,
-                    stopDrivetrainCommand,
                     //hpFieldAlign.until(() -> drivetrain.robotNearHP()),
                     hpFieldAlign,
+                    stopDrivetrainCommand,
                     // alignComponentsHP,
                     canForward,
                     intakeCommand,
@@ -279,11 +279,6 @@ public class PathfinderSubsystem {
             );
             runningCommand.schedule();
             }
-
-            
-
-            
-
         }
     }
 
