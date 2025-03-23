@@ -78,21 +78,21 @@ public class Robot extends TimedRobot {
 
 
         // First Auto
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK, Side.RIGHT), true);
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK, Side.LEFT), true);
         m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
 
 
         // Human Station
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT));
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_LEFT));     
 
 
         // Second Auto L1
-    //    m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.CENTER), false);
-    //    m_core.pathfinderSubsystem.queueAlign(Height.TROUGH);
+       m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_LEFT, Side.LEFT), false);
+       m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
 
         // Second Auto L4
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT), false);
-        m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
+        // m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT), false);
+        // m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
  
 
         //all command should be in pathfinder auto sequence now

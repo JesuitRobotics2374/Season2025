@@ -54,16 +54,16 @@ public class ElevatorSubsystem extends SubsystemBase {
         slot0Configs.kG = 0.2; // Output of voltage to overcome gravity
         slot0Configs.kV = 0.1; // Output per unit target velocity, perhaps not needed
         slot0Configs.kA = 0.01; // Output per unit target acceleration, perhaps not needed
-        slot0Configs.kP = 3; // Controls the response to position error—how much the motor reacts to the
+        slot0Configs.kP = 1.2; // Controls the response to position error—how much the motor reacts to the
                                // difference between the current position and the target position.
         slot0Configs.kI = 0.01; // Addresses steady-state error, which occurs when the motor doesn’t quite reach
                                 // the target position due to forces like gravity or friction.
         slot0Configs.kD = 0.1; // Responds to the rate of change of the error, damping the motion as the motor
                                // approaches the target. This reduces overshooting and oscillations.
 
-        motionMagicConfigs.MotionMagicCruiseVelocity = 400; // Target velocity in rps
-        motionMagicConfigs.MotionMagicAcceleration = 400; // Target acceleration in rps/s
-        motionMagicConfigs.MotionMagicJerk = 2000; // Target jerk in rps/s/s
+        motionMagicConfigs.MotionMagicCruiseVelocity = 360; // Target velocity in rps
+        motionMagicConfigs.MotionMagicAcceleration = 380; // Target acceleration in rps/s
+        motionMagicConfigs.MotionMagicJerk = 1500; // Target jerk in rps/s/s
 
         elevatorMotor1.getConfigurator().apply(talonFXConfigs);
         elevatorMotor1.getConfigurator().apply(slot0Configs);
