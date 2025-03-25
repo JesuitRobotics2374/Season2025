@@ -62,11 +62,11 @@ public class CenterAlignTeleop extends Command {
 
         if (robotRelativeTagPose.getY() > 0) {
             turnSpeed *= -1;
-            moveSpeedY *= 1;
+            moveSpeedY *= -1;
         }
         else {
             turnSpeed *= 1;
-            moveSpeedY *= -1;
+            moveSpeedY *= 1;
         }
 
         System.out.println("CAT initialized");
@@ -80,7 +80,7 @@ public class CenterAlignTeleop extends Command {
 
         tagAlignAngle = tagAlignAngle + (turnSpeed * turnSpeedScalar * 0.02); // Subtracts how far we've turned per seconds every 0.02 seconds (20ms, the periodic time)
         distanceFromTagAlignY = distanceFromTagAlignY + (moveSpeedY * moveSpeedScalar * 0.02);
-        distanceFromTagAlignX = distanceFromTagAlignX + (moveSpeedX * moveSpeedScalar * 0.02);
+        distanceFromTagAlignX = distanceFromTagAlignX - (moveSpeedX * moveSpeedScalar * 0.02);
 
         System.out.println("Center Align Executed");
     }
