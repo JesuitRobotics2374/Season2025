@@ -1,6 +1,8 @@
 //Juli's take
 //Note to Ethan; your google doc made no sense to my brain, so i just tried to write what i think you meant.
 
+//Ethan fixes added, leaving out X for now (for simplicity until this works0
+
 package frc.robot.commands.EthanAlign;
 
 import org.photonvision.PhotonCamera;
@@ -26,10 +28,15 @@ public class CenterAlignTeleop extends Command {
 
     private double distanceFromTagAlignY; //In meters
     private double moveSpeedY = 0.5; //in meters per second
-    private double moveSpeedScalar = 1; //Scales the movespeed down according to how far we are from the tag
+  
     private double distanceFromTagAlignX; //In meters
     private double moveSpeedX = 0.5; //in meters per second
                 
+    private double moveSpeedScalar = 1; //Scales the movespeed down according to how far we are from the tag
+
+    private boolean tagPerpendicular = false;
+    private boolean yDone = false;
+        
     public CenterAlignTeleop(CommandSwerveDrivetrain drivetrain, VisionSubsystem visionSubsystem, Pose2d robotRelativeTagPose) {
                 
         this.drivetrain = drivetrain;
@@ -43,30 +50,35 @@ public class CenterAlignTeleop extends Command {
     @Override
     public void initialize() {
 
-        //ONLY WORKS IN ONE CASE SO FAR, WILL WORK ON MORE AFTER TESTING
-        //theoretically should work for all cases unless i'm forgetting something
-
         double x = robotRelativeTagPose.getX();
         double y = robotRelativeTagPose.getY();
         double yaw = robotRelativeTagPose.getRotation().getDegrees();
         double a = Math.atan(y / x);
+        
+        if (y < 0) {
+            tagAlignAngle = a + yaw;
+        }
+        else {
+            tagAlignAngle = a - yaw;
+        }
 
-        double rotate = a + yaw;
-        tagAlignAngle = rotate;
-
-        distanceFromTagAlignY = y;
+        distanceFromTagAlignY = Math.abs(y);
         distanceFromTagAlignX = x;      //may have to subtract a bit so the bot doesn't crash into apriltag
 
-        moveSpeedX = moveSpeedY * x / Math.abs(y);
+       // moveSpeedX = moveSpeedY * x / Math.abs(y);
+        moveSpeedX = 0;
 
-        if (robotRelativeTagPose.getY() > 0) {
+        if (robotRelativeTagPose.getY() < 0) {
             turnSpeed *= -1;
-            moveSpeedY *= -1;
+            moveSpeedY *= 1;
         }
         else {
             turnSpeed *= 1;
-            moveSpeedY *= 1;
+            moveSpeedY *= -1;
         }
+
+        tagPerpendicular = tagAlignAngle < 0.1;
+        yDone = distanceFromTagAlignY < 0.1;
 
         System.out.println("CAT initialized");
     }
@@ -74,19 +86,30 @@ public class CenterAlignTeleop extends Command {
     @Override
     public void execute() {
 
-        if (Math.abs(tagAlignAngle) > 0.1) {
+        if (!tagPerpendicular) {
             drivetrain.setControl(new SwerveRequest.RobotCentric().withRotationalRate(turnSpeed * turnSpeedScalar));
+            
+            tagAlignAngle = tagAlignAngle - Math.abs(turnSpeed * turnSpeedScalar * 0.02);
+
+            if (tagAlignAngle < 30) {
+                turnSpeedScalar = 0.5;
+            }
+
+            tagPerpendicular = tagAlignAngle < 0.1;
         }
+        else if (!yDone) {
+            drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityY(moveSpeedY * moveSpeedScalar));
 
-        tagAlignAngle = tagAlignAngle + (turnSpeed * turnSpeedScalar * 0.02); // Subtracts how far we've turned per seconds every 0.02 seconds (20ms, the periodic time)
+            if (visionSubsystem.canSeeTag()) {
+                moveSpeedScalar = 0.5;
+                distanceFromTagAlignY = Math.abs(visionSubsystem.getRobotRelativeTagPose().getY());
+            }
+            else {
+                distanceFromTagAlignY = distanceFromTagAlignY - Math.abs(moveSpeedY * moveSpeedScalar * 0.02);
+            }
+                //distanceFromTagAlignX = distanceFromTagAlignX - (moveSpeedX * moveSpeedScalar * 0.02);
 
-        if (Math.abs(tagAlignAngle) < 0.1) {
-            drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityY(moveSpeedY * moveSpeedScalar)
-                                                                  .withVelocityX(moveSpeedX * moveSpeedScalar));
-
-            distanceFromTagAlignY = distanceFromTagAlignY + (moveSpeedY * moveSpeedScalar * 0.02);
-            distanceFromTagAlignX = distanceFromTagAlignX - (moveSpeedX * moveSpeedScalar * 0.02);
-
+            yDone = distanceFromTagAlignY < 0.1;
         }
 
         System.out.println("Center Align Executed");
@@ -94,7 +117,7 @@ public class CenterAlignTeleop extends Command {
 
     @Override
     public boolean isFinished() {
-        return Math.abs(distanceFromTagAlignY) < 0.1 && Math.abs(tagAlignAngle) < 0.1 && Math.abs(distanceFromTagAlignX) < 0.1;
+        return tagPerpendicular && yDone;
     }
 
     @Override
@@ -102,5 +125,4 @@ public class CenterAlignTeleop extends Command {
         System.out.println("CAT complete!");
         drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
     }
-
 }
