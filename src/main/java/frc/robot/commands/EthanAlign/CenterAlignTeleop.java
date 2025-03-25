@@ -49,7 +49,7 @@ public class CenterAlignTeleop extends Command {
         double x = robotRelativeTagPose.getX();
         double y = robotRelativeTagPose.getY();
         double yaw = robotRelativeTagPose.getRotation().getDegrees();
-        double a = Math.asin(y / x);
+        double a = Math.atan(y / x);
 
         double rotate = a + yaw;
         tagAlignAngle = rotate;
@@ -57,7 +57,6 @@ public class CenterAlignTeleop extends Command {
         distanceFromTagAlignY = y;
         distanceFromTagAlignX = x;      //may have to subtract a bit so the bot doesn't crash into apriltag
 
-        turnSpeed = moveSpeedY * rotate / y;
         moveSpeedX = moveSpeedY * x / Math.abs(y);
 
         if (robotRelativeTagPose.getY() > 0) {
@@ -74,13 +73,21 @@ public class CenterAlignTeleop extends Command {
 
     @Override
     public void execute() {
-        drivetrain.setControl(new SwerveRequest.RobotCentric().withRotationalRate(turnSpeed * turnSpeedScalar)
-                                                              .withVelocityY(moveSpeedY * moveSpeedScalar)
-                                                              .withVelocityX(moveSpeedX * moveSpeedScalar));
+
+        if (Math.abs(tagAlignAngle) > 0.1) {
+            drivetrain.setControl(new SwerveRequest.RobotCentric().withRotationalRate(turnSpeed * turnSpeedScalar));
+        }
 
         tagAlignAngle = tagAlignAngle + (turnSpeed * turnSpeedScalar * 0.02); // Subtracts how far we've turned per seconds every 0.02 seconds (20ms, the periodic time)
-        distanceFromTagAlignY = distanceFromTagAlignY + (moveSpeedY * moveSpeedScalar * 0.02);
-        distanceFromTagAlignX = distanceFromTagAlignX - (moveSpeedX * moveSpeedScalar * 0.02);
+
+        if (Math.abs(tagAlignAngle) < 0.1) {
+            drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityY(moveSpeedY * moveSpeedScalar)
+                                                                  .withVelocityX(moveSpeedX * moveSpeedScalar));
+
+            distanceFromTagAlignY = distanceFromTagAlignY + (moveSpeedY * moveSpeedScalar * 0.02);
+            distanceFromTagAlignX = distanceFromTagAlignX - (moveSpeedX * moveSpeedScalar * 0.02);
+
+        }
 
         System.out.println("Center Align Executed");
     }
