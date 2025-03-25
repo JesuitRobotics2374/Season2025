@@ -38,6 +38,7 @@ public class CenterAlignTeleop extends Command {
         System.out.println("CAT Instantiated");
     }
 
+    @Override
     public void initialize() {
 
         //ONLY WORKS IN ONE CASE SO FAR, WILL WORK ON MORE AFTER TESTING
