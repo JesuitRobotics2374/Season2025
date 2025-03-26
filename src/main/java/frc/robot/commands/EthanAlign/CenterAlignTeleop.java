@@ -56,10 +56,10 @@ public class CenterAlignTeleop extends Command {
         double a = Math.atan(y / x);
         
         if (y < 0) {
-            tagAlignAngle = a + yaw;
+            tagAlignAngle = a - yaw;
         }
         else {
-            tagAlignAngle = a - yaw;
+            tagAlignAngle = a + yaw;
         }
 
         distanceFromTagAlignY = Math.abs(y);
