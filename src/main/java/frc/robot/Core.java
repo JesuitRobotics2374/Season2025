@@ -193,6 +193,10 @@ public class Core {
             return isTurbo;
         });
 
+        tab.addDouble("LEFTCR", () -> drivetrain.getForwardRangeLeft());
+        tab.addDouble("RIGHTCR", () -> drivetrain.getForwardRangeRight());
+
+
         // tab.add("Auto Chooser", autoChooser);
 
     }

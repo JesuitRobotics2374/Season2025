@@ -156,8 +156,8 @@ public class PathfinderSubsystem {
         Command stopDrivetrainCommand = new StopDrivetrain(drivetrain);
 
         Command alignComponents = new ParallelCommandGroup(
-            new ElevatorCommand(core.getElevatorSubsystem(), target.getSetpoint().getElevator(), true),
-            new ArmCommand(core.getArmSubsystem(),target.getSetpoint().getArm(), true),
+            new ElevatorCommand(core.getElevatorSubsystem(), target.getSetpoint().getElevator()  + 8, true),
+            new SequentialCommandGroup(new WaitCommand(0.3), new ArmCommand(core.getArmSubsystem(),target.getSetpoint().getArm(), true)),
             new WristCommand(core.getArmSubsystem(), target.getSetpoint().getWrist(), true)
         );
         Command alignComponentsHP = new ParallelCommandGroup(
@@ -166,7 +166,6 @@ public class PathfinderSubsystem {
         );
 
         Command retractComponents = target.getRetractCommand();
-        Command wristToScoringPosCommand = new WristCommand(core.getArmSubsystem(), SF2Constants.WRIST_MIN_POSITION, true); 
 
         if (target.isReef()) {
             System.out.println("RUNNING REEF SEQUENCE");
@@ -177,7 +176,7 @@ public class PathfinderSubsystem {
             if (target.getHeight().equals(Height.TROUGH)) {
                 troughOuttake = new NewOuttake(core.getManipulatorSubsystem(), 1).withTimeout(0.3);
             } else {
-                troughOuttake = new WaitCommand(0.0); // Otherwise use it as our wait
+                troughOuttake = new WaitCommand(0.3); // Otherwise use it as our wait
             }
 
             drivetrain.setLabel(target.getTagRelativePose().getPose2d(), "EXA");

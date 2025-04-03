@@ -54,7 +54,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         slot0Configs.kG = 0.2; // Output of voltage to overcome gravity
         slot0Configs.kV = 0.1; // Output per unit target velocity, perhaps not needed
         slot0Configs.kA = 0.01; // Output per unit target acceleration, perhaps not needed
-        slot0Configs.kP = 1.2; // Controls the response to position error—how much the motor reacts to the
+        slot0Configs.kP = 1.6; // Controls the response to position error—how much the motor reacts to the
                                // difference between the current position and the target position.
         slot0Configs.kI = 0.01; // Addresses steady-state error, which occurs when the motor doesn’t quite reach
                                 // the target position due to forces like gravity or friction.

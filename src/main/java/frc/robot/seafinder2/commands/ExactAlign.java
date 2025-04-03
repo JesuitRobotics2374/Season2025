@@ -44,7 +44,7 @@ public class ExactAlign extends Command {
     
     // State tracking
     private int framesAtTarget = 0;
-    private static final int REQUIRED_FRAMES_AT_TARGET = 5;
+    private static final int REQUIRED_FRAMES_AT_TARGET = 25;
     private int framesWithoutTarget = 0;
     private static final int MAX_FRAMES_WITHOUT_TARGET = 10;
 

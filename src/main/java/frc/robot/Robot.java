@@ -60,6 +60,8 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
+        m_core.getArmSubsystem().stopArm();
+        m_core.getElevatorSubsystem().stopElevator();
 
         System.out.println("Auto-Iit");
         m_core.getDrivetrain().seedRobotAuto();
@@ -78,25 +80,25 @@ public class Robot extends TimedRobot {
 
 
         // First Auto
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK, Side.LEFT), true);
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.LEFT), true);
         m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
 
 
         // Human Station
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_LEFT));     
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT));     
 
 
         // Second Auto L1
-       m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_LEFT, Side.LEFT), false);
-       m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
+        // m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.LEFT), false);
+        // m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
 
         // Second Auto L4
-        // m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT), false);
-        // m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.LEFT), false);
+        m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
  
 
         //all command should be in pathfinder auto sequence now
-        m_core.autoCommandGroup = new SequentialCommandGroup(raiseElevator, m_core.getPathfinderSubsystem().autoSequence);
+        m_core.autoCommandGroup = new SequentialCommandGroup(m_core.getPathfinderSubsystem().autoSequence);
         m_core.autoCommandGroup.schedule();
 
         System.out.println("Auto schedule complete");
