@@ -34,8 +34,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Seafinder2.ExactAlign;
 import frc.robot.Seafinder2.TagRelativePose;
 import frc.robot.commands.EthanAlign.ApproachTagTeleop;
-import frc.robot.commands.EthanAlign.ApproachTagTeleopGPT;
 import frc.robot.commands.EthanAlign.CenterAlignTeleop;
+import frc.robot.commands.EthanAlign.SpinTest;
 import frc.robot.commands.EthanAlign.TeleopMoveX;
 import frc.robot.commands.EthanAlign.TeleopMoveY;
 import frc.robot.commands.EthanAlign.TeleopRotate;
@@ -113,6 +113,7 @@ public class Core {
 
     public void registerAutoCommands() {
         NamedCommands.registerCommand("OuttakeCommand", new Outtake(outtakeSubsystem));
+        
         // NamedCommands.registerCommand("Test Pathfind", new PathfindBasic(drivetrain,
         // Constants.TEST_PATHFIND_TARGET));
 
@@ -173,8 +174,9 @@ public class Core {
         // driveController.a().onTrue((new TeleopMoveY(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose())));
         // driveController.b().onTrue((new TeleopMoveX(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose())));
         // driveController.povUp().onTrue((new TeleopRotate(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose())));
-        driveController.a().onTrue((new CenterAlignTeleop(drivetrain, visionSubsystem, poseR))); //does it have to be runOnce ????
-        //driveController.b().onTrue(new TeleopMoveX(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose()));
+        //driveController.a().onTrue((new CenterAlignTeleop(drivetrain, visionSubsystem, poseR))); //does it have to be runOnce ????
+        driveController.a().onTrue((new TeleopMoveX(drivetrain, visionSubsystem, poseR)));
+        driveController.b().onTrue(new CenterAlignTeleop(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose()));
         //driveController.b().onTrue(new InstantCommand(() -> new TeleopMoveY(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose())));
         //driveController.a().onTrue(new InstantCommand(() -> new TeleopRotate(drivetrain, visionSubsystem, visionSubsystem.getRobotRelativeTagPose())));
         

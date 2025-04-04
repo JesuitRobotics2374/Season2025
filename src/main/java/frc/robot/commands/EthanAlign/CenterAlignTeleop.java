@@ -5,10 +5,7 @@
 
 package frc.robot.commands.EthanAlign;
 
-import org.photonvision.PhotonCamera;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,7 +20,7 @@ public class CenterAlignTeleop extends Command {
     private Pose2d robotRelativeTagPose;
 
     private double tagAlignAngle; // in degrees
-    private double turnSpeed = 90; // In DEGREES / SEC
+    private double turnSpeed = Math.PI / 2; // In DEGREES / SEC
     private double turnSpeedScalar = 1; //Scales the turnspeed down according to how far we are from alignment
 
     private double distanceFromTagAlignY; //In meters
@@ -38,7 +35,6 @@ public class CenterAlignTeleop extends Command {
     private boolean yDone = false;
         
     public CenterAlignTeleop(CommandSwerveDrivetrain drivetrain, VisionSubsystem visionSubsystem, Pose2d robotRelativeTagPose) {
-                
         this.drivetrain = drivetrain;
         this.visionSubsystem = visionSubsystem;
         this.robotRelativeTagPose = robotRelativeTagPose;
@@ -53,7 +49,7 @@ public class CenterAlignTeleop extends Command {
         double x = robotRelativeTagPose.getX();
         double y = robotRelativeTagPose.getY();
         double yaw = robotRelativeTagPose.getRotation().getDegrees();
-        double a = Math.atan(y / x);
+        double a = Math.atan(y / x) * 180 / Math.PI;
         
         if (y < 0) {
             tagAlignAngle = a - yaw;
@@ -62,10 +58,9 @@ public class CenterAlignTeleop extends Command {
             tagAlignAngle = a + yaw;
         }
 
-        distanceFromTagAlignY = Math.abs(y);
+        distanceFromTagAlignY = Math.abs(y); //degrees
         distanceFromTagAlignX = x;      //may have to subtract a bit so the bot doesn't crash into apriltag
 
-       // moveSpeedX = moveSpeedY * x / Math.abs(y);
         moveSpeedX = 0;
 
         if (robotRelativeTagPose.getY() < 0) {
@@ -77,7 +72,7 @@ public class CenterAlignTeleop extends Command {
             moveSpeedY *= -1;
         }
 
-        tagPerpendicular = tagAlignAngle < 0.1;
+        tagPerpendicular = tagAlignAngle < 5;
         yDone = distanceFromTagAlignY < 0.1;
 
         System.out.println("CAT initialized");
@@ -89,13 +84,13 @@ public class CenterAlignTeleop extends Command {
         if (!tagPerpendicular) {
             drivetrain.setControl(new SwerveRequest.RobotCentric().withRotationalRate(turnSpeed * turnSpeedScalar));
             
-            tagAlignAngle = tagAlignAngle - Math.abs(turnSpeed * turnSpeedScalar * 0.02);
+            tagAlignAngle = tagAlignAngle - Math.abs((turnSpeed * 180 / Math.PI) * turnSpeedScalar * 0.02);
 
             if (tagAlignAngle < 30) {
                 turnSpeedScalar = 0.5;
             }
 
-            tagPerpendicular = tagAlignAngle < 0.1;
+            tagPerpendicular = tagAlignAngle < 5;
         }
         else if (!yDone) {
             drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityY(moveSpeedY * moveSpeedScalar));
