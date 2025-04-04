@@ -33,12 +33,14 @@ import frc.robot.seafinder2.utils.Target;
 import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.seafinder2.utils.Target.Location;
 import frc.robot.subsystems.ManipulatorSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
 public class PathfinderSubsystem {
 
     private Core core;
     private CommandSwerveDrivetrain drivetrain;
+    private VisionSubsystem visionSubsystem;
 
     private Target target;
 
@@ -53,6 +55,7 @@ public class PathfinderSubsystem {
     public PathfinderSubsystem(Core core) {
         this.core = core;
         this.drivetrain = core.getDrivetrain();
+        this.visionSubsystem = core.visionSubsystem;
 
         autoSequence = new SequentialCommandGroup();
       //  autoSequence2 = new SequentialCommandGroup();
@@ -182,7 +185,7 @@ public class PathfinderSubsystem {
             drivetrain.setLabel(target.getTagRelativePose().getPose2d(), "EXA");
 
             if (DriverStation.isAutonomous()) {
-                Command exactAlign = new SequentialCommandGroup(new WaitCommand(0.0), new ExactAlign(drivetrain, target.getTagRelativePose()));
+                Command exactAlign = new SequentialCommandGroup(new WaitCommand(0.0), new ExactAlign(drivetrain, target.getTagRelativePose(), visionSubsystem));
                 Command alignBoth = new ParallelCommandGroup(exactAlign, alignComponents);
 
                 if (skipAStar) {
@@ -205,7 +208,7 @@ public class PathfinderSubsystem {
                 // autoSequence.schedule();
 
             } else {
-                Command exactAlign = new SequentialCommandGroup(new WaitCommand(0.5), new ExactAlign(drivetrain, target.getTagRelativePose()));
+                Command exactAlign = new SequentialCommandGroup(new WaitCommand(0.5), new ExactAlign(drivetrain, target.getTagRelativePose(), visionSubsystem));
                 Command alignBoth = new ParallelCommandGroup(exactAlign, alignComponents);
 
                 if (skipAStar) {

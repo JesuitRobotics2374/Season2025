@@ -47,9 +47,9 @@ import frc.robot.subsystems.ArmSubsystem;
 // import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
-import frc.robot.utils.LimelightHelpers;
 import frc.robot.seafinder2.SF2Constants;
 import frc.robot.seafinder2.commands.ExactAlign;
 import frc.robot.seafinder2.commands.limbControl.IntakeCommand;
@@ -85,6 +85,7 @@ public class Core {
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     public final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
+    public final VisionSubsystem visionSubsystem = new VisionSubsystem(drivetrain);
     // public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     public final PathfinderSubsystem pathfinderSubsystem = new PathfinderSubsystem(this);
@@ -232,7 +233,7 @@ public class Core {
         
         TagRelativePose testingTagRelativePose = new TagRelativePose(19, SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET, -0.7, 0.0); // idk what units this is in - x is left
         // right & y is front back
-        driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
+        driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose, visionSubsystem));
 
         // driveController.x().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MIN_POSITION, true));
         // driveController.y().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MAX_POSITION, true));

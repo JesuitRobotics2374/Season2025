@@ -352,9 +352,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     alignToVision(llo, fp.pose, false);
                 }
             }
-
         }
-
     }
 
     private void startSimThread() {

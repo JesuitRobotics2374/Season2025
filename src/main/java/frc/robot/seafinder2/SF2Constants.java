@@ -3,11 +3,8 @@ package frc.robot.seafinder2;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.seafinder2.utils.Target.Setpoint;
-import frc.robot.utils.LimelightObject;
 
 public class SF2Constants {
-
-    public static final LimelightObject[] LIMELIGHTS_ON_BOARD = Constants.LIMELIGHTS_ON_BOARD; // Which Limelights should SF2 use?
 
     public static final double SEAFINDER2_MAX_VELOCITY = 5.6;
     public static final double SEAFINDER2_MAX_ACCELERATION = 5.5;

@@ -36,21 +36,19 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import frc.robot.commands.EthanAlign.ApproachTagTeleop;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
 //for alignment
 import edu.wpi.first.math.controller.PIDController;
 
-public class VisionSubsystem{
+public class VisionSubsystem {
 
     private PhotonCamera camera;
     private CommandSwerveDrivetrain drivetrain;
     private Field2d field;
-    private PhotonPipelineResult result = null;
-    private Transform3d transform3d = null;
     public AprilTagFieldLayout aprilTagFieldLayout;
     private PhotonPoseEstimator photonPoseEstimator;
+    private int priorityTagID;
 
     // private Transform3d robotToCam;
     // private Matrix<N3, N1> curStdDevs;
@@ -60,7 +58,6 @@ public class VisionSubsystem{
     private VisionSystemSim visionSim;
 
     public VisionSubsystem(CommandSwerveDrivetrain drivetrain) { // perhaps remove the drivetrain if not using
-
         this.drivetrain = drivetrain;
         System.out.println(NetworkTableInstance.getDefault());
         camera = new PhotonCamera(NetworkTableInstance.getDefault(), "camera");
@@ -78,131 +75,75 @@ public class VisionSubsystem{
         field.getObject(label).setPose(pose2d);
     }
 
-    // MY(JULI'S) PROTOTYPE CODE
-
     public double getDistanceToAprilTag() {
-        var result = camera.getLatestResult();
+        PhotonPipelineResult result = camera.getLatestResult();
 
         if (result.hasTargets()) {
+            List<PhotonTrackedTarget> targets = result.targets;
+
+            for (PhotonTrackedTarget target : targets) {
+                if (target.getFiducialId() == priorityTagID) {
+                    return target.getBestCameraToTarget().getTranslation().getNorm();
+                }
+            }
+
             PhotonTrackedTarget target = result.getBestTarget();
             Transform3d transform = target.getBestCameraToTarget();
-            
+
             return transform.getTranslation().getNorm();
         }
 
         return -1;
     }
 
-    // KEVIN'S CODE (with a few minor tweaks)
-    // NOTE TO SELF(JULI) DON'T FORGET TO MAKE IT WORK WITH ELASTIC
-
-    // tag relative to bot
-    public Pose2d getRobotRelativeTagPose() {
+    public Pose3d getTagRelativeToBot() {
         if (!canSeeTag()) {
-            result = null;
-            transform3d = null;
+            return null;
         }
 
-        List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-        // System.out.println(results.size() + " " + camera.isConnected() + " " +
-        // camera.getName() + " " + camera.getPipelineIndex());
-        var latestResult = camera.getLatestResult();
+        PhotonPipelineResult result = camera.getLatestResult();
 
-        if (results.size() > 0 && latestResult.hasTargets()) {
-            try {
-                result = results.get(results.size() - 1);
-                transform3d = result.getBestTarget().bestCameraToTarget;
-            } catch (Exception e) {
-                System.out.println("estimated poes failed");
-                if (result == null || transform3d == null) {
-                    return new Pose2d(0, 0, new Rotation2d(0, 0));
+        if (result != null && result.hasTargets()) {
+            List<PhotonTrackedTarget> targets = result.targets;
+
+            for (PhotonTrackedTarget target : targets) {
+                if (target.getFiducialId() == priorityTagID) {
+                    Transform3d transform3d = target.getBestCameraToTarget();
+                    Translation3d translation3d = transform3d.getTranslation();
+                    Rotation3d rotation3d = transform3d.getRotation();
+
+                    return new Pose3d(translation3d, rotation3d);
                 }
             }
 
-            Translation2d translation2d = transform3d.getTranslation().toTranslation2d();
-            Rotation2d rotation2d = transform3d.getRotation().toRotation2d();
+            Transform3d transform3d = result.getBestTarget().bestCameraToTarget;
 
-            Pose2d targetPose = new Pose2d(translation2d, rotation2d.minus(Rotation2d.fromDegrees(180))); // TEST THIS
+            Translation3d translation3d = transform3d.getTranslation();
+            Rotation3d rotation3d = transform3d.getRotation();
 
-            return targetPose;
+            return new Pose3d(translation3d, rotation3d);
         } else {
-            return new Pose2d(0.000001, 0.000001, new Rotation2d(0, 0));
+            return null;
         }
     }
 
-    // bot relative to tag
-    public Pose2d getTagRelativeRobotPose() {
+    public Pose3d getBotRelativeToTag() {
         if (!canSeeTag()) {
-            result = null;
-            transform3d = null;
+            return null;
         }
 
-        List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-        // System.out.println(results.size() + " " + camera.isConnected() + " " +
-        // camera.getName() + " " + camera.getPipelineIndex());
-        var latestResult = camera.getLatestResult();
+        PhotonPipelineResult latestResult = camera.getLatestResult();
 
-        if (latestResult.hasTargets()) {
-            try {
-                result = results.get(results.size() - 1);
-                transform3d = result.getBestTarget().bestCameraToTarget;
-            } catch (Exception e) {
-                System.out.println("relrobo failed");
-                if (result == null || transform3d == null) {
-                    return new Pose2d(0, 0, new Rotation2d(0, 0));
-                }
-            }
+        if (latestResult != null && latestResult.hasTargets()) {
+            Transform3d transform3d = latestResult.getBestTarget().bestCameraToTarget;
 
-            Translation2d translation2d = transform3d.getTranslation().toTranslation2d();
+            Translation3d translation3d = transform3d.getTranslation();
+            Rotation3d rotation3d = transform3d.getRotation();
 
-            Translation2d newTranslation2d = new Translation2d(translation2d.getMeasureX().times(-1),
-                    translation2d.getMeasureY().times(-1));
-
-            Rotation2d rotation2d = transform3d.getRotation().toRotation2d();
-
-            Pose2d targetPose = new Pose2d(newTranslation2d, rotation2d);
-
-            return targetPose;
+            return new Pose3d(new Translation3d(-translation3d.getX(), -translation3d.getY(), -translation3d.getZ()), rotation3d);
         } else {
-            return new Pose2d(0.000001, 0.0000001, drivetrain.getRobotRInR2D());
+            return null;
         }
-    }
-
-    public Pose2d robotPoseField() {
-        if (canSeeTag() && getTagID() > 0) {
-            try {
-                int aprilTagID = getTagID();
-
-                Pose2d aprilTagPose = aprilTagFieldLayout.getTagPose(aprilTagID).get().toPose2d();
-                Pose2d robotRelativeTagPose = getRobotRelativeTagPose();
-
-                int xMult;
-                int yMult;
-
-                if ((drivetrain.getRobotPose2d().getY() > 3.9624 && robotRelativeTagPose.getY() > 0)
-                        || (drivetrain.getRobotPose2d().getY() < 3.9624 && robotRelativeTagPose.getY() < 0)) {
-                    yMult = 1;
-                } else
-                    yMult = -1;
-
-                if (drivetrain.getRobotPose2d().getRotation().getDegrees() >= 91
-                        && drivetrain.getRobotPose2d().getRotation().getDegrees() <= 269) {
-                    xMult = 1;
-                } else
-                    xMult = -1;
-
-                Pose2d updatedRobotPose = new Pose2d(aprilTagPose.getX() + xMult * robotRelativeTagPose.getX(),
-                        aprilTagPose.getY() + yMult * robotRelativeTagPose.getY(),
-                        aprilTagPose.getRotation()
-                                .plus(robotRelativeTagPose.getRotation().minus(new Rotation2d(Math.PI))));
-
-                return updatedRobotPose;
-            } catch (Exception e) {
-                System.out.println("robotPoseField error");
-                return drivetrain.getRobotPose2d();
-            }
-        } else
-            return drivetrain.getRobotPose2d();
     }
 
     public boolean canSeeTag() {
@@ -211,17 +152,19 @@ public class VisionSubsystem{
 
     public int getTagID() {
         if (canSeeTag()) {
-            try {
-                result = camera.getLatestResult();
-                PhotonTrackedTarget target = result.getBestTarget();
+            PhotonPipelineResult latestResult = camera.getLatestResult();
+            if (latestResult != null && latestResult.hasTargets()) {
+                PhotonTrackedTarget target = latestResult.getBestTarget();
                 return target.getFiducialId();
-            } catch (Exception e) {
-                System.out.println("failed gettag");
-                return -1;
             }
-        } else
-            return -1;
+        }
+        return -1;
     }
+
+    public void setPriorityTagID(int id) {
+        priorityTagID = id;
+    }
+
     // public PhotonPoseEstimator getPhotonPoseEstimator() {
     // return new PhotonPoseEstimator(aprilTagFieldLayout,
     // PoseStrategy.LOWEST_AMBIGUITY, transform3d);

@@ -10,9 +10,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.seafinder2.SF2Constants;
 import frc.robot.seafinder2.utils.Target.TagRelativePose;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
-import frc.robot.utils.LimelightHelpers;
-import frc.robot.utils.LimelightObject;
 
 public class ExactAlign extends Command {
 
@@ -49,6 +48,7 @@ public class ExactAlign extends Command {
     private static final int MAX_FRAMES_WITHOUT_TARGET = 10;
 
     private final CommandSwerveDrivetrain drivetrain;
+    private final VisionSubsystem visionSubsystem;
     private final int tagId;
     private final double x_offset;
     private final double y_offset;
@@ -56,11 +56,12 @@ public class ExactAlign extends Command {
 
     boolean finishedOverride;
 
-    public ExactAlign(CommandSwerveDrivetrain drivetrain, TagRelativePose tagRelativePose) {
+    public ExactAlign(CommandSwerveDrivetrain drivetrain, TagRelativePose tagRelativePose, VisionSubsystem visionSubsystem) {
 
         finishedOverride = false;
 
         this.drivetrain = drivetrain;
+        this.visionSubsystem = visionSubsystem;
         this.tagId = tagRelativePose.getTagId();
         this.x_offset = tagRelativePose.getX();
         this.y_offset = tagRelativePose.getY();
@@ -89,9 +90,7 @@ public class ExactAlign extends Command {
         finishedOverride = false;
 
         System.out.println("EXACTALIGN STARTED");
-        for (LimelightObject limelight : SF2Constants.LIMELIGHTS_ON_BOARD) {
-            LimelightHelpers.setPriorityTagID(limelight.name, tagId);
-        }
+        visionSubsystem.setPriorityTagID(tagId);
         
         // Reset controllers and rate limiters
         xController.reset();
@@ -117,13 +116,33 @@ public class ExactAlign extends Command {
         double avg_yaw = 0;
         int count = 0;
         
-        for (LimelightObject limelight : SF2Constants.LIMELIGHTS_ON_BOARD) {
-            if ((int) LimelightHelpers.getFiducialID(limelight.name) != tagId) {
-                System.out.println("EXACT ALIGN " + limelight.name + " TAG: " + (int) LimelightHelpers.getFiducialID(limelight.name));
+        // for (LimelightObject limelight : SF2Constants.LIMELIGHTS_ON_BOARD) {
+        //     if ((int) LimelightHelpers.getFiducialID(limelight.name) != tagId) {
+        //         System.out.println("EXACT ALIGN " + limelight.name + " TAG: " + (int) LimelightHelpers.getFiducialID(limelight.name));
+        //         continue;
+        //     }
+            
+        //     Pose3d pose3d = LimelightHelpers.getBotPose3d_TargetSpace(limelight.name);
+        //     if (pose3d == null) {
+        //         System.out.println("EXACT ALIGN POSE NO SEE");
+        //         continue;
+        //     }
+
+        //     avg_x += pose3d.getX();
+        //     avg_y += pose3d.getZ();
+        //     avg_yaw += pose3d.getRotation().getY();
+        //     count++;
+        // }
+
+        for (int i = 0; i < 1; i++) {
+            if (visionSubsystem.getTagID() != tagId) {
+                System.out.println(
+                        "EXACT ALIGN " + " TAG: " + visionSubsystem.getTagID());
                 continue;
             }
             
-            Pose3d pose3d = LimelightHelpers.getBotPose3d_TargetSpace(limelight.name);
+            Pose3d pose3d = visionSubsystem.getTagRelativeToBot();
+            
             if (pose3d == null) {
                 System.out.println("EXACT ALIGN POSE NO SEE");
                 continue;
