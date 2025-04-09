@@ -90,8 +90,6 @@ public class ExactAlign extends Command {
 
         System.out.println("EXACTALIGN STARTED");
 
-        Constants.VISION_SUBSYSTEM.setPriorityTagID(tagId);
-
         // Reset controllers and rate limiters
         xController.reset();
         yController.reset();
