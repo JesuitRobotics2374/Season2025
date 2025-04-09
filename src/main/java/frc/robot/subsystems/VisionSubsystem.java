@@ -152,6 +152,7 @@ public class VisionSubsystem {
                 roll += pose.getRotation().getX();
                 pitch += pose.getRotation().getY();
                 yaw += pose.getRotation().getZ();
+                count++;
             }
         }
 
@@ -224,6 +225,7 @@ public class VisionSubsystem {
                 roll += pose.getRotation().getX();
                 pitch += pose.getRotation().getY();
                 yaw += pose.getRotation().getZ();
+                count++;
             }
         }
 
