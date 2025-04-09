@@ -21,6 +21,7 @@ import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.seafinder2.utils.Target.Landmark;
 import frc.robot.seafinder2.utils.Target.Location;
 import frc.robot.seafinder2.utils.Target.Side;
+import frc.robot.subsystems.VisionSubsystem;
 
 public class Robot extends TimedRobot {
 
@@ -34,6 +35,7 @@ public class Robot extends TimedRobot {
 
         PathfindingCommand.warmupCommand().schedule();
 
+        VisionSubsystem.initializeVisionSubsystem();
     }
 
     @Override

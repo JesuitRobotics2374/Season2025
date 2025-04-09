@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.seafinder2.utils.Target.TagRelativePose;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
 public class ExactAlign extends Command {
@@ -112,7 +113,7 @@ public class ExactAlign extends Command {
         double avg_y = 0;
         double avg_yaw = 0;
 
-        Pose3d pose3d = Constants.VISION_SUBSYSTEM.getTagRelativeToBot(tagId);
+        Pose3d pose3d = VisionSubsystem.getTagRelativeToBot(tagId);
 
         if (pose3d == null) {
             framesWithoutTarget++;

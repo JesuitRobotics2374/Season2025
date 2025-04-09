@@ -2,20 +2,32 @@ package frc.robot.subsystems;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
+
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.proto.Photon;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import com.fasterxml.jackson.databind.node.POJONode;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import frc.robot.Constants;
+import frc.robot.Robot;
 
 /*
 As Aries or Kevin about this: (note for Ethan)
@@ -39,35 +51,34 @@ double distance = vision.getDistanceToAprilTag();
 
 public class VisionSubsystem {
 
-    private int numberOfCams;
-    private PhotonCamera[] cameras;
-    private PhotonPoseEstimator photonPoseEstimator;
+    private static int numberOfCams = Constants.numberOfCams;
+    private static PhotonCamera[] cameras = new PhotonCamera[numberOfCams];
+    private static PhotonPoseEstimator[] poseEstimators = new PhotonPoseEstimator[numberOfCams];
+    private static Transform3d[] cameraToBotRelativePose = {
+        new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0))
+    };
+    private static AprilTagFieldLayout fieldLayout;
 
-    private Field2d field;
-    public AprilTagFieldLayout aprilTagFieldLayout;
-
-    public VisionSubsystem(int numberOfCams) { // perhaps remove the drivetrain if not using
-        this.numberOfCams = numberOfCams;
-
+    /**
+     * initializes the vision subsystem with the proper PhotonCameras and photonPoseEstimators
+     */
+    public static void initializeVisionSubsystem() {
         System.out.println(NetworkTableInstance.getDefault());
-
-        cameras = new PhotonCamera[numberOfCams];
+        loadField();
 
         for (int i = 0; i < numberOfCams; i++) {
             cameras[i] = new PhotonCamera(NetworkTableInstance.getDefault(), "camera" + i);
-        }
-        field = new Field2d();
-
-        try {
-            Path path = Filesystem.getDeployDirectory().toPath().resolve("AprilTag2025Layout.json");
-            aprilTagFieldLayout = new AprilTagFieldLayout(path);
-        } catch (Exception e) {
-            System.out.println("Apriltags failed to initialize!");
+            poseEstimators[i] = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameraToBotRelativePose[i]);
+            poseEstimators[i].setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         }
     }
 
-    public void setLabel(Pose2d pose2d, String label) {
-        field.getObject(label).setPose(pose2d);
+    /**
+     * loads the field
+     */
+    private static void loadField() {
+        fieldLayout = AprilTagFieldLayout
+                .loadField(AprilTagFields.k2025ReefscapeWelded);
     }
 
     /**
@@ -75,7 +86,7 @@ public class VisionSubsystem {
      * @return the average distance to the apriltag (chosen by PhotonVision) of all
      *         the cameras
      */
-    public double getDistanceToAprilTag() {
+    public static double getDistanceToAprilTag() {
         double totalDistance = 0;
         int count = 0;
 
@@ -99,7 +110,7 @@ public class VisionSubsystem {
      * @param camera, a PhotonVision camera
      * @return the distance to the apriltag (chosen by PhotonVision)
      */
-    private double getDistanceToAprilTag(PhotonCamera camera) {
+    private static double getDistanceToAprilTag(PhotonCamera camera) {
         PhotonPipelineResult result = camera.getLatestResult();
 
         if (result != null && result.hasTargets()) {
@@ -124,7 +135,7 @@ public class VisionSubsystem {
      * @param priorityTagID, the priority tag ID at which to specifically look for
      * @return the average distance to the specified apriltag for all of the cameras
      */
-    public double getDistanceToAprilTag(int priorityTagID) {
+    public static double getDistanceToAprilTag(int priorityTagID) {
         double totalDistance = 0;
         int count = 0;
 
@@ -149,7 +160,7 @@ public class VisionSubsystem {
      * @param priorityTagID, the priority tag ID at which to specifically look for
      * @return the distance to the specified apriltag
      */
-    private double getDistanceToAprilTag(PhotonCamera camera, int priorityTagID) {
+    private static double getDistanceToAprilTag(PhotonCamera camera, int priorityTagID) {
         PhotonPipelineResult result = camera.getLatestResult();
 
         if (result != null && result.hasTargets()) {
@@ -175,7 +186,7 @@ public class VisionSubsystem {
      * @return the average Pose3d of the apriltag (chosen by PhotonVision) relative
      *         to the bot for all of the cameras
      */
-    public Pose3d getTagRelativeToBot() {
+    public static Pose3d getTagRelativeToBot() {
         double x = 0;
         double y = 0;
         double z = 0;
@@ -212,7 +223,7 @@ public class VisionSubsystem {
      * @return the Pose3d of the apriltag (chosen by PhotonVision) relative to the
      *         bot
      */
-    private Pose3d getTagRelativeToBot(PhotonCamera camera) {
+    private static Pose3d getTagRelativeToBot(PhotonCamera camera) {
         if (!canSeeTag(camera)) {
             return null;
         }
@@ -244,7 +255,7 @@ public class VisionSubsystem {
      * @return the average Pose3d of the specified apriltag relative to the bot for
      *         all of the cameras
      */
-    public Pose3d getTagRelativeToBot(int priorityTagID) {
+    public static Pose3d getTagRelativeToBot(int priorityTagID) {
         double x = 0;
         double y = 0;
         double z = 0;
@@ -281,7 +292,7 @@ public class VisionSubsystem {
      * @param priorityTagID, the priority tag ID at which to specifically look for
      * @return the Pose3d of the specified apriltag relative to the bot
      */
-    private Pose3d getTagRelativeToBot(PhotonCamera camera, int priorityTagID) {
+    private static Pose3d getTagRelativeToBot(PhotonCamera camera, int priorityTagID) {
         if (!canSeeTag(camera)) {
             return null;
         }
@@ -316,7 +327,7 @@ public class VisionSubsystem {
      * @return the average Pose3d of the bot relative to the apriltag (chosen by
      *         PhotonVision) for all of the cameras
      */
-    public Pose3d getBotRelativeToTag() {
+    public static Pose3d getBotRelativeToTag() {
         double x = 0;
         double y = 0;
         double z = 0;
@@ -353,7 +364,7 @@ public class VisionSubsystem {
      * @return the Pose3d of the bot relative to the apriltag (chosen by
      *         PhotonVision)
      */
-    private Pose3d getBotRelativeToTag(PhotonCamera camera) {
+    private static Pose3d getBotRelativeToTag(PhotonCamera camera) {
         if (!canSeeTag(camera)) {
             return null;
         }
@@ -386,7 +397,7 @@ public class VisionSubsystem {
      * @return the average Pose3d of the bot relative to the specified apriltag for
      *         all of the cameras
      */
-    public Pose3d getBotRelativeToTag(int priorityTagID) {
+    public static Pose3d getBotRelativeToTag(int priorityTagID) {
         double x = 0;
         double y = 0;
         double z = 0;
@@ -423,7 +434,7 @@ public class VisionSubsystem {
      * @param priorityTagID, the priority tag ID at which to specifically look for
      * @return the Pose3d of the bot relative to the specified apriltag
      */
-    private Pose3d getBotRelativeToTag(PhotonCamera camera, int priorityTagID) {
+    private static Pose3d getBotRelativeToTag(PhotonCamera camera, int priorityTagID) {
         if (!canSeeTag(camera)) {
             return null;
         }
@@ -458,8 +469,61 @@ public class VisionSubsystem {
      * @param camera, a PhotonVision camera
      * @return if the camera can see ANY tag
      */
-    private boolean canSeeTag(PhotonCamera camera) {
+    private static boolean canSeeTag(PhotonCamera camera) {
         return camera.getLatestResult().hasTargets();
+    }
+
+    public static Pose3d getGlobalFieldPose() {
+        double x = 0;
+        double y = 0;
+        double z = 0;
+        double roll = 0;
+        double pitch = 0;
+        double yaw = 0;
+        int count = 0;
+
+        for (int i = 0; i < numberOfCams; i++) {
+            Pose3d pose = getGlobalFieldPose(cameras[i], poseEstimators[i]);
+
+            if (pose != null) {
+                x += pose.getX();
+                y += pose.getY();
+                z += pose.getZ();
+
+                roll += pose.getRotation().getX();
+                pitch += pose.getRotation().getY();
+                yaw += pose.getRotation().getZ();
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            return null;
+        }
+
+        return new Pose3d(x / count, y / count, z / count, new Rotation3d(roll / count, pitch / count, yaw / count));
+    }
+
+    /**
+     * 
+     * @param camera, a PhotonVision camera
+     * @param photonPoseEstimator, a PhotonPoseEstimator with the matching translation for the camera
+     * @return the Pose3d of the bot relative to the field
+     */
+    private static Pose3d getGlobalFieldPose(PhotonCamera camera, PhotonPoseEstimator photonPoseEstimator) {
+        if (!canSeeTag(camera)) {
+            return null;
+        }
+
+        PhotonPipelineResult result = camera.getLatestResult();
+
+        if (result != null && result.hasTargets()) {
+            photonPoseEstimator.update(result);
+
+            return photonPoseEstimator.getReferencePose();
+        }
+
+        return null;
     }
 
     // public int getTagID() {
