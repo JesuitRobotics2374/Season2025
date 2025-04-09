@@ -42,10 +42,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.seafinder2.SF2Constants;
 import frc.robot.subsystems.drivetrain.TunerConstants.TunerSwerveDrivetrain;
-import frc.robot.utils.LimelightObject.LLType;
-import frc.robot.utils.LimelightHelpers;
-import frc.robot.utils.LimelightObject;
-import frc.robot.utils.LimelightHelpers.PoseEstimate;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements

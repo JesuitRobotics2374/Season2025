@@ -43,8 +43,9 @@ import edu.wpi.first.math.controller.PIDController;
 
 public class VisionSubsystem {
 
-    private PhotonCamera camera;
-    private CommandSwerveDrivetrain drivetrain;
+    private int numberOfCams;
+
+    private PhotonCamera[] cameras;
     private Field2d field;
     public AprilTagFieldLayout aprilTagFieldLayout;
     private PhotonPoseEstimator photonPoseEstimator;
@@ -55,12 +56,18 @@ public class VisionSubsystem {
     // private static Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4,0,8);
     // private static Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(4,0,8);
 
-    private VisionSystemSim visionSim;
+    // private VisionSystemSim visionSim;
 
-    public VisionSubsystem(CommandSwerveDrivetrain drivetrain) { // perhaps remove the drivetrain if not using
-        this.drivetrain = drivetrain;
+    public VisionSubsystem(int numberOfCams) { // perhaps remove the drivetrain if not using
+        this.numberOfCams = numberOfCams;
+
         System.out.println(NetworkTableInstance.getDefault());
-        camera = new PhotonCamera(NetworkTableInstance.getDefault(), "camera");
+
+        cameras = new PhotonCamera[numberOfCams];
+
+        for (int i = 0; i < numberOfCams; i++) {
+            cameras[i] = new PhotonCamera(NetworkTableInstance.getDefault(), "camera" + i);
+        }
         field = new Field2d();
 
         try {
@@ -75,15 +82,44 @@ public class VisionSubsystem {
         field.getObject(label).setPose(pose2d);
     }
 
-    public double getDistanceToAprilTag() {
+    public double getDistanceToAprilTag(boolean usePriority, boolean strict) {
+        double totalDistance = 0;
+        int count = 0;
+
+        for (int i = 0; i < numberOfCams; i++) {
+            double distance = getDistanceToAprilTag(cameras[i], usePriority, strict);
+            if (distance != -1) {
+                totalDistance += distance;
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            return -1;
+        }
+
+        return totalDistance / count;
+    }
+
+    private double getDistanceToAprilTag(PhotonCamera camera, boolean usePriority, boolean strict) {
         PhotonPipelineResult result = camera.getLatestResult();
 
-        if (result.hasTargets()) {
+        if (result != null && result.hasTargets()) {
+
             List<PhotonTrackedTarget> targets = result.targets;
 
-            for (PhotonTrackedTarget target : targets) {
-                if (target.getFiducialId() == priorityTagID) {
-                    return target.getBestCameraToTarget().getTranslation().getNorm();
+            if (targets.size() == 0) {
+                return -1;
+            }
+
+            if (usePriority) {
+                for (PhotonTrackedTarget target : targets) {
+                    if (target.getFiducialId() == priorityTagID) {
+                        return target.getBestCameraToTarget().getTranslation().getNorm();
+                    }
+                }
+                if (strict) {
+                    return -1;
                 }
             }
 
@@ -96,23 +132,64 @@ public class VisionSubsystem {
         return -1;
     }
 
-    public Pose3d getTagRelativeToBot() {
-        if (!canSeeTag()) {
+    public Pose3d getTagRelativeToBot(boolean usePriority, boolean strict) {
+        double x = 0;
+        double y = 0;
+        double z = 0;
+        double roll = 0;
+        double pitch = 0;
+        double yaw = 0;
+        int count = 0;
+
+        for (int i = 0; i < numberOfCams; i++) {
+            Pose3d pose = getTagRelativeToBot(cameras[i], usePriority, strict);
+            
+            if (pose != null) {
+                x += pose.getX();
+                y += pose.getY();
+                z += pose.getZ();
+
+                roll += pose.getRotation().getX();
+                pitch += pose.getRotation().getY();
+                yaw += pose.getRotation().getZ();
+            }
+        }
+
+        if (count == 0) {
+            return null;
+        }
+
+        return new Pose3d(x / count, y / count, z / count, new Rotation3d(roll / count, pitch / count, yaw / count));
+    }
+
+    private Pose3d getTagRelativeToBot(PhotonCamera camera, boolean usePriority, boolean strict) {
+        if (!canSeeTag(camera)) {
             return null;
         }
 
         PhotonPipelineResult result = camera.getLatestResult();
 
         if (result != null && result.hasTargets()) {
+
             List<PhotonTrackedTarget> targets = result.targets;
 
-            for (PhotonTrackedTarget target : targets) {
-                if (target.getFiducialId() == priorityTagID) {
-                    Transform3d transform3d = target.getBestCameraToTarget();
-                    Translation3d translation3d = transform3d.getTranslation();
-                    Rotation3d rotation3d = transform3d.getRotation();
+            if (targets.size() == 0) {
+                return null;
+            }
 
-                    return new Pose3d(translation3d, rotation3d);
+            if (usePriority) {
+                for (PhotonTrackedTarget target : targets) {
+                    if (target.getFiducialId() == priorityTagID) {
+                        Transform3d transform3d = target.getBestCameraToTarget();
+                        Translation3d translation3d = transform3d.getTranslation();
+                        Rotation3d rotation3d = transform3d.getRotation();
+
+                        return new Pose3d(translation3d, rotation3d);
+                    }
+
+                }
+                if (strict) {
+                    return null;
                 }
             }
 
@@ -127,39 +204,93 @@ public class VisionSubsystem {
         }
     }
 
-    public Pose3d getBotRelativeToTag() {
-        if (!canSeeTag()) {
+    public Pose3d getBotRelativeToTag(boolean usePriority, boolean strict) {
+        double x = 0;
+        double y = 0;
+        double z = 0;
+        double roll = 0;
+        double pitch = 0;
+        double yaw = 0;
+        int count = 0;
+
+        for (int i = 0; i < numberOfCams; i++) {
+            Pose3d pose = getBotRelativeToTag(cameras[i], usePriority, strict);
+            
+            if (pose != null) {
+                x += pose.getX();
+                y += pose.getY();
+                z += pose.getZ();
+
+                roll += pose.getRotation().getX();
+                pitch += pose.getRotation().getY();
+                yaw += pose.getRotation().getZ();
+            }
+        }
+
+        if (count == 0) {
             return null;
         }
 
-        PhotonPipelineResult latestResult = camera.getLatestResult();
+        return new Pose3d(x / count, y / count, z / count, new Rotation3d(roll / count, pitch / count, yaw / count));
+    }
 
-        if (latestResult != null && latestResult.hasTargets()) {
-            Transform3d transform3d = latestResult.getBestTarget().bestCameraToTarget;
+    private Pose3d getBotRelativeToTag(PhotonCamera camera, boolean usePriority, boolean strict) {
+        if (!canSeeTag(camera)) {
+            return null;
+        }
+
+        PhotonPipelineResult result = camera.getLatestResult();
+
+        if (result != null && result.hasTargets()) {
+
+            List<PhotonTrackedTarget> targets = result.targets;
+
+            if (targets.size() == 0) {
+                return null;
+            }
+
+            if (usePriority) {
+                for (PhotonTrackedTarget target : targets) {
+                    if (target.getFiducialId() == priorityTagID) {
+                        Transform3d transform3d = target.getBestCameraToTarget();
+                        Translation3d translation3d = transform3d.getTranslation();
+                        Rotation3d rotation3d = transform3d.getRotation();
+
+                        return new Pose3d(translation3d, rotation3d);
+                    }
+
+                }
+                if (strict) {
+                    return null;
+                }
+            }
+
+            Transform3d transform3d = result.getBestTarget().bestCameraToTarget;
 
             Translation3d translation3d = transform3d.getTranslation();
             Rotation3d rotation3d = transform3d.getRotation();
 
-            return new Pose3d(new Translation3d(-translation3d.getX(), -translation3d.getY(), -translation3d.getZ()), rotation3d);
+            return new Pose3d(new Translation3d(-translation3d.getX(), -translation3d.getY(), -translation3d.getZ()),
+                    rotation3d);
         } else {
             return null;
         }
     }
 
-    public boolean canSeeTag() {
+    private boolean canSeeTag(PhotonCamera camera) {
         return camera.getLatestResult().hasTargets();
     }
 
-    public int getTagID() {
-        if (canSeeTag()) {
-            PhotonPipelineResult latestResult = camera.getLatestResult();
-            if (latestResult != null && latestResult.hasTargets()) {
-                PhotonTrackedTarget target = latestResult.getBestTarget();
-                return target.getFiducialId();
-            }
-        }
-        return -1;
-    }
+    // public int getTagID() {
+    //     if (canSeeTag()) {
+    //         PhotonPipelineResult latestResult = camera.getLatestResult();
+    //         if (latestResult != null && latestResult.hasTargets()) {
+    //             PhotonTrackedTarget target = latestResult.getBestTarget();
+    //             return target.getFiducialId();
+    //         }
+    //     }
+    //     return -1;
+    // }
 
     public void setPriorityTagID(int id) {
         priorityTagID = id;

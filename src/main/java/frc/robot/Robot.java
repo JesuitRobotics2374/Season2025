@@ -22,9 +22,6 @@ import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.seafinder2.utils.Target.Landmark;
 import frc.robot.seafinder2.utils.Target.Location;
 import frc.robot.seafinder2.utils.Target.Side;
-import frc.robot.utils.LimelightHelpers;
-import frc.robot.utils.LimelightHelpers.PoseEstimate;
-import frc.robot.utils.LimelightObject;
 
 public class Robot extends TimedRobot {
 

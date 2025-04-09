@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.LinearVelocity;
+import frc.robot.subsystems.VisionSubsystem;
 
 public class Constants {
     // Critical Generic Constants
@@ -18,7 +19,10 @@ public class Constants {
     public static final int SENSOR_PORT = 18;
     public static final String DRIVER_READOUT_TAB_NAME = "Driver Readout";
 
-    // Limelight
+    // PhotonVision
+    public static final int numberOfCams = 1;
+    public static final VisionSubsystem VISION_SUBSYSTEM = new VisionSubsystem(numberOfCams);
+
     public static final double MIN_CAMERA_DISTANCE = 0; // meters TODO
   
     public static final Pose2d TEST_PATHFIND_TARGET = new Pose2d(1.199, 7.028, new Rotation2d(128.581 * (Math.PI / 180)));
