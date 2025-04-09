@@ -1,6 +1,9 @@
 package frc.robot.seafinder2.commands;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+
+import org.photonvision.PhotonCamera;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -113,7 +116,7 @@ public class ExactAlign extends Command {
         double avg_y = 0;
         double avg_yaw = 0;
 
-        Pose3d pose3d = Constants.VISION_SUBSYSTEM.getTagRelativeToBot(true, true);
+        Pose3d pose3d = Constants.VISION_SUBSYSTEM.getTagRelativeToBot(tagId);
 
         if (pose3d == null) {
             framesWithoutTarget++;
