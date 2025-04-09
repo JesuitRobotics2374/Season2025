@@ -2,8 +2,6 @@ package frc.robot.seafinder2.commands;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
-import org.photonvision.PhotonCamera;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -12,9 +10,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.seafinder2.SF2Constants;
 import frc.robot.seafinder2.utils.Target.TagRelativePose;
-import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
 public class ExactAlign extends Command {

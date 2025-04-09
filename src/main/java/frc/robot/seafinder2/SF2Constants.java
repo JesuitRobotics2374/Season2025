@@ -1,7 +1,6 @@
 package frc.robot.seafinder2;
 
 import edu.wpi.first.math.util.Units;
-import frc.robot.Constants;
 import frc.robot.seafinder2.utils.Target.Setpoint;
 
 public class SF2Constants {

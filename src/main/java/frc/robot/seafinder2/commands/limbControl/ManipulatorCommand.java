@@ -1,8 +1,6 @@
 package frc.robot.seafinder2.commands.limbControl;
 
-import edu.wpi.first.math.spline.PoseWithCurvature;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.subsystems.ArmSubsystem;
 
 public class ManipulatorCommand extends Command {

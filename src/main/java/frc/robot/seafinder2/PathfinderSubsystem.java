@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Core;
-import frc.robot.seafinder2.utils.Target.Side;
 import frc.robot.seafinder2.utils.Apriltags;
 import frc.robot.seafinder2.commands.CanRangeDynamicForward;
 import frc.robot.seafinder2.commands.ExactAlign;
@@ -24,7 +23,6 @@ import frc.robot.seafinder2.commands.StaticBack;
 import frc.robot.seafinder2.commands.StopDrivetrain;
 import frc.robot.seafinder2.commands.limbControl.ManipulatorCommand;
 import frc.robot.seafinder2.commands.limbControl.NewOuttake;
-import frc.robot.seafinder2.commands.limbControl.OuttakeCommand;
 import frc.robot.seafinder2.commands.limbControl.IntakeCommand;
 import frc.robot.seafinder2.commands.limbControl.ArmCommand;
 import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
@@ -32,8 +30,6 @@ import frc.robot.seafinder2.commands.limbControl.WristCommand;
 import frc.robot.seafinder2.utils.Target;
 import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.seafinder2.utils.Target.Location;
-import frc.robot.subsystems.ManipulatorSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 
 public class PathfinderSubsystem {

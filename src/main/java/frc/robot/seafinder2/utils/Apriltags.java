@@ -1,20 +1,10 @@
 package frc.robot.seafinder2.utils;
 
-import java.io.IOException;
 import java.util.Optional;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.numbers.N4;
-import edu.wpi.first.wpilibj.Filesystem;
 
 public class Apriltags {
 

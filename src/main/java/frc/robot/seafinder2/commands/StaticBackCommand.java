@@ -1,7 +1,5 @@
 package frc.robot.seafinder2.commands;
 
-import java.io.LineNumberInputStream;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj2.command.Command;
