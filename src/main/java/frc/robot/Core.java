@@ -167,7 +167,7 @@ public class Core {
         // .withWidget("Number Bar");
         tab.addDouble("Robot X", () -> drivetrain.getRobotX());
 
-        tab.addBoolean("IN RANGE", () -> drivetrain.robotNearHP());
+        // tab.addBoolean("IN RANGE", () -> drivetrain.robotNearHP());
 
         tab.addBoolean("FAST MODE", () -> {
             return isTurbo;

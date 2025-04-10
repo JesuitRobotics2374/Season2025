@@ -263,7 +263,7 @@ public class PathfinderSubsystem {
             } else {
                 runningCommand = new SequentialCommandGroup(
                     bothHP,
-                    hpFieldAlign.until(() -> drivetrain.robotNearHP()),
+                    // hpFieldAlign.until(() -> drivetrain.robotNearHP()),
                     stopDrivetrainCommand,
                     // fieldAlign,
                     // alignComponentsHP,

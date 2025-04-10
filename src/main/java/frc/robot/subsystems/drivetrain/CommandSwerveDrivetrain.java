@@ -2,7 +2,10 @@ package frc.robot.subsystems.drivetrain;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.List;
 import java.util.function.Supplier;
+
+import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignal;
@@ -41,6 +44,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.seafinder2.SF2Constants;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -341,11 +345,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             // field.getObject("Vision2").setPose(
             // LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
 
-            for (LimelightObject llo : Constants.LIMELIGHTS_ON_BOARD) {
-                PoseEstimate fp = LimelightHelpers.getBotPoseEstimate_wpiBlue(llo.name);
-                if (fp != null) {
+            List<EstimatedRobotPose> estimatedRobotPoses = VisionSubsystem.getGlobalFieldPoses();
+
+            for (EstimatedRobotPose estimatedRobotPose : estimatedRobotPoses) {
+                if (estimatedRobotPose != null) {
                     // field.getObject("Vision" + displayCounter).setPose(fp.pose);
-                    alignToVision(llo, fp.pose, false);
+                    alignToVision(estimatedRobotPose, false);
                 }
             }
         }
@@ -388,53 +393,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     private int counter = 0;
 
-    public void alignToVision(LimelightObject ll, Pose2d detPose, boolean snap) {
+    public void alignToVision(EstimatedRobotPose estimatedRobotPose, boolean snap) {
         boolean doRejectUpdate = false;
-        LimelightHelpers.SetRobotOrientation(ll.name,
-                estimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue(ll.name);
-
-        if (Math.abs(getState().Speeds.omegaRadiansPerSecond) > 2 * Math.PI) {
-            doRejectUpdate = true;
-            // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to high rot of "
-            // + getState().Speeds.omegaRadiansPerSecond);
-        }
-        if (mt2.tagCount == 0) {
-            doRejectUpdate = true;
-            // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to notags");
-        }
-        if (mt2.avgTagDist > 8) {
-            doRejectUpdate = true;
-            // System.out.println("ESTLOG: " + ll.name + " was REJECTED due to avgtagdist of
-            // " + mt2.avgTagDist);
-        }
-        if (detPose != null && detPose.getX() == 8.77 && detPose.getY() == 4.03) {
-            doRejectUpdate = true; // at center of field
-        } else if (detPose.getX() == 0 && detPose.getY() == 0) {
-            doRejectUpdate = true; // at null zone
-        }
-        counter++;
-        if (counter > 50) {
-            // System.out.println(detPose);
-            counter = 0;
-        }
-
-        // System.out.println(doRejectUpdate + " " + detPose);
 
         if (!doRejectUpdate) {
             if (snap) {
                 estimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.00001, 0.00001, 9999999));
             } else {
-                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(ll.trust, ll.trust, 9999999));
+                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
             }
             estimator.addVisionMeasurement(
-                    mt2.pose,
-                    mt2.timestampSeconds);
-            // REMOVE
-            // var updatedPose = estimator.update(getGyroscopeRotation(),
-            // getSwerveModulePositions());
-            // System.out.println("Updated pose: " + updatedPose);
-            // REMOVE
+                    estimatedRobotPose.estimatedPose.toPose2d(),
+                    estimatedRobotPose.timestampSeconds);
         }
     }
 
@@ -486,24 +456,27 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     int rnhpClock = 0;
 
-    public boolean robotNearHP() {
-        for (LimelightObject limelight : SF2Constants.LIMELIGHTS_ON_BOARD) {
-            if ((int) LimelightHelpers.getFiducialID(limelight.name) != -1) {
-                // rnhpClock++; // helper to make sure that we aren't seeing tag
-                // if (rnhpClock > 8) {
-                //     System.out.println("TAG VISIBLE: " + LimelightHelpers.getFiducialID(limelight.name));
-                //     rnhpClock = 0;
-                // }
-                return false;
-            }
-        }
-        StatusSignal<Distance> dL = robotRangeLeft.getDistance();
-        StatusSignal<Distance> dR = robotRangeRight.getDistance();
-        // double fL = robotRangeLeft.getIsDetected().getValueAsDouble() == 1 ? dL.getValueAsDouble() : 10000;
-        // double fR = robotRangeRight.getIsDetected().getValueAsDouble() == 1 ? dR.getValueAsDouble() : 10000;
-        // double dMin = Math.min(fL, fR);
-        // return (dMin < 1.4);
-        return (robotRangeLeft.getIsDetected().getValueAsDouble() == 1 || robotRangeRight.getIsDetected().getValueAsDouble() == 1);
+    public boolean robotNearHP() { //TODO
+        
+        // for (LimelightObject limelight : SF2Constants.LIMELIGHTS_ON_BOARD) {
+        //     if ((int) LimelightHelpers.getFiducialID(limelight.name) != -1) {
+        //         // rnhpClock++; // helper to make sure that we aren't seeing tag
+        //         // if (rnhpClock > 8) {
+        //         //     System.out.println("TAG VISIBLE: " + LimelightHelpers.getFiducialID(limelight.name));
+        //         //     rnhpClock = 0;
+        //         // }
+        //         return false;
+        //     }
+        // }
+        // StatusSignal<Distance> dL = robotRangeLeft.getDistance();
+        // StatusSignal<Distance> dR = robotRangeRight.getDistance();
+        // // double fL = robotRangeLeft.getIsDetected().getValueAsDouble() == 1 ? dL.getValueAsDouble() : 10000;
+        // // double fR = robotRangeRight.getIsDetected().getValueAsDouble() == 1 ? dR.getValueAsDouble() : 10000;
+        // // double dMin = Math.min(fL, fR);
+        // // return (dMin < 1.4);
+        // return (robotRangeLeft.getIsDetected().getValueAsDouble() == 1 || robotRangeRight.getIsDetected().getValueAsDouble() == 1);
+
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     public void setLabel(Pose2d pose2d, String label) {

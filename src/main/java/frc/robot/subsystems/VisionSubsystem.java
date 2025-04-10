@@ -1,53 +1,23 @@
 package frc.robot.subsystems;
 
-import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.proto.Photon;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import com.fasterxml.jackson.databind.node.POJONode;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Constants;
-import frc.robot.Robot;
-
-/*
-As Aries or Kevin about this: (note for Ethan)
-
-private static VisionSubsystem instance;
-
-public static VisionSubsystem getInstance() {
-    if (instance == null) {
-        instance = new VisionSubsystem(2); // or however many cams you're using
-    }
-    return instance;
-}
-
-private VisionSubsystem(int numberOfCams) {
-    // your existing init code
-}
-
-VisionSubsystem vision = VisionSubsystem.getInstance();
-double distance = vision.getDistanceToAprilTag();
- */
 
 public class VisionSubsystem {
 
@@ -55,12 +25,13 @@ public class VisionSubsystem {
     private static PhotonCamera[] cameras = new PhotonCamera[numberOfCams];
     private static PhotonPoseEstimator[] poseEstimators = new PhotonPoseEstimator[numberOfCams];
     private static Transform3d[] cameraToBotRelativePose = {
-        new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0))
+            new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0))
     };
     private static AprilTagFieldLayout fieldLayout;
 
     /**
-     * initializes the vision subsystem with the proper PhotonCameras and photonPoseEstimators
+     * initializes the vision subsystem with the proper PhotonCameras and
+     * photonPoseEstimators
      */
     public static void initializeVisionSubsystem() {
         System.out.println(NetworkTableInstance.getDefault());
@@ -68,7 +39,8 @@ public class VisionSubsystem {
 
         for (int i = 0; i < numberOfCams; i++) {
             cameras[i] = new PhotonCamera(NetworkTableInstance.getDefault(), "camera" + i);
-            poseEstimators[i] = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameraToBotRelativePose[i]);
+            poseEstimators[i] = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    cameraToBotRelativePose[i]);
             poseEstimators[i].setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         }
     }
@@ -473,44 +445,33 @@ public class VisionSubsystem {
         return camera.getLatestResult().hasTargets();
     }
 
-    public static Pose3d getGlobalFieldPose() {
-        double x = 0;
-        double y = 0;
-        double z = 0;
-        double roll = 0;
-        double pitch = 0;
-        double yaw = 0;
-        int count = 0;
+    /**
+     * 
+     * @return A list of all EstimatedRobotPoses of the bot relative to the field
+     *         (even null ones!)
+     */
+    public static List<EstimatedRobotPose> getGlobalFieldPoses() {
+
+        List<EstimatedRobotPose> poses = new ArrayList<>();
 
         for (int i = 0; i < numberOfCams; i++) {
-            Pose3d pose = getGlobalFieldPose(cameras[i], poseEstimators[i]);
+            EstimatedRobotPose pose = getGlobalFieldPoseForDrivetrain(cameras[i], poseEstimators[i]);
 
-            if (pose != null) {
-                x += pose.getX();
-                y += pose.getY();
-                z += pose.getZ();
-
-                roll += pose.getRotation().getX();
-                pitch += pose.getRotation().getY();
-                yaw += pose.getRotation().getZ();
-                count++;
-            }
+            poses.add(pose);
         }
 
-        if (count == 0) {
-            return null;
-        }
-
-        return new Pose3d(x / count, y / count, z / count, new Rotation3d(roll / count, pitch / count, yaw / count));
+        return poses;
     }
 
     /**
      * 
-     * @param camera, a PhotonVision camera
-     * @param photonPoseEstimator, a PhotonPoseEstimator with the matching translation for the camera
-     * @return the Pose3d of the bot relative to the field
+     * @param camera,              a PhotonVision camera
+     * @param photonPoseEstimator, a PhotonPoseEstimator with the matching
+     *                             translation for the camera
+     * @return the EstimatedRobotPose of the bot relative to the field
      */
-    private static Pose3d getGlobalFieldPose(PhotonCamera camera, PhotonPoseEstimator photonPoseEstimator) {
+    private static EstimatedRobotPose getGlobalFieldPoseForDrivetrain(PhotonCamera camera,
+            PhotonPoseEstimator photonPoseEstimator) {
         if (!canSeeTag(camera)) {
             return null;
         }
@@ -518,31 +479,13 @@ public class VisionSubsystem {
         PhotonPipelineResult result = camera.getLatestResult();
 
         if (result != null && result.hasTargets()) {
-            photonPoseEstimator.update(result);
+            Optional<EstimatedRobotPose> estimatedRobotPose = photonPoseEstimator.update(result);
 
-            return photonPoseEstimator.getReferencePose();
+            if (estimatedRobotPose.isPresent()) {
+                return estimatedRobotPose.get();
+            }
         }
 
         return null;
     }
-
-    // public int getTagID() {
-    // if (canSeeTag()) {
-    // PhotonPipelineResult latestResult = camera.getLatestResult();
-    // if (latestResult != null && latestResult.hasTargets()) {
-    // PhotonTrackedTarget target = latestResult.getBestTarget();
-    // return target.getFiducialId();
-    // }
-    // }
-    // return -1;
-    // }
-
-    // public PhotonPoseEstimator getPhotonPoseEstimator() {
-    // return new PhotonPoseEstimator(aprilTagFieldLayout,
-    // PoseStrategy.LOWEST_AMBIGUITY, transform3d);
-    // }
-
-    // public PhotonPipelineResult getLatestPhotonPipelineResult() {
-    // return camera.getLatestResult();
-    // }
 }

@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import java.util.List;
+
+import org.photonvision.EstimatedRobotPose;
+
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.pathfinding.Pathfinding;
@@ -64,11 +68,12 @@ public class Robot extends TimedRobot {
         System.out.println("Auto-Iit");
         m_core.getDrivetrain().seedRobotAuto();
 
-        for (LimelightObject llo : Constants.LIMELIGHTS_ON_BOARD) {
-            PoseEstimate fp = LimelightHelpers.getBotPoseEstimate_wpiBlue(llo.name);
-            if (fp != null) {
+        List<EstimatedRobotPose> estimatedRobotPoses = VisionSubsystem.getGlobalFieldPoses();
+
+        for (EstimatedRobotPose estimatedRobotPose : estimatedRobotPoses) {
+            if (estimatedRobotPose != null) {
                 // field.getObject("Vision" + displayCounter).setPose(fp.pose);
-                m_core.getDrivetrain().alignToVision(llo, fp.pose, true);
+                m_core.getDrivetrain().alignToVision(estimatedRobotPose, false);
             }
         }
 
@@ -76,53 +81,50 @@ public class Robot extends TimedRobot {
 
         Command raiseElevator = new ElevatorCommand(m_core.getElevatorSubsystem(), 1, false);
 
-
         // First Auto
         m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.LEFT), true);
         m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
 
-
         // Human Station
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT));     
-
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT));
 
         // Second Auto L1
-        // m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.LEFT), false);
+        // m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT,
+        // Side.LEFT), false);
         // m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
 
         // Second Auto L4
         m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.LEFT), false);
         m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
- 
 
-        //all command should be in pathfinder auto sequence now
+        // all command should be in pathfinder auto sequence now
         m_core.autoCommandGroup = new SequentialCommandGroup(m_core.getPathfinderSubsystem().autoSequence);
         m_core.autoCommandGroup.schedule();
 
         System.out.println("Auto schedule complete");
 
+        // Command waitcmd = new WaitCommand(5);
 
-    //     Command waitcmd = new WaitCommand(5);
+        // Command scheduleAutoInit2 = new InstantCommand(() ->
+        // m_core.getPathfinderSubsystem().autoSequence.schedule());
 
-       // Command scheduleAutoInit2 = new InstantCommand(() -> m_core.getPathfinderSubsystem().autoSequence.schedule());
-   
-       // m_core.autoCommandGroup = new SequentialCommandGroup(seedForAuto, snapToLimelight, raiseElevator, autoLocation, autoHeight, scheduleAutoInit, hp, scheduleAutoInit2);
-  
-      //  while (!m_core.autoCommandGroup.isFinished());
+        // m_core.autoCommandGroup = new SequentialCommandGroup(seedForAuto,
+        // snapToLimelight, raiseElevator, autoLocation, autoHeight, scheduleAutoInit,
+        // hp, scheduleAutoInit2);
 
-      
+        // while (!m_core.autoCommandGroup.isFinished());
 
-       
-      //  InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
-      //  ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
-        
-        //SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm, zeroElevator, pathfinder)
+        // InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
+        // ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
 
+        // SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm,
+        // zeroElevator, pathfinder)
 
         // m_core.getPathfinderSubsystem().clearSequence();
         // int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
         // System.out.println("Path loaded: " + path.length);
-        // InstantCommand pathfinder = new InstantCommand(() -> m_core.getPathfinderSubsystem().executePath(path));
+        // InstantCommand pathfinder = new InstantCommand(() ->
+        // m_core.getPathfinderSubsystem().executePath(path));
 
         // Command moveForward = new TimedForward(m_core.getDrivetrain(), 1.5);
     }
@@ -141,14 +143,18 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake); // TODO: REMOVE
-    //     System.out.println("Teleop-Iit");
-    //     InstantCommand raiseElevator = new InstantCommand(() -> m_core.getElevatorSubsystem().raise(5));
-    //     WaitCommand waitCommand = new WaitCommand(0.7);
-    //     InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
-    //    // InstantCommand raiseArm =  new InstantCommand( () -> m_core.getArmSubsystem().armGoTo(18.68));
-    //     InstantCommand lowerToLimit = new InstantCommand( () -> m_core.getElevatorSubsystem().lowerToLimit() );
-    //     SequentialCommandGroup commandGroup = new SequentialCommandGroup(raiseElevator, waitCommand, moveArm, lowerToLimit); 
-    //     commandGroup.schedule();
+        // System.out.println("Teleop-Iit");
+        // InstantCommand raiseElevator = new InstantCommand(() ->
+        // m_core.getElevatorSubsystem().raise(5));
+        // WaitCommand waitCommand = new WaitCommand(0.7);
+        // InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
+        // // InstantCommand raiseArm = new InstantCommand( () ->
+        // m_core.getArmSubsystem().armGoTo(18.68));
+        // InstantCommand lowerToLimit = new InstantCommand( () ->
+        // m_core.getElevatorSubsystem().lowerToLimit() );
+        // SequentialCommandGroup commandGroup = new
+        // SequentialCommandGroup(raiseElevator, waitCommand, moveArm, lowerToLimit);
+        // commandGroup.schedule();
     }
 
     @Override
