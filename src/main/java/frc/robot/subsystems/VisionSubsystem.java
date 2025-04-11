@@ -25,7 +25,7 @@ public class VisionSubsystem {
     private static PhotonCamera[] cameras = new PhotonCamera[numberOfCams];
     private static PhotonPoseEstimator[] poseEstimators = new PhotonPoseEstimator[numberOfCams];
     private static Transform3d[] cameraToBotRelativePose = {
-            new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0))
+            new Transform3d(0.176, 0.223, 0.255, new Rotation3d(0, 0, Math.toRadians(-7))) // x and y may be switched
     };
     private static AprilTagFieldLayout fieldLayout;
 
