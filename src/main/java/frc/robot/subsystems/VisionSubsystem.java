@@ -24,8 +24,8 @@ public class VisionSubsystem {
     private static int numberOfCams = Constants.numberOfCams;
     private static PhotonCamera[] cameras = new PhotonCamera[numberOfCams];
     private static PhotonPoseEstimator[] poseEstimators = new PhotonPoseEstimator[numberOfCams];
-    private static Transform3d[] cameraToBotRelativePose = {
-            new Transform3d(0.176, 0.223, 0.255, new Rotation3d(0, 0, Math.toRadians(-7))) // x and y may be switched
+    private static Transform3d[] cameraToBotRelativePoses = { //REALLY USEFUL DOCS FOR COORDINATE SYSTEMS: https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
+            new Transform3d(0.233, -0.176,  0.255, new Rotation3d(0, 0, Math.toRadians(-7))) 
     };
     private static AprilTagFieldLayout fieldLayout;
 
@@ -40,7 +40,7 @@ public class VisionSubsystem {
         for (int i = 0; i < numberOfCams; i++) {
             cameras[i] = new PhotonCamera(NetworkTableInstance.getDefault(), "camera" + i);
             poseEstimators[i] = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                    cameraToBotRelativePose[i]);
+                    cameraToBotRelativePoses[i]);
             poseEstimators[i].setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         }
     }
@@ -65,7 +65,7 @@ public class VisionSubsystem {
         for (int i = 0; i < numberOfCams; i++) {
             double distance = getDistanceToAprilTag(cameras[i]);
             if (distance != -1) {
-                totalDistance += distance;
+                totalDistance += distance + cameraToBotRelativePoses[i].getX();
                 count++;
             }
         }
@@ -114,7 +114,7 @@ public class VisionSubsystem {
         for (int i = 0; i < numberOfCams; i++) {
             double distance = getDistanceToAprilTag(cameras[i], priorityTagID);
             if (distance != -1) {
-                totalDistance += distance;
+                totalDistance += distance + cameraToBotRelativePoses[i].getX();
                 count++;
             }
         }
@@ -488,4 +488,6 @@ public class VisionSubsystem {
 
         return null;
     }
+
+    //May remove later if pose3D problems come up
 }
