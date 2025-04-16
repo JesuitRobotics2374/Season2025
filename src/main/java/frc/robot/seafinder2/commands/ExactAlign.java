@@ -108,7 +108,7 @@ public class ExactAlign extends Command {
     public void execute() {
         clock++;
 
-        // Average pose from each limelight
+        // Average pose from each camera
         double avg_x = 0;
         double avg_y = 0;
         double avg_yaw = 0;
@@ -131,7 +131,7 @@ public class ExactAlign extends Command {
         else {
             framesWithoutTarget = 0;
             avg_x = pose3d.getX();
-            avg_y = pose3d.getZ();
+            avg_y = pose3d.getY();
             avg_yaw = pose3d.getRotation().getY();
         }
 
@@ -189,10 +189,12 @@ public class ExactAlign extends Command {
             dtheta = 0;
 
         // Set the drive request
+
         drivetrain.setControl(driveRequest
-                .withVelocityX(dy)
-                .withVelocityY(-dx)
-                .withRotationalRate(-dtheta));
+                .withVelocityX(-dx)
+                .withVelocityY(-dy)
+                .withRotationalRate(-dtheta)
+            );
 
         if (clock >= 20) {
             System.out.println("EXACT ALIGN VALUES: " + error_x + " " + error_y + " " + error_yaw);

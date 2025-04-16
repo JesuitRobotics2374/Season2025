@@ -16,8 +16,8 @@ public class SF2Constants {
     public static final double SEAFINDER2_ASTAR_PADDING = -1.2;
     public static final double SEAFINDER2_ASTAR_PADDING_HP = -1.4;
   //  public static final double SEAFINDER2_REEF_FRONT_PADDING = -1.0;  //safety
-    public static final double SEAFINDER2_REEF_LEFT_BRANCH_OFFSET = -0.1725;
-    public static final double SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET = 0.173;
+    public static final double SEAFINDER2_REEF_LEFT_BRANCH_OFFSET = 0.1725;
+    public static final double SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET = -0.173;
 
     public static final double WRIST_MIN_POSITION = 0.0;
     public static final double WRIST_MAX_POSITION = 0.25;
