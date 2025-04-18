@@ -2,6 +2,8 @@ package frc.robot.seafinder2.commands;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -58,6 +60,10 @@ public class ExactAlign extends Command {
     private final double y_offset;
     private final double yaw_offset;
 
+    private ArrayList<Double> avg_x_vals;
+    private ArrayList<Double> avg_y_vals;
+    private ArrayList<Double> avg_theta_vals;
+
     boolean finishedOverride;
 
     public ExactAlign(CommandSwerveDrivetrain drivetrain, TagRelativePose tagRelativePose) {
@@ -83,6 +89,10 @@ public class ExactAlign extends Command {
         yawController = new PIDController(2.2, 0.1, 0.2);
         yawController.setTolerance(YAW_TOLERANCE);
         yawController.enableContinuousInput(-Math.PI, Math.PI);
+
+        avg_x_vals = new ArrayList<>();
+        avg_y_vals = new ArrayList<>();
+        avg_theta_vals = new ArrayList<>();
 
         // addRequirements(drivetrain);
     }
@@ -235,5 +245,14 @@ public class ExactAlign extends Command {
     @Override
     public boolean isFinished() {
         return framesAtTarget >= REQUIRED_FRAMES_AT_TARGET || finishedOverride;
+    }
+
+    // TODO: Add averaging over time for datapoints
+    public void addData(){
+        
+    }
+
+    public double[] getData() {
+        return new double[3]; // TODO: Just resolving errors
     }
 }
