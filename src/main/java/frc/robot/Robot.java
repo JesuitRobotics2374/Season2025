@@ -142,7 +142,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake); // TODO: REMOVE
+        m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Coast); // TODO: REMOVE
         // System.out.println("Teleop-Iit");
         // InstantCommand raiseElevator = new InstantCommand(() ->
         // m_core.getElevatorSubsystem().raise(5));

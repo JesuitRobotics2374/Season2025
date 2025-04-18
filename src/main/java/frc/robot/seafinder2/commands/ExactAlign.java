@@ -32,14 +32,18 @@ public class ExactAlign extends Command {
     // Position tolerance thresholds
     private static final double X_TOLERANCE = 0.15; // meters
     private static final double Y_TOLERANCE = 0.15; // meters
-    private static final double YAW_TOLERANCE = 1 * Math.PI / 180; // radians
+    private static final double YAW_TOLERANCE = 2 * Math.PI / 180; // radians
 
-    // Maximum output values
+    // Maximum output valuess
     private static final double MAX_LINEAR_SPEED = 1.4;
-    private static final double MAX_ANGULAR_SPEED = 100.0;
+    private static final double MAX_ANGULAR_SPEED = 0.5;
+
+    private static final double X_SPEED_MODIFIER = 0.5;
+    private static final double Y_SPEED_MODIFIER = 0.5;
+    private static final double THETA_SPEED_MODIFIER = 0.1;
 
     // Minimum output to overcome static friction
-    private static final double MIN_LINEAR_COMMAND = 0.13;
+    private static final double MIN_LINEAR_COMMAND = 0.17;
     private static final double MIN_ANGULAR_COMMAND = 0.25;
 
     // State tracking
@@ -132,7 +136,11 @@ public class ExactAlign extends Command {
             framesWithoutTarget = 0;
             avg_x = pose3d.getX();
             avg_y = pose3d.getY();
-            avg_yaw = pose3d.getRotation().getY();
+            avg_yaw = pose3d.getRotation().getZ();
+
+            if (clock >= 20) {
+                // System.out.println("average values: " + avg_x + " " + avg_y + " " + avg_yaw);
+            }
         }
 
         // Flip yaw to face into the target
@@ -168,9 +176,9 @@ public class ExactAlign extends Command {
         }
 
         // Limit outputs to maximum values
-        dx = Math.max(-MAX_LINEAR_SPEED, Math.min(dx / 2, MAX_LINEAR_SPEED));
-        dy = Math.max(-MAX_LINEAR_SPEED, Math.min(dy / 2, MAX_LINEAR_SPEED));
-        dtheta = Math.max(-MAX_ANGULAR_SPEED, Math.min(dtheta, MAX_ANGULAR_SPEED));
+        dx = Math.max(-MAX_LINEAR_SPEED, Math.min(dx * X_SPEED_MODIFIER, MAX_LINEAR_SPEED));
+        dy = Math.max(-MAX_LINEAR_SPEED, Math.min(dy * Y_SPEED_MODIFIER, MAX_LINEAR_SPEED));
+        dtheta = Math.max(-MAX_ANGULAR_SPEED, Math.min(dtheta * THETA_SPEED_MODIFIER, MAX_ANGULAR_SPEED));
 
         // Apply rate limiting for smoother motion
         dx = xRateLimiter.calculate(dx);
@@ -193,11 +201,11 @@ public class ExactAlign extends Command {
         drivetrain.setControl(driveRequest
                 .withVelocityX(-dx)
                 .withVelocityY(-dy)
-                .withRotationalRate(-dtheta)
+                .withRotationalRate(dtheta)
             );
 
         if (clock >= 20) {
-            System.out.println("EXACT ALIGN VALUES: " + error_x + " " + error_y + " " + error_yaw);
+            System.out.println("EXACT ALIGN VALUES: " + (-dx) + " " + (-dy) + " " + (dtheta));
             System.out.println("EXACT ALIGN VALUES: " + xTollerenace + " " + yTollerenace + " " + thetaTollerenace);
         }
 

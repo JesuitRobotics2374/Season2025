@@ -210,7 +210,8 @@ public class Core {
             
         driveController.povLeft().onTrue(new InstantCommand(() -> {isTurbo = !isTurbo;}));
         
-        TagRelativePose testingTagRelativePose = new TagRelativePose(21, SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET, -0.7, 0.0); // idk what units this is in - x is left
+        TagRelativePose testingTagRelativePose = new TagRelativePose(21, 0.0
+        , 0, 0.0); // idk what units this is in - x is left
         // right & y is front back
         driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
 
