@@ -62,55 +62,6 @@ public class VisionSubsystem {
         return camera.getLatestResult().hasTargets();
     }
 
-    // /**
-    //  * 
-    //  * @return the average distance to the apriltag (chosen by PhotonVision) of all
-    //  *         the cameras
-    //  */
-    // public static double getDistanceToAprilTag() {
-    //     double totalDistance = 0;
-    //     int count = 0;
-
-    //     for (int i = 0; i < numberOfCams; i++) {
-    //         double distance = getDistanceToAprilTag(cameras[i]);
-    //         if (distance != -1) {
-    //             totalDistance += distance + cameraToBotRelativePoses[i].getX();
-    //             count++;
-    //         }
-    //     }
-
-    //     if (count == 0) {
-    //         return -1;
-    //     }
-
-    //     return totalDistance / count;
-    // }
-
-    // /**
-    //  * 
-    //  * @param camera, a PhotonVision camera
-    //  * @return the distance to the apriltag (chosen by PhotonVision)
-    //  */
-    // private static double getDistanceToAprilTag(PhotonCamera camera) {
-    //     PhotonPipelineResult result = camera.getLatestResult();
-
-    //     if (result != null && result.hasTargets()) {
-
-    //         List<PhotonTrackedTarget> targets = result.targets;
-
-    //         if (targets.size() == 0) {
-    //             return -1;
-    //         }
-
-    //         PhotonTrackedTarget target = result.getBestTarget();
-    //         Transform3d transform = target.getBestCameraToTarget();
-
-    //         return transform.getTranslation().getNorm();
-    //     }
-
-    //     return -1;
-    // }
-
     /**
      * 
      * @param priorityTagID, the priority tag ID at which to specifically look for, pass -1 for Photon choice
@@ -165,74 +116,6 @@ public class VisionSubsystem {
         return -1;
     }
 
-    // /**
-    //  * 
-    //  * @return the average Pose3d of the apriltag (chosen by PhotonVision) relative
-    //  *         to the bot for all of the cameras
-    //  */
-    // public static Pose3d getTagRelativeToBot() {
-    //     double x = 0;
-    //     double y = 0;
-    //     double z = 0;
-    //     double roll = 0;
-    //     double pitch = 0;
-    //     double yaw = 0;
-    //     int count = 0;
-
-    //     for (int i = 0; i < numberOfCams; i++) {
-    //         Pose3d pose = getTagRelativeToBot(cameras[i]);
-
-    //         if (pose != null) {
-    //             x += pose.getX();
-    //             y += pose.getY();
-    //             z += pose.getZ();
-
-    //             roll += pose.getRotation().getX();
-    //             pitch += pose.getRotation().getY();
-    //             yaw += pose.getRotation().getZ();
-    //             count++;
-    //         }
-    //     }
-
-    //     if (count == 0) {
-    //         return null;
-    //     }
-
-    //     return new Pose3d(x / count, y / count, z / count, new Rotation3d(roll / count, pitch / count, yaw / count));
-    // }
-
-    // /**
-    //  * 
-    //  * @param camera, a PhotonVision camera
-    //  * @return the Pose3d of the apriltag (chosen by PhotonVision) relative to the
-    //  *         bot
-    //  */
-    // private static Pose3d getTagRelativeToBot(PhotonCamera camera) {
-    //     if (!canSeeTag(camera)) {
-    //         return null;
-    //     }
-
-    //     PhotonPipelineResult result = camera.getLatestResult();
-
-    //     if (result != null && result.hasTargets()) {
-
-    //         List<PhotonTrackedTarget> targets = result.targets;
-
-    //         if (targets.size() == 0) {
-    //             return null;
-    //         }
-
-    //         Transform3d transform3d = result.getBestTarget().bestCameraToTarget;
-
-    //         Translation3d translation3d = transform3d.getTranslation();
-    //         Rotation3d rotation3d = transform3d.getRotation();
-
-    //         return new Pose3d(translation3d, rotation3d);
-    //     }
-
-    //     return null;
-    // }
-
     /**
      * 
      * @param priorityTagID, the priority tag ID at which to specifically look for, pass -1 for Photon choice
@@ -252,13 +135,15 @@ public class VisionSubsystem {
             Pose3d pose = getTagRelativeToBot(cameras[i], priorityTagID);
 
             if (pose != null) {
-                x += pose.getX() + cameraToBotRelativePoses[i].getX();
-                y += pose.getY() + cameraToBotRelativePoses[i].getY();
-                z += pose.getZ() + cameraToBotRelativePoses[i].getZ();;
+                pose = pose.transformBy(cameraToBotRelativePoses[i]);
+
+                x += pose.getX();
+                y += pose.getY();
+                z += pose.getZ();
 
                 roll += pose.getRotation().getX();
                 pitch += pose.getRotation().getY();
-                yaw += pose.getRotation().getZ();
+                yaw += Math.IEEEremainder(pose.getRotation().getZ() + Math.PI, 2 * Math.PI) - Math.PI;
                 count++;
             }
         }
@@ -313,75 +198,6 @@ public class VisionSubsystem {
 
         return null;
     }
-
-    // /**
-    //  * 
-    //  * @return the average Pose3d of the bot relative to the apriltag (chosen by
-    //  *         PhotonVision) for all of the cameras
-    //  */
-    // public static Pose3d getBotRelativeToTag() {
-    //     double x = 0;
-    //     double y = 0;
-    //     double z = 0;
-    //     double roll = 0;
-    //     double pitch = 0;
-    //     double yaw = 0;
-    //     int count = 0;
-
-    //     for (int i = 0; i < numberOfCams; i++) {
-    //         Pose3d pose = getBotRelativeToTag(cameras[i]);
-
-    //         if (pose != null) {
-    //             x += pose.getX();
-    //             y += pose.getY();
-    //             z += pose.getZ();
-
-    //             roll += pose.getRotation().getX();
-    //             pitch += pose.getRotation().getY();
-    //             yaw += pose.getRotation().getZ();
-    //             count++;
-    //         }
-    //     }
-
-    //     if (count == 0) {
-    //         return null;
-    //     }
-
-    //     return new Pose3d(x / count, y / count, z / count, new Rotation3d(roll / count, pitch / count, yaw / count));
-    // }
-
-    // /**
-    //  * 
-    //  * @param camera, a PhotonVision camera
-    //  * @return the Pose3d of the bot relative to the apriltag (chosen by
-    //  *         PhotonVision)
-    //  */
-    // private static Pose3d getBotRelativeToTag(PhotonCamera camera) {
-    //     if (!canSeeTag(camera)) {
-    //         return null;
-    //     }
-
-    //     PhotonPipelineResult result = camera.getLatestResult();
-
-    //     if (result != null && result.hasTargets()) {
-
-    //         List<PhotonTrackedTarget> targets = result.targets;
-
-    //         if (targets.size() == 0) {
-    //             return null;
-    //         }
-
-    //         Transform3d transform3d = result.getBestTarget().bestCameraToTarget;
-
-    //         Translation3d translation3d = transform3d.getTranslation();
-    //         Rotation3d rotation3d = transform3d.getRotation();
-
-    //         return new Pose3d(new Translation3d(-translation3d.getX(), -translation3d.getY(), -translation3d.getZ()),
-    //                 rotation3d);
-    //     } else {
-    //         return null;
-    //     }
-    // }
 
     /**
      * 
