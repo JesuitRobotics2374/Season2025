@@ -135,15 +135,20 @@ public class VisionSubsystem {
             Pose3d pose = getTagRelativeToBot(cameras[i], priorityTagID);
 
             if (pose != null) {
-                pose = pose.transformBy(cameraToBotRelativePoses[i]);
+                //pose = pose.transformBy(cameraToBotRelativePoses[i]);
 
-                x += pose.getX();
-                y += pose.getY();
-                z += pose.getZ();
+                x += pose.getX() + cameraToBotRelativePoses[i].getX();
+                y += pose.getY() + cameraToBotRelativePoses[i].getY();
+                z += pose.getZ() + cameraToBotRelativePoses[i].getZ();
+
+                // x += pose.getX();
+                // y += pose.getY();
+                // z += pose.getZ();
 
                 roll += pose.getRotation().getX();
                 pitch += pose.getRotation().getY();
-                yaw += Math.IEEEremainder(pose.getRotation().getZ() + Math.PI, 2 * Math.PI) - Math.PI;
+                yaw += pose.getRotation().getZ();
+                // yaw += Math.IEEEremainder(pose.getRotation().getZ() + Math.PI, 2 * Math.PI) - Math.PI;
                 count++;
             }
         }

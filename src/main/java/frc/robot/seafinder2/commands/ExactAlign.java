@@ -34,15 +34,15 @@ public class ExactAlign extends Command {
     // Position tolerance thresholds
     private static final double X_TOLERANCE = 0.15; // meters
     private static final double Y_TOLERANCE = 0.15; // meters
-    private static final double YAW_TOLERANCE = 2 * Math.PI / 180; // radians
+    private static final double YAW_TOLERANCE = 3 * Math.PI / 180; // radians
 
     // Maximum output valuess
     private static final double MAX_LINEAR_SPEED = 1.4;
     private static final double MAX_ANGULAR_SPEED = 0.5;
 
-    private static final double X_SPEED_MODIFIER = 0.5;
-    private static final double Y_SPEED_MODIFIER = 0.5;
-    private static final double THETA_SPEED_MODIFIER = 0.1;
+    private static final double X_SPEED_MODIFIER = 1;
+    private static final double Y_SPEED_MODIFIER = 1;
+    private static final double THETA_SPEED_MODIFIER = 1;
 
     // Minimum output to overcome static friction
     private static final double MIN_LINEAR_COMMAND = 0.17;
@@ -128,10 +128,12 @@ public class ExactAlign extends Command {
             }
             System.out.println("EXACT ALIGN REDUCE DRIVETRAIN");
             // Maintain last movement but slowly reduce it
-            drivetrain.setControl(driveRequest
+            if (framesWithoutTarget > 2) {
+                drivetrain.setControl(driveRequest
                     .withVelocityX(yRateLimiter.calculate(0))
                     .withVelocityY(xRateLimiter.calculate(0))
                     .withRotationalRate(yawRateLimiter.calculate(0)));
+            }
             return;
         }
         else {
@@ -145,10 +147,19 @@ public class ExactAlign extends Command {
             }
         }
 
+        if (avg_yaw < 0) {
+            avg_yaw = - Math.abs(Math.PI + avg_yaw);
+        }
+        else {
+            avg_yaw = Math.abs(avg_yaw - Math.PI);
+        }
+
+        System.out.println("yaw = " + avg_yaw);
+
         // Flip yaw to face into the target
         // avg_yaw += Math.PI;
 
-        // Clamp yaw to +-180
+        // // Clamp yaw to +-180
         // avg_yaw = Rotation2d.fromRadians(avg_yaw).getRadians();
 
         // Calculate errors (target offset - current position)
@@ -190,14 +201,15 @@ public class ExactAlign extends Command {
         // Zero out commands if we're within tolerance
         boolean xTollerenace = Math.abs(error_x) < X_TOLERANCE;
         boolean yTollerenace = Math.abs(error_y) < Y_TOLERANCE;
-        boolean thetaTollerenace = Math.abs(error_yaw) < YAW_TOLERANCE;
+        boolean thetaTollerenace = Math.abs(error_yaw) + (0.5 * Math.PI/180) < YAW_TOLERANCE;
+
         if (xTollerenace)
             dx = 0;
         if (yTollerenace)
             dy = 0;
-        if (thetaTollerenace)
+        if (thetaTollerenace) 
             dtheta = 0;
-
+        
         // Set the drive request
 
         drivetrain.setControl(driveRequest
