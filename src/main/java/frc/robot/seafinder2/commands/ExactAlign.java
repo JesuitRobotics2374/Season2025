@@ -128,7 +128,7 @@ public class ExactAlign extends Command {
             }
             System.out.println("EXACT ALIGN REDUCE DRIVETRAIN");
             // Maintain last movement but slowly reduce it
-            if (framesWithoutTarget > 2) {
+            if (framesWithoutTarget > 3) {
                 drivetrain.setControl(driveRequest
                     .withVelocityX(yRateLimiter.calculate(0))
                     .withVelocityY(xRateLimiter.calculate(0))
@@ -141,10 +141,6 @@ public class ExactAlign extends Command {
             avg_x = pose3d.getX();
             avg_y = pose3d.getY();
             avg_yaw = pose3d.getRotation().getZ();
-
-            if (clock >= 20) {
-                // System.out.println("average values: " + avg_x + " " + avg_y + " " + avg_yaw);
-            }
         }
 
         if (avg_yaw < 0) {
