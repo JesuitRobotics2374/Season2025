@@ -39,8 +39,13 @@ public class VisionSubsystem {
 
         for (int i = 0; i < numberOfCams; i++) {
             cameras[i] = new PhotonCamera(NetworkTableInstance.getDefault(), "camera" + i);
-            poseEstimators[i] = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                    cameraToBotRelativePoses[i]);
+
+            poseEstimators[i] = new PhotonPoseEstimator(
+                fieldLayout, 
+                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                cameraToBotRelativePoses[i]
+            );
+            
             poseEstimators[i].setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         }
     }
@@ -49,8 +54,7 @@ public class VisionSubsystem {
      * Loads the field
      */
     private static void loadField() {
-        fieldLayout = AprilTagFieldLayout
-                .loadField(AprilTagFields.k2025ReefscapeWelded);
+        fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
     }
 
     /**
@@ -141,14 +145,10 @@ public class VisionSubsystem {
                 y += pose.getY() + cameraToBotRelativePoses[i].getY();
                 z += pose.getZ() + cameraToBotRelativePoses[i].getZ();
 
-                // x += pose.getX();
-                // y += pose.getY();
-                // z += pose.getZ();
-
                 roll += pose.getRotation().getX();
                 pitch += pose.getRotation().getY();
                 yaw += pose.getRotation().getZ();
-                // yaw += Math.IEEEremainder(pose.getRotation().getZ() + Math.PI, 2 * Math.PI) - Math.PI;
+                
                 count++;
             }
         }
@@ -230,6 +230,7 @@ public class VisionSubsystem {
                 roll += pose.getRotation().getX();
                 pitch += pose.getRotation().getY();
                 yaw += pose.getRotation().getZ();
+                
                 count++;
             }
         }
