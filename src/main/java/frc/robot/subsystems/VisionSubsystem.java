@@ -66,6 +66,38 @@ public class VisionSubsystem {
         return camera.getLatestResult().hasTargets();
     }
 
+    public static Pose3d averagePoses(ArrayList<Pose3d> poses) {
+        double x = 0;
+        double y = 0;
+        double z = 0;
+        double roll = 0;
+        double pitch = 0;
+        double yaw = 0;
+        int count = 0;
+
+        for (int i = 0; i < poses.size(); i++) {
+            Pose3d pose = poses.get(i);
+
+            if (pose != null) {
+                x += pose.getX() + cameraToBotRelativePoses[i].getX();
+                y += pose.getY() + cameraToBotRelativePoses[i].getY();
+                z += pose.getZ() + cameraToBotRelativePoses[i].getZ();
+
+                roll += pose.getRotation().getX();
+                pitch += pose.getRotation().getY();
+                yaw += pose.getRotation().getZ();
+                
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            return null;
+        }
+
+        return new Pose3d(x / count, y / count, z / count, new Rotation3d(roll / count, pitch / count, yaw / count));
+    }
+
     /**
      * 
      * @param priorityTagID, the priority tag ID at which to specifically look for, pass -1 for Photon choice
@@ -127,37 +159,13 @@ public class VisionSubsystem {
      *         all of the cameras
      */
     public static Pose3d getTagRelativeToBot(int priorityTagID) {
-        double x = 0;
-        double y = 0;
-        double z = 0;
-        double roll = 0;
-        double pitch = 0;
-        double yaw = 0;
-        int count = 0;
+        ArrayList<Pose3d> poses = new ArrayList<>();
 
         for (int i = 0; i < numberOfCams; i++) {
-            Pose3d pose = getTagRelativeToBot(cameras[i], priorityTagID);
-
-            if (pose != null) {
-                //pose = pose.transformBy(cameraToBotRelativePoses[i]);
-
-                x += pose.getX() + cameraToBotRelativePoses[i].getX();
-                y += pose.getY() + cameraToBotRelativePoses[i].getY();
-                z += pose.getZ() + cameraToBotRelativePoses[i].getZ();
-
-                roll += pose.getRotation().getX();
-                pitch += pose.getRotation().getY();
-                yaw += pose.getRotation().getZ();
-                
-                count++;
-            }
+            poses.add(getTagRelativeToBot(cameras[i], priorityTagID));
         }
 
-        if (count == 0) {
-            return null;
-        }
-
-        return new Pose3d(x / count, y / count, z / count, new Rotation3d(roll / count, pitch / count, yaw / count));
+        return averagePoses(poses);
     }
 
     /**
@@ -211,35 +219,13 @@ public class VisionSubsystem {
      *         all of the cameras
      */
     public static Pose3d getBotRelativeToTag(int priorityTagID) {
-        double x = 0;
-        double y = 0;
-        double z = 0;
-        double roll = 0;
-        double pitch = 0;
-        double yaw = 0;
-        int count = 0;
+        ArrayList<Pose3d> poses = new ArrayList<>();
 
         for (int i = 0; i < numberOfCams; i++) {
-            Pose3d pose = getBotRelativeToTag(cameras[i], priorityTagID);
-
-            if (pose != null) {
-                x += pose.getX() + cameraToBotRelativePoses[i].getX();
-                y += pose.getY() + cameraToBotRelativePoses[i].getY();
-                z += pose.getZ() + cameraToBotRelativePoses[i].getZ();;
-
-                roll += pose.getRotation().getX();
-                pitch += pose.getRotation().getY();
-                yaw += pose.getRotation().getZ();
-                
-                count++;
-            }
+            poses.add(getBotRelativeToTag(cameras[i], priorityTagID));
         }
 
-        if (count == 0) {
-            return null;
-        }
-
-        return new Pose3d(x / count, y / count, z / count, new Rotation3d(roll / count, pitch / count, yaw / count));
+        return averagePoses(poses);
     }
 
     /**

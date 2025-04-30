@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.seafinder2.utils.Target.TagRelativePose;
@@ -53,12 +54,17 @@ public class ExactAlign extends Command {
     private static final int REQUIRED_FRAMES_AT_TARGET = 25;
     private int framesWithoutTarget = 0;
     private static final int MAX_FRAMES_WITHOUT_TARGET = 10;
+    private static final int MAX_FRAMES_BEFORE_REDUCE = 3;
+    private static final int MAX_FRAMES_TO_AVERAGE = 5;
 
     private final CommandSwerveDrivetrain drivetrain;
     private final int tagId;
     private final double x_offset;
     private final double y_offset;
     private final double yaw_offset;
+    private boolean doCalculate;
+
+    private ArrayList<Pose3d> recentPoses;
 
     boolean finishedOverride;
 
@@ -71,6 +77,9 @@ public class ExactAlign extends Command {
         this.x_offset = tagRelativePose.getX();
         this.y_offset = tagRelativePose.getY();
         this.yaw_offset = tagRelativePose.getYaw();
+
+        recentPoses = new ArrayList<>();
+        doCalculate = false;
 
         // Initialize PID controllers
         // X PID coefficients (Adjust these values based on testing)
@@ -119,28 +128,66 @@ public class ExactAlign extends Command {
         double avg_y = 0;
         double avg_yaw = 0;
 
-        Pose3d pose3d = VisionSubsystem.getTagRelativeToBot(tagId);
+        Pose3d currentPose = VisionSubsystem.getTagRelativeToBot(tagId);
+        Pose3d usePose = null;
 
-        if (pose3d == null) {
+        if (currentPose == null) {
             framesWithoutTarget++;
             if (framesWithoutTarget > MAX_FRAMES_WITHOUT_TARGET) {
                 end(true);
             }
-            System.out.println("EXACT ALIGN REDUCE DRIVETRAIN");
             // Maintain last movement but slowly reduce it
-            if (framesWithoutTarget > 3) {
-                drivetrain.setControl(driveRequest
-                    .withVelocityX(yRateLimiter.calculate(0))
-                    .withVelocityY(xRateLimiter.calculate(0))
-                    .withRotationalRate(yawRateLimiter.calculate(0)));
+            if (framesWithoutTarget > MAX_FRAMES_BEFORE_REDUCE) {
+                double xRate = driveRequest.VelocityX;
+                double yRate = driveRequest.VelocityY;
+                double rRate = driveRequest.RotationalRate;
+                boolean xChanged = false;
+                boolean yChanged = false;
+
+                if (Math.abs(recentPoses.get(recentPoses.size() - 1).getX() + x_offset) < 1) {
+                    xRate = xRateLimiter.calculate(0);
+                    rRate = yawRateLimiter.calculate(0);
+                    xChanged = true;
+                    System.out.println("reducing x");
+                }
+                if (Math.abs(recentPoses.get(recentPoses.size() - 1).getY() + y_offset) < 0.1) {
+                    yRate = yRateLimiter.calculate(0);
+                    rRate = yawRateLimiter.calculate(0);
+                    yChanged = false;
+                    System.out.println("reducing y");
+                }
+
+                if (xChanged || yChanged) {
+                    drivetrain.setControl(driveRequest
+                    .withVelocityX(xRate)
+                    .withVelocityY(yRate)
+                    .withRotationalRate(rRate));
+
+                    System.out.println("EXACT ALIGN REDUCE DRIVETRAIN");
+                }
             }
             return;
         }
         else {
+            doCalculate = !doCalculate;
+
+            if (!doCalculate) {
+                return;
+            }
+
             framesWithoutTarget = 0;
-            avg_x = pose3d.getX();
-            avg_y = pose3d.getY();
-            avg_yaw = pose3d.getRotation().getZ();
+
+            if (recentPoses.size() >= MAX_FRAMES_TO_AVERAGE) {
+                recentPoses.remove(0);
+            }
+        
+            recentPoses.add(currentPose);
+            usePose = averagePoses(recentPoses);
+
+            framesWithoutTarget = 0;
+            avg_x = usePose.getX();
+            avg_y = usePose.getY();
+            avg_yaw = usePose.getRotation().getZ();
         }
 
         if (avg_yaw < 0) {
@@ -149,8 +196,6 @@ public class ExactAlign extends Command {
         else {
             avg_yaw = Math.abs(avg_yaw - Math.PI);
         }
-
-        System.out.println("yaw = " + avg_yaw);
 
         // Flip yaw to face into the target
         // avg_yaw += Math.PI;
@@ -246,4 +291,36 @@ public class ExactAlign extends Command {
     public boolean isFinished() {
         return framesAtTarget >= REQUIRED_FRAMES_AT_TARGET || finishedOverride;
     }
+
+    public static Pose3d averagePoses(ArrayList<Pose3d> poses) {
+        double x = 0;
+        double y = 0;
+        double z = 0;
+        double roll = 0;
+        double pitch = 0;
+        double yaw = 0;
+        int count = 0;
+
+        for (int i = 0; i < poses.size(); i++) {
+            Pose3d pose = poses.get(i);
+
+            if (pose != null) {
+                x += pose.getX();
+                y += pose.getY();
+                z += pose.getZ();
+
+                roll += pose.getRotation().getX();
+                pitch += pose.getRotation().getY();
+                yaw += pose.getRotation().getZ();
+                
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            return null;
+        }
+
+        return new Pose3d(x / count, y / count, z / count, new Rotation3d(roll / count, pitch / count, yaw / count));
+    } 
 }
