@@ -34,6 +34,7 @@ import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.seafinder2.SF2Constants;
 import frc.robot.seafinder2.commands.ExactAlign;
+import frc.robot.seafinder2.commands.TestCommand;
 import frc.robot.seafinder2.commands.retracts.RetractL4;
 
 public class Core {
@@ -210,10 +211,12 @@ public class Core {
             
         driveController.povLeft().onTrue(new InstantCommand(() -> {isTurbo = !isTurbo;}));
         
-        TagRelativePose testingTagRelativePose = new TagRelativePose(21, 0.0
-        , 0, 0.0); // idk what units this is in - x is left
+        TagRelativePose testingTagRelativePose = new TagRelativePose(21, 0
+        , 0.7, 0.0); // idk what units this is in - x is left
         // right & y is front back
         driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
+
+        driveController.x().onTrue(new TestCommand(drivetrain));
 
         // driveController.x().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MIN_POSITION, true));
         // driveController.y().onTrue(new WristCommand(armSubsystem, SF2Constants.WRIST_MAX_POSITION, true));
