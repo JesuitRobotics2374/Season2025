@@ -178,6 +178,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         // The delta essentiallly is the speed of the lower
     }
 
+    public double getElevatorPosition() {
+        return elevatorMotor1.getPosition().getValueAsDouble();
+    }
+
     @Override
     public void periodic() {
         // Robot tilting

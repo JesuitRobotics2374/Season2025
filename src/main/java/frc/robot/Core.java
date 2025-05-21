@@ -45,6 +45,8 @@ public class Core {
 
     public boolean isTurbo = false;
 
+    public double currentElevatorPosition = 0;
+
     public double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * Constants.MAX_ANGULAR_RATE;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -192,9 +194,9 @@ public class Core {
                         // .withVelocityY(-driveController.getLeftX() * Constants.MAX_SPEED *
                         // getAxisMovementScale())
                         .withVelocityX(-driveController.getLeftY() * (isTurbo ? MaxSpeedTurbo : MaxSpeed)
-                                * getAxisMovementScale())
+                                * getAxisMovementScale() * elevatorSlowSpeed())
                         .withVelocityY(-driveController.getLeftX() * (isTurbo ? MaxSpeedTurbo : MaxSpeed)
-                                * getAxisMovementScale())
+                                * getAxisMovementScale() * elevatorSlowSpeed())
                         .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
 
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
@@ -355,11 +357,21 @@ public class Core {
         return (1 - (driveController.getRightTriggerAxis() * 0.85));
     }
 
+    public double elevatorSlowSpeed() {
+        if (currentElevatorPosition > 20) {
+            return 20 / currentElevatorPosition;
+        }
+
+        return 1;
+    }
+
     int clock = 0;
 
     public void corePeriodic() {
         clock++;
         if (clock > 10) {
+
+            System.out.println("curr height = " + currentElevatorPosition);
 
             // llp2 =
             // LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[1].name);
@@ -401,5 +413,7 @@ public class Core {
         } else {
             manipulatorSubsystem.spinAt(operatorController.getLeftY());
         }
+
+        currentElevatorPosition = elevatorSubsystem.getElevatorPosition();
     }
 }
