@@ -8,8 +8,12 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+
+
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -21,6 +25,25 @@ public class ArmSubsystem extends SubsystemBase {
     public CANcoder wristEncoder;
 
     public double armGoal = Integer.MAX_VALUE; // Data storage variable 
+
+
+
+
+    public enum Setpoint {
+        ARM_MIN(22.4),
+        ARM_MAX(0),
+        ARM_L1(1.857),
+        ARM_L2(14.63),
+        ARM_L3(18.68),
+        ARM_L4(18.37);
+
+        public final double value;
+
+        Setpoint(double v) {
+            this.value = v;
+        }
+
+    }
 
     // private double wristTarget = Double.NaN;
 
@@ -190,6 +213,11 @@ public class ArmSubsystem extends SubsystemBase {
         MotionMagicVoltage m_request = new MotionMagicVoltage(pos * Constants.WRIST_RATIO);
         wristMotor.setControl(m_request);
     }
+
+    public SequentialCommandGroup ArmSubsystem.GoTo(setpoint) {
+
+    }
+
 
     // public void rotateWristTo(double ctrePosition, double speed) {
     // wristTarget = ctrePosition;
