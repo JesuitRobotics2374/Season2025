@@ -9,9 +9,7 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -19,14 +17,22 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.Constants;
 
+enum CameraType {
+    APRIL_TAG, CORAL, ALGAE
+}
+
 public class VisionSubsystem {
 
     private static int numberOfCams = Constants.numberOfCams;
+
     private static PhotonCamera[] cameras = new PhotonCamera[numberOfCams];
+    private static CameraType[] cameraTypes = new CameraType[numberOfCams];
+
     private static PhotonPoseEstimator[] poseEstimators = new PhotonPoseEstimator[numberOfCams];
     private static Transform3d[] cameraToBotRelativePoses = { //REALLY USEFUL DOCS FOR COORDINATE SYSTEMS: https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
             new Transform3d(0.281, -0.176,  0.265, new Rotation3d(0, 0, 0)) 
     };
+
     private static AprilTagFieldLayout fieldLayout;
 
     /**
@@ -38,15 +44,20 @@ public class VisionSubsystem {
         loadField();
 
         for (int i = 0; i < numberOfCams; i++) {
-            cameras[i] = new PhotonCamera(NetworkTableInstance.getDefault(), "camera" + i);
+            PhotonCamera c = new PhotonCamera(NetworkTableInstance.getDefault(), "camera" + i);
 
-            poseEstimators[i] = new PhotonPoseEstimator(
+            PhotonPoseEstimator e = new PhotonPoseEstimator(
                 fieldLayout, 
                 PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 cameraToBotRelativePoses[i]
             );
-            
-            poseEstimators[i].setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+            e.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
+            CameraType t = pipeLineAsCameraType(c.getPipelineIndex());
+
+            cameras[i] = c;
+            poseEstimators[i] = e;
+            cameraTypes[i] = t;
         }
     }
 
@@ -54,7 +65,26 @@ public class VisionSubsystem {
      * Loads the field
      */
     private static void loadField() {
-        fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+        fieldLayout = AprilTagFieldLayout.loadField(Constants.FIELD_LAYOUT);
+    }
+
+    /**
+     * 
+     * @param pipeLineValue, the passed pipeline value of the camera
+     * @return the corresponding camera type (this will change every year)
+     */
+    private static CameraType pipeLineAsCameraType(int pipeLineValue) {
+        if (pipeLineValue == 0) {
+            return CameraType.APRIL_TAG;
+        }
+        if (pipeLineValue == 1) {
+            return CameraType.CORAL;
+        }
+        if (pipeLineValue == 2) {
+            return CameraType.ALGAE;
+        }
+
+        return null;
     }
 
     /**
@@ -66,6 +96,11 @@ public class VisionSubsystem {
         return camera.getLatestResult().hasTargets();
     }
 
+    /**
+     * 
+     * @param poses, an arraylist of pose3ds
+     * @return the average of all of these poses, or null if all poses are null
+     */
     public static Pose3d averagePoses(ArrayList<Pose3d> poses) {
         double x = 0;
         double y = 0;
@@ -100,56 +135,46 @@ public class VisionSubsystem {
 
     /**
      * 
-     * @param priorityTagID, the priority tag ID at which to specifically look for, pass -1 for Photon choice
-     * @return the average distance to the specified apriltag for all of the cameras
+     * @return A list of all EstimatedRobotPoses of the bot relative to the field
+     *         (even null ones!)
      */
-    public static double getDistanceToAprilTag(int priorityTagID) {
-        double totalDistance = 0;
-        int count = 0;
+    public static List<EstimatedRobotPose> getGlobalFieldPoses() {
+
+        List<EstimatedRobotPose> poses = new ArrayList<>();
 
         for (int i = 0; i < numberOfCams; i++) {
-            double distance = getDistanceToAprilTag(cameras[i], priorityTagID);
-            if (distance != -1) {
-                totalDistance += distance + cameraToBotRelativePoses[i].getX();
-                count++;
-            }
+            EstimatedRobotPose pose = getGlobalFieldPoseForDrivetrain(cameras[i], poseEstimators[i]);
+    
+            poses.add(pose);
         }
 
-        if (count == 0) {
-            return -1;
-        }
-
-        return totalDistance / count;
+        return poses;
     }
 
     /**
      * 
-     * @param camera,        a PhotonVision camera
-     * @param priorityTagID, the priority tag ID at which to specifically look for, pass -1 for Photon choice
-     * @return the distance to the specified apriltag
+     * @param camera,              a PhotonVision camera
+     * @param photonPoseEstimator, a PhotonPoseEstimator with the matching
+     *                             translation for the camera
+     * @return the EstimatedRobotPose of the bot relative to the field
      */
-    private static double getDistanceToAprilTag(PhotonCamera camera, int priorityTagID) {
+    private static EstimatedRobotPose getGlobalFieldPoseForDrivetrain(PhotonCamera camera,
+            PhotonPoseEstimator photonPoseEstimator) {
+        if (!canSeeTag(camera)) {
+            return null;
+        }
+
         PhotonPipelineResult result = camera.getLatestResult();
 
         if (result != null && result.hasTargets()) {
-            List<PhotonTrackedTarget> targets = result.targets;
+            Optional<EstimatedRobotPose> estimatedRobotPose = photonPoseEstimator.update(result);
 
-            if (targets.size() == 0) {
-                return -1;
-            }
-
-            if (priorityTagID == -1) {
-                return result.getBestTarget().getBestCameraToTarget().getTranslation().getNorm();
-            }
-
-            for (PhotonTrackedTarget target : targets) {
-                if (target.getFiducialId() == priorityTagID) {
-                    return target.getBestCameraToTarget().getTranslation().getNorm();
-                }
+            if (estimatedRobotPose.isPresent()) {
+                return estimatedRobotPose.get();
             }
         }
 
-        return -1;
+        return null;
     }
 
     /**
@@ -158,14 +183,19 @@ public class VisionSubsystem {
      * @return the average Pose3d of the specified apriltag relative to the bot for
      *         all of the cameras
      */
-    public static Pose3d getTagRelativeToBot(int priorityTagID) {
+    public static ArrayList<Pose3d> getTagRelativeToBot(int priorityTagID) {
         ArrayList<Pose3d> poses = new ArrayList<>();
 
         for (int i = 0; i < numberOfCams; i++) {
+            if (cameraTypes[i] != CameraType.APRIL_TAG) {
+                poses.add(null);
+                continue;
+            }
+
             poses.add(getTagRelativeToBot(cameras[i], priorityTagID));
         }
 
-        return averagePoses(poses);
+        return poses;
     }
 
     /**
@@ -218,14 +248,19 @@ public class VisionSubsystem {
      * @return the average Pose3d of the bot relative to the specified apriltag for
      *         all of the cameras
      */
-    public static Pose3d getBotRelativeToTag(int priorityTagID) {
+    public static ArrayList<Pose3d> getBotRelativeToTag(int priorityTagID) {
         ArrayList<Pose3d> poses = new ArrayList<>();
 
         for (int i = 0; i < numberOfCams; i++) {
+            if (cameraTypes[i] != CameraType.APRIL_TAG) {
+                poses.add(null);
+                continue;
+            }
+            
             poses.add(getBotRelativeToTag(cameras[i], priorityTagID));
         }
 
-        return averagePoses(poses);
+        return poses;
     }
 
     /**
@@ -274,45 +309,60 @@ public class VisionSubsystem {
 
     /**
      * 
-     * @return A list of all EstimatedRobotPoses of the bot relative to the field
-     *         (even null ones!)
+     * @param priorityTagID, the priority tag ID at which to specifically look for, pass -1 for Photon choice
+     * @return the average distance to the specified apriltag for all of the cameras
      */
-    public static List<EstimatedRobotPose> getGlobalFieldPoses() {
-
-        List<EstimatedRobotPose> poses = new ArrayList<>();
+    public static double getDistanceToAprilTag(int priorityTagID) {
+        double totalDistance = 0;
+        int count = 0;
 
         for (int i = 0; i < numberOfCams; i++) {
-            EstimatedRobotPose pose = getGlobalFieldPoseForDrivetrain(cameras[i], poseEstimators[i]);
-    
-            poses.add(pose);
+            if (cameraTypes[i] != CameraType.APRIL_TAG) {
+                continue;
+            }
+
+            double distance = getDistanceToAprilTag(cameras[i], priorityTagID);
+
+            if (distance != -1) {
+                totalDistance += distance + cameraToBotRelativePoses[i].getX();
+                count++;
+            }
         }
 
-        return poses;
+        if (count == 0) {
+            return -1;
+        }
+
+        return totalDistance / count;
     }
 
     /**
      * 
-     * @param camera,              a PhotonVision camera
-     * @param photonPoseEstimator, a PhotonPoseEstimator with the matching
-     *                             translation for the camera
-     * @return the EstimatedRobotPose of the bot relative to the field
+     * @param camera,        a PhotonVision camera
+     * @param priorityTagID, the priority tag ID at which to specifically look for, pass -1 for Photon choice
+     * @return the distance to the specified apriltag
      */
-    private static EstimatedRobotPose getGlobalFieldPoseForDrivetrain(PhotonCamera camera,
-            PhotonPoseEstimator photonPoseEstimator) {
-        if (!canSeeTag(camera)) {
-            return null;
-        }
-
+    private static double getDistanceToAprilTag(PhotonCamera camera, int priorityTagID) {
         PhotonPipelineResult result = camera.getLatestResult();
 
         if (result != null && result.hasTargets()) {
-            Optional<EstimatedRobotPose> estimatedRobotPose = photonPoseEstimator.update(result);
+            List<PhotonTrackedTarget> targets = result.targets;
 
-            if (estimatedRobotPose.isPresent()) {
-                return estimatedRobotPose.get();
+            if (targets.size() == 0) {
+                return -1;
+            }
+
+            if (priorityTagID == -1) {
+                return result.getBestTarget().getBestCameraToTarget().getTranslation().getNorm();
+            }
+
+            for (PhotonTrackedTarget target : targets) {
+                if (target.getFiducialId() == priorityTagID) {
+                    return target.getBestCameraToTarget().getTranslation().getNorm();
+                }
             }
         }
 
-        return null;
+        return -1;
     }
 }
