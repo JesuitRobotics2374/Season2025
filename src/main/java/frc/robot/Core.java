@@ -194,9 +194,11 @@ public class Core {
                         // .withVelocityY(-driveController.getLeftX() * Constants.MAX_SPEED *
                         // getAxisMovementScale())
                         .withVelocityX(-driveController.getLeftY() * (isTurbo ? MaxSpeedTurbo : MaxSpeed)
-                                * getAxisMovementScale() * elevatorSlowSpeed())
+                                * getAxisMovementScale() //* elevatorSlowSpeed()
+                                )
                         .withVelocityY(-driveController.getLeftX() * (isTurbo ? MaxSpeedTurbo : MaxSpeed)
-                                * getAxisMovementScale() * elevatorSlowSpeed())
+                                * getAxisMovementScale() //* elevatorSlowSpeed()
+                                )
                         .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
 
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
