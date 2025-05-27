@@ -99,7 +99,7 @@ public class VisionSubsystem {
     /**
      * 
      * @param poses, an arraylist of pose3ds
-     * @return the average of all of these poses, or null if all poses are null
+     * @return the average of all of these poses (including the transpose), or null if all poses are null
      */
     public static Pose3d averagePoses(ArrayList<Pose3d> poses) {
         double x = 0;

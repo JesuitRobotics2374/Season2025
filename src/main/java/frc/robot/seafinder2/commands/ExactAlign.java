@@ -147,7 +147,7 @@ public class ExactAlign extends Command {
         dy = 0;
         dtheta = 0;
 
-        Pose3d currentPose = VisionSubsystem.getTagRelativeToBot(tagId);
+        Pose3d currentPose = VisionSubsystem.averagePoses(VisionSubsystem.getTagRelativeToBot(tagId));
         Pose3d usePose = null;
 
         if (currentPose == null) {
