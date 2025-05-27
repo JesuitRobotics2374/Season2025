@@ -194,9 +194,12 @@ public class Core {
                         // .withVelocityY(-driveController.getLeftX() * Constants.MAX_SPEED *
                         // getAxisMovementScale())
                         .withVelocityX(-driveController.getLeftY() * (isTurbo ? MaxSpeedTurbo : MaxSpeed)
-                                * getAxisMovementScale() * elevatorSlowSpeed())
+                                * getAxisMovementScale()
+                                 //* elevatorSlowSpeed()
+                                 )
                         .withVelocityY(-driveController.getLeftX() * (isTurbo ? MaxSpeedTurbo : MaxSpeed)
-                                * getAxisMovementScale() * elevatorSlowSpeed())
+                                * getAxisMovementScale() //* elevatorSlowSpeed()
+                                )
                         .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
 
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
@@ -213,7 +216,7 @@ public class Core {
             
         driveController.povLeft().onTrue(new InstantCommand(() -> {isTurbo = !isTurbo;}));
         
-        TagRelativePose testingTagRelativePose = new TagRelativePose(21, 0
+        TagRelativePose testingTagRelativePose = new TagRelativePose(17, 0
         , 0.7, 0.0); // idk what units this is in - x is left
         // right & y is front back
         driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
