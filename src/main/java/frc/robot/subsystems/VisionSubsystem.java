@@ -54,6 +54,7 @@ public class VisionSubsystem {
             e.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
             CameraType t = pipeLineAsCameraType(c.getPipelineIndex());
+            System.out.println("pipeline num = " + c.getPipelineIndex());
 
             cameras[i] = c;
             poseEstimators[i] = e;
