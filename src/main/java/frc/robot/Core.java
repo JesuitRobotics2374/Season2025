@@ -215,8 +215,8 @@ public class Core {
             
         driveController.povLeft().onTrue(new InstantCommand(() -> {isTurbo = !isTurbo;}));
         
-        TagRelativePose testingTagRelativePose = new TagRelativePose(17, 0.7
-        , 0.7, 0.0); // idk what units this is in - x is left
+        TagRelativePose testingTagRelativePose = new TagRelativePose(17, 0.315
+        , 0.5, 0.0); // idk what units this is in, negative x is right
         // right & y is front back
         driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
 
@@ -373,7 +373,7 @@ public class Core {
         clock++;
         if (clock > 10) {
 
-            System.out.println("curr height = " + currentElevatorPosition);
+            //System.out.println("curr height = " + currentElevatorPosition);
 
             // llp2 =
             // LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[1].name);
