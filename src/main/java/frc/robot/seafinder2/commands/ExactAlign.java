@@ -28,17 +28,17 @@ public class ExactAlign extends Command {
     private final PIDController yawController;
 
     // Rate limiters for smoother motion
-    private final SlewRateLimiter xRateLimiter = new SlewRateLimiter(8.0);
-    private final SlewRateLimiter yRateLimiter = new SlewRateLimiter(8.0);
+    private final SlewRateLimiter xRateLimiter = new SlewRateLimiter(2.0);
+    private final SlewRateLimiter yRateLimiter = new SlewRateLimiter(2.0);
     private final SlewRateLimiter yawRateLimiter = new SlewRateLimiter(10.0);
 
     // Position tolerance thresholds
-    private static final double X_TOLERANCE = 0.15; // meters
-    private static final double Y_TOLERANCE = 0.15; // meters
+    private static final double X_TOLERANCE = 0.05; // meters
+    private static final double Y_TOLERANCE = 0.05; // meters
     private static final double YAW_TOLERANCE = 3 * Math.PI / 180; // radians
 
     // Maximum output valuess
-    private static final double MAX_LINEAR_SPEED = 1.4;
+    private static final double MAX_LINEAR_SPEED = 3.4;
     private static final double MAX_ANGULAR_SPEED = 0.5;
 
     private static final double X_SPEED_MODIFIER = 1;
@@ -76,6 +76,7 @@ public class ExactAlign extends Command {
     public ExactAlign(CommandSwerveDrivetrain drivetrain, TagRelativePose tagRelativePose) {
 
         finishedOverride = false;
+//        private int clock = 0;
 
         this.drivetrain = drivetrain;
         this.tagId = tagRelativePose.getTagId();
@@ -98,13 +99,6 @@ public class ExactAlign extends Command {
         yawController = new PIDController(2.2, 0.1, 0.2);
         yawController.setTolerance(YAW_TOLERANCE);
         yawController.enableContinuousInput(-Math.PI, Math.PI);
-
-        // drive = new SwerveRequest.RobotCentric()
-        //         .withDeadband(MAX_LINEAR_SPEED * 0.1).withRotationalDeadband(MAX_ANGULAR_SPEED * 0.02) // Add a 10%
-        //                                                                                                // deadband
-        //         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-
-        // addRequirements(drivetrain);
     }
 
     @Override
@@ -126,7 +120,7 @@ public class ExactAlign extends Command {
         framesWithoutTarget = 0;
     }
 
-    private int clock = 0;
+
 
     @Override
     public void execute() {
@@ -135,8 +129,8 @@ public class ExactAlign extends Command {
                     .withVelocityY(-dy)
                     .withRotationalRate(dtheta)
                 );
-    
-        clock++;
+
+      //  clock++;
 
         // Average pose from each camera
         double avg_x = 0;
@@ -252,16 +246,10 @@ public class ExactAlign extends Command {
             dtheta = 0;
 
         // Set the drive request
-        if (clock >= 20) {
-            System.out.println("Drive Control:  dx: " + dx + " dy: " + dy);
-        }
+      //  if (clock >= 20) {
+      //      System.out.println("Drive Control:  dx: " + dx + " dy: " + dy);
+      //  }
 
-        //
-        // System.out.println("EXACT ALIGN VALUES: " + (-dx) + " " + (-dy) + " " +
-        // (dtheta));
-        // System.out.println("EXACT ALIGN Toll: " + xTollerenace + " " + yTollerenace +
-        // " " + thetaTollerenace);
-        // }
 
         // Update state for isFinished
         if (xTollerenace && yTollerenace && thetaTollerenace) {
@@ -270,9 +258,7 @@ public class ExactAlign extends Command {
             framesAtTarget = 0;
         }
 
-        if (clock >= 20) {
-            clock = 0;
-        }
+
     }
 
     @Override
