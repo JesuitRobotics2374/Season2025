@@ -30,7 +30,8 @@ public class VisionSubsystem {
 
     private static PhotonPoseEstimator[] poseEstimators = new PhotonPoseEstimator[numberOfCams];
     private static Transform3d[] cameraToBotRelativePoses = { //REALLY USEFUL DOCS FOR COORDINATE SYSTEMS: https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
-            new Transform3d(0.281, -0.176,  0.265, new Rotation3d(0, 0, 0)) 
+            new Transform3d(0.281, -0.176,  0.265, new Rotation3d(0, 0, 0)) ,
+            new Transform3d(0.281, 0.176,  0.265, new Rotation3d(0, 0, 0))
     };
 
     private static AprilTagFieldLayout fieldLayout;
