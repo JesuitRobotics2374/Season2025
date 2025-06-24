@@ -30,7 +30,7 @@ public class ExactAlign extends Command {
     // Rate limiters for smoother motion
     private final SlewRateLimiter xRateLimiter = new SlewRateLimiter(2.0);
     private final SlewRateLimiter yRateLimiter = new SlewRateLimiter(2.0);
-    private final SlewRateLimiter yawRateLimiter = new SlewRateLimiter(10.0);
+    private final SlewRateLimiter yawRateLimiter = new SlewRateLimiter(100.0);
 
     // Position tolerance thresholds
     private static final double X_TOLERANCE = 0.05; // meters
