@@ -6,6 +6,10 @@ import com.ctre.phoenix6.hardware.core.CoreCANrange;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ManipulatorSubsystem extends SubsystemBase {
@@ -45,6 +49,13 @@ public class ManipulatorSubsystem extends SubsystemBase {
         control.set(-0.75);
     }
 
+    public void intake(double speed) {
+        System.out.println("INTAKING DKFK");
+        isIntaking = true;
+        isOuttaking = false;
+        control.set(speed);
+    }
+
     public void outtake() {
         isIntaking = false;
         isOuttaking = true;
@@ -52,14 +63,14 @@ public class ManipulatorSubsystem extends SubsystemBase {
     }
 
     public void outtake(double speed) {
-        System.out.println("OUTTKAIGN DKFK");
+        System.out.println("OUTTAKING DKFK");
         isIntaking = false;
         isOuttaking = true;
         control.set(speed);
     }
 
     public void stopOuttake() {
-        System.out.println("TSOPING OUTTAKIGN");
+        System.out.println("STOPPING OUTTAKING");
         isIntaking = false;
         isOuttaking = false;
         control.set(0);
@@ -95,6 +106,26 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
     public void setOverride(boolean x) {
         overriding = x;
+    }
+
+    public SequentialCommandGroup OutakeSpeed(double setspeed) {
+        SequentialCommandGroup group = new SequentialCommandGroup();
+        Command c = new InstantCommand(() -> this.outtake(setspeed));
+        group.addCommands(c);
+
+        return group;
+    
+
+    }
+
+    public SequentialCommandGroup IntakeSpeed(double setspeed) {
+        SequentialCommandGroup group = new SequentialCommandGroup();
+        Command c = new InstantCommand(() -> this.intake(setspeed));
+        group.addCommands(c);
+
+        return group;
+    
+
     }
 
     int clock = 11;
