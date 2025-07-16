@@ -33,8 +33,8 @@ public class ExactAlign extends Command {
     private final SlewRateLimiter yawRateLimiter = new SlewRateLimiter(100.0);
 
     // Position tolerance thresholds
-    private static final double X_TOLERANCE = 0.05; // meters
-    private static final double Y_TOLERANCE = 0.05; // meters
+    private static final double X_TOLERANCE = 0.035; // meters
+    private static final double Y_TOLERANCE = 0.035; // meters
     private static final double YAW_TOLERANCE = 3 * Math.PI / 180; // radians
 
     // Maximum output valuess
