@@ -17,6 +17,9 @@ import com.ctre.phoenix6.controls.Follower;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -216,6 +219,16 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void changeBy(double d) {
         elevatorGoToDouble(d + elevatorMotor1.getPosition().getValueAsDouble());
+    }
+
+    public SequentialCommandGroup GoTo(double setpoint) {
+        SequentialCommandGroup group = new SequentialCommandGroup();
+        Command c = new InstantCommand(() -> this.elevatorGoToDouble(setpoint));
+        group.addCommands(c);
+
+        return group;
+    
+
     }
 
 }
