@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.seafinder2.PathfinderSubsystem;
@@ -218,7 +219,7 @@ public class Core {
         TagRelativePose testingTagRelativePose = new TagRelativePose(17, 0.52
         , 0.15, 0.0); // idk what units this is in, negative x is right
         // right & y is front back
-        driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
+        //driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
 
         driveController.x().onTrue(new TestCommand(drivetrain));
 
@@ -244,9 +245,37 @@ public class Core {
         operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
         operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
 
-        operatorController.y().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_BARGE)));
-        operatorController.b().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_HP_INTAKE)));
+        //operatorController.y().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_BARGE)));
+        //operatorController.b().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_HP_INTAKE)));
         operatorController.a().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_MIN)));
+
+        operatorController.x().onTrue(armSubsystem.GoTo(18.37));
+        //operatorController.b().onTrue(armSubsystem.WristGoTo(Constants.WRIST_MIN_POSITION));  //vertical
+        //operatorController.y().onTrue(armSubsystem.WristGoTo(Constants.WRIST_MAX_POSITION));  //horizontal
+
+        ParallelCommandGroup pq = new ParallelCommandGroup( armSubsystem.GoTo(10),
+                                                            armSubsystem.WristGoTo(Constants.WRIST_MIN_POSITION),
+                                                            elevatorSubsystem.GoTo(112));
+
+        //operatorController.y().onTrue(pq);
+
+        ParallelCommandGroup pq2 = new ParallelCommandGroup(armSubsystem.GoTo(10), 
+                                                            armSubsystem.WristGoTo(Constants.WRIST_MIN_POSITION),
+                                                            elevatorSubsystem.GoTo(65));
+
+       // operatorController.b().onTrue(pq2);
+
+        SequentialCommandGroup sq = new SequentialCommandGroup(pq, new ExactAlign(drivetrain, testingTagRelativePose), pq2);
+
+        driveController.y().onTrue(sq);
+
+        ParallelCommandGroup intake = new ParallelCommandGroup( armSubsystem.GoTo(17), 
+                                                                armSubsystem.WristGoTo(Constants.WRIST_MAX_POSITION));
+                                                    
+        //SequentialCommandGroup intakeMove = new SequentialCommandGroup(intake, );
+
+        operatorController.b().onTrue(intake);
+
         // X is used for allowing max outtake in core.periodic
         // operatorController.x().onTrue(new InstantCommand(() -> performRetract()));
 
@@ -263,6 +292,9 @@ public class Core {
         operatorController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T2)));
         operatorController.povUp().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T3)));
         operatorController.povRight().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T4)));
+
+        //public SequentialCommandGroup GoTo(double setpoint) {
+
 
     }
 
