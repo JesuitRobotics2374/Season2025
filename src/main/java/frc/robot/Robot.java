@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.seafinder2.SF2Constants;
-import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
 import frc.robot.seafinder2.utils.Apriltags;
 import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.seafinder2.utils.Target.Landmark;
@@ -62,7 +61,6 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
-        m_core.getArmSubsystem().stopArm();
         m_core.getElevatorSubsystem().stopElevator();
 
         System.out.println("Auto-Iit");
@@ -79,7 +77,7 @@ public class Robot extends TimedRobot {
 
         m_core.getElevatorSubsystem().doEstimatedZero();
 
-        Command raiseElevator = new ElevatorCommand(m_core.getElevatorSubsystem(), 1, false);
+        // Command raiseElevator = new ElevatorCommand(m_core.getElevatorSubsystem(), 1, false);
 
         // First Auto
         m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.LEFT), true);
@@ -102,31 +100,6 @@ public class Robot extends TimedRobot {
         m_core.autoCommandGroup.schedule();
 
         System.out.println("Auto schedule complete");
-
-        // Command waitcmd = new WaitCommand(5);
-
-        // Command scheduleAutoInit2 = new InstantCommand(() ->
-        // m_core.getPathfinderSubsystem().autoSequence.schedule());
-
-        // m_core.autoCommandGroup = new SequentialCommandGroup(seedForAuto,
-        // snapToLimelight, raiseElevator, autoLocation, autoHeight, scheduleAutoInit,
-        // hp, scheduleAutoInit2);
-
-        // while (!m_core.autoCommandGroup.isFinished());
-
-        // InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
-        // ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
-
-        // SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm,
-        // zeroElevator, pathfinder)
-
-        // m_core.getPathfinderSubsystem().clearSequence();
-        // int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
-        // System.out.println("Path loaded: " + path.length);
-        // InstantCommand pathfinder = new InstantCommand(() ->
-        // m_core.getPathfinderSubsystem().executePath(path));
-
-        // Command moveForward = new TimedForward(m_core.getDrivetrain(), 1.5);
     }
 
     @Override
@@ -136,25 +109,12 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousExit() {
         m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
-        m_core.getArmSubsystem().stopArm();
         m_core.getElevatorSubsystem().stopElevator();
     }
 
     @Override
     public void teleopInit() {
         m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Coast); // TODO: REMOVE
-        // System.out.println("Teleop-Iit");
-        // InstantCommand raiseElevator = new InstantCommand(() ->
-        // m_core.getElevatorSubsystem().raise(5));
-        // WaitCommand waitCommand = new WaitCommand(0.7);
-        // InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
-        // // InstantCommand raiseArm = new InstantCommand( () ->
-        // m_core.getArmSubsystem().armGoTo(18.68));
-        // InstantCommand lowerToLimit = new InstantCommand( () ->
-        // m_core.getElevatorSubsystem().lowerToLimit() );
-        // SequentialCommandGroup commandGroup = new
-        // SequentialCommandGroup(raiseElevator, waitCommand, moveArm, lowerToLimit);
-        // commandGroup.schedule();
     }
 
     @Override
@@ -165,7 +125,6 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopExit() {
         m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
-        m_core.getArmSubsystem().stopArm();
         m_core.getElevatorSubsystem().stopElevator();
     }
 

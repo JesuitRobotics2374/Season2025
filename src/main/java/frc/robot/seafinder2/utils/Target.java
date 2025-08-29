@@ -10,9 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Core;
 import frc.robot.seafinder2.SF2Constants;
 import frc.robot.seafinder2.commands.StaticBackCommand;
-import frc.robot.seafinder2.commands.retracts.RetractL2;
-import frc.robot.seafinder2.commands.retracts.RetractL3;
-import frc.robot.seafinder2.commands.retracts.RetractL4;
 
 public class Target {
 
@@ -282,18 +279,18 @@ public class Target {
                     retractCommand = (new StaticBackCommand(core.getDrivetrain(), -0.4, -1)).withTimeout(1.5);
                     isTrough = true;
                     break;
-                case BRANCH_L2:
-                    setpoint = SF2Constants.SETPOINT_REEF_T2;
-                    retractCommand = new RetractL2(core);
-                    break;
-                case BRANCH_L3:
-                    setpoint = SF2Constants.SETPOINT_REEF_T3;
-                    retractCommand = new RetractL3(core);
-                    break;
-                case BRANCH_L4:
-                    setpoint = SF2Constants.SETPOINT_REEF_T4;
-                    retractCommand = new RetractL4(core);
-                    break;
+                // case BRANCH_L2:
+                //     setpoint = SF2Constants.SETPOINT_REEF_T2;
+                //     retractCommand = new RetractL2(core);
+                //     break;
+                // case BRANCH_L3:
+                //     setpoint = SF2Constants.SETPOINT_REEF_T3;
+                //     retractCommand = new RetractL3(core);
+                //     break;
+                // case BRANCH_L4:
+                //     setpoint = SF2Constants.SETPOINT_REEF_T4;
+                //     retractCommand = new RetractL4(core);
+                //     break;
             }
             switch (this.location.side) {
                 

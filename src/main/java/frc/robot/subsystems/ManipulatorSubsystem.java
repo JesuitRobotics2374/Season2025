@@ -60,12 +60,28 @@ public class ManipulatorSubsystem extends SubsystemBase {
         return group;
     }
 
-    private void runOuttake(double rpm) {
+    private void runIntake(double rpm) {
+        if (currentState != State.EMPTY) {
+            return;
+        }
+
+        currentState = State.INTAKING;
+
         control.set(rpm); // TODO: FIGURE OUT MATH FOR THIS, should be Normalrpm/Maxrpm
     }
 
-    private void runIntake(double rpm) {
+    private void runOuttake(double rpm) {
+        if (currentState != State.LOADED) {
+            return;
+        }
+
+        currentState = State.OUTTAKING;
+
         control.set(rpm); // TODO: FIGURE OUT MATH FOR THIS, should be Normalrpm/Maxrpm
+    }
+
+    private void stop() {
+        control.set(0);
     }
 
     public boolean isGamepiecePresent() {
@@ -84,69 +100,49 @@ public class ManipulatorSubsystem extends SubsystemBase {
         return defaultOuttakeRPM;
     }
 
-    // public SequentialCommandGroup intake(double setspeed) {
-    // SequentialCommandGroup group = new SequentialCommandGroup();
-    // Command c = new InstantCommand(() -> runIntake(setspeed));
-    // group.addCommands(c);
-
-    // return group;
-    // }
-
-    // public SequentialCommandGroup outtake(double setspeed) {
-    // SequentialCommandGroup group = new SequentialCommandGroup();
-    // Command c = new InstantCommand(() -> runOuttake(setspeed));
-    // group.addCommands(c);
-
-    // return group;
-    // }
-
-    // public SequentialCommandGroup intake() {
-    // return this.intake(defaultSpeed);
-    // }
-
-    // public SequentialCommandGroup outtake() {
-    // return this.intake(defaultSpeed);
-    // }
-
-    // private void runIntake(double speed) {
-    // if (isHolding) {
-    // return;
-    // }
-
-    // control.set(speed);
-
-    // isIntaking = true;
-    // }
-
-    // private void runOuttake(double speed) {
-    // if (!isHolding) {
-    // return;
-    // }
-
-    // control.set(speed);
-
-    // isOuttaking = false;
-    // }
-
-    // private void stop() {
-    // control.set(0);
-    // }
-
-    // // public void setOverride(boolean x) {
-    // // overriding = x;
-    // // }
-
     int clock = 0;
+    private boolean intakeStartTimer = false;
+    private double intakeStopThreshold = 25;
+    private boolean outtakeStartTimer = true;
+    private double outtakeStopThreshold = 25;
 
     @Override
     public void periodic() {
+        if (intakeStartTimer) {
+            clock++;
 
-        // if (algaeIntake && clock == 12) {
-        // intake();
-        // }
-        // if (algaeIntake && clock == 25) {
-        // stop();
-        // clock = 0;
-        // }
+            if (clock > intakeStopThreshold) {
+                stop();
+                clock = 0;
+                currentState = State.LOADED;
+            }
+        }
+
+        if (outtakeStartTimer) {
+            clock++;
+
+            if (clock > outtakeStopThreshold) {
+                stop();
+                clock = 0;
+                currentState = State.EMPTY;
+            }
+        }
+
+        if (currentState == State.INTAKING) {
+            if (sensor.getDistance().getValueAsDouble() <= distanceThreshold) {
+                intakeStartTimer = true;
+            }
+        }
+        else if (currentState == State.OUTTAKING) {
+            if (sensor.getDistance().getValueAsDouble() > distanceThreshold) {
+                outtakeStartTimer = true;
+            }
+        }
+        else if (isGamepiecePresent()) {
+            currentState = State.LOADED;
+        }
+        else {
+            currentState = State.EMPTY;
+        }
     }
 }
