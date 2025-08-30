@@ -6,8 +6,6 @@ Welcome to the Jesuit Robotics team 2374 **REEFSCAPE** codebase, home of our und
 ## 🐚 About the Project  
 This code was written for our team's flagship robot for this season's game. Our robot is packed with features designed to rule the seas (and the field).  
 
-> _"What’s the difference between our bot and a dolphin? Ours can do it better... and it runs on Java."_ 🐬🤖  
-
 *More soon!*
 
 ---
