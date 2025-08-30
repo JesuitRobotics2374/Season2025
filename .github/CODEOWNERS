@@ -1,0 +1,4 @@
+# CODEOWNERS file
+# This sets "Software Admins" as the owner of all files in the root branch
+
+* @JesuitRobotics2374/software-admins
