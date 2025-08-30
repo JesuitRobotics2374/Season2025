@@ -4,8 +4,6 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.core.CoreCANrange;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -14,157 +12,137 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ManipulatorSubsystem extends SubsystemBase {
 
+    private enum State {
+        INTAKING,
+        OUTTAKING,
+        LOADED,
+        EMPTY
+    }
+
     public CoreCANrange sensor;
     public TalonFX control;
-    // public SparkMax eject;
 
-    private boolean isHolding = false;
+    private State currentState;
 
-    boolean algaeIntake = false;
-
-    private boolean isIntaking = false;
-    public boolean isOuttaking = false;
-
-    public boolean overriding = false;
-    public boolean allowMaxOuttake = false;
+    private final double defaultIntakeRPM = 60;
+    private final double defaultOuttakeRPM = 60;
+    private final double distanceThreshold = 0.1;
 
     public ManipulatorSubsystem() {
 
-        // this.eject = new SparkMax(33, MotorType.kBrushless);
         this.control = new TalonFX(26, "FastFD");
         this.sensor = new CoreCANrange(27, "FastFD");
-
-        SparkMaxConfig config = new SparkMaxConfig();
-        config.idleMode(IdleMode.kBrake);
-        config.signals.primaryEncoderPositionPeriodMs(5);
-        // eject.configure(config, ResetMode.kResetSafeParameters,
-        // PersistMode.kPersistParameters);
 
         control.setNeutralMode(NeutralModeValue.Brake);
     }
 
-    public void intake() {
-        isIntaking = true;
-        isOuttaking = false;
-        control.set(-0.75);
+    public SequentialCommandGroup intake() {
+        return intake(defaultIntakeRPM);
     }
 
-    public void intake(double speed) {
-        System.out.println("INTAKING DKFK");
-        isIntaking = true;
-        isOuttaking = false;
-        control.set(speed);
+    public SequentialCommandGroup intake(double rpm) {
+        SequentialCommandGroup group = new SequentialCommandGroup();
+        Command c = new InstantCommand(() -> runIntake(rpm));
+        group.addCommands(c);
+
+        return group;
     }
 
-    public void outtake() {
-        isIntaking = false;
-        isOuttaking = true;
-        control.set(1.0);
+    public SequentialCommandGroup outtake() {
+        return outtake(defaultOuttakeRPM);
     }
 
-    public void outtake(double speed) {
-        System.out.println("OUTTAKING DKFK");
-        isIntaking = false;
-        isOuttaking = true;
-        control.set(speed);
+    public SequentialCommandGroup outtake(double rpm) {
+        SequentialCommandGroup group = new SequentialCommandGroup();
+        Command c = new InstantCommand(() -> runOuttake(rpm));
+        group.addCommands(c);
+
+        return group;
     }
 
-    public void stopOuttake() {
-        System.out.println("STOPPING OUTTAKING");
-        isIntaking = false;
-        isOuttaking = false;
+    private void runIntake(double rpm) {
+        if (currentState != State.EMPTY) {
+            return;
+        }
+
+        currentState = State.INTAKING;
+
+        control.set(rpm); // TODO: FIGURE OUT MATH FOR THIS, should be Normalrpm/Maxrpm
+    }
+
+    private void runOuttake(double rpm) {
+        if (currentState != State.LOADED) {
+            return;
+        }
+
+        currentState = State.OUTTAKING;
+
+        control.set(rpm); // TODO: FIGURE OUT MATH FOR THIS, should be Normalrpm/Maxrpm
+    }
+
+    private void stop() {
         control.set(0);
     }
 
-    public void spinAt(double speed) {
-        control.set(-speed);
-
-        if (speed > 0.0) {
-            isIntaking = false;
-            isOuttaking = true;
-        } else {
-            isIntaking = true;
-            isOuttaking = false;
-        }
+    public boolean isGamepiecePresent() {
+        return sensor.getDistance().getValueAsDouble() <= distanceThreshold;
     }
 
-    public void stop() {
-        isIntaking = false;
-        isOuttaking = false;
-        control.stopMotor();
+    public State mechanismStatus() { // INTAKING, OUTTAKING, LOADED, EMPTY
+        return currentState;
     }
 
-    public boolean getIsIntaking() {
-        return isIntaking;
+    public double getDefaultIntakeRpm() {
+        return defaultIntakeRPM;
     }
 
-    int algaeClock = 0;
-
-    public void holdAlgae() {
-        algaeIntake = !algaeIntake;
+    public double getDefaultOuttakeRpm() {
+        return defaultOuttakeRPM;
     }
 
-    public void setOverride(boolean x) {
-        overriding = x;
-    }
-
-    public SequentialCommandGroup OutakeSpeed(double setspeed) {
-        SequentialCommandGroup group = new SequentialCommandGroup();
-        Command c = new InstantCommand(() -> this.outtake(setspeed));
-        group.addCommands(c);
-
-        return group;
-    
-
-    }
-
-    public SequentialCommandGroup IntakeSpeed(double setspeed) {
-        SequentialCommandGroup group = new SequentialCommandGroup();
-        Command c = new InstantCommand(() -> this.intake(setspeed));
-        group.addCommands(c);
-
-        return group;
-    
-
-    }
-
-    int clock = 11;
+    int clock = 0;
+    private boolean intakeStartTimer = false;
+    private double intakeStopThreshold = 25;
+    private boolean outtakeStartTimer = true;
+    private double outtakeStopThreshold = 25;
 
     @Override
     public void periodic() {
+        if (intakeStartTimer) {
+            clock++;
 
-        clock++;
-        algaeClock++;
-
-        boolean withinRange = sensor.getDistance().getValueAsDouble() <= 0.06
-                && sensor.getIsDetected().getValueAsDouble() == 1.0;
-
-        if (clock > 10 && withinRange) {
-            clock = 5;
-        }
-
-        if (!overriding && isIntaking && !isOuttaking && withinRange && clock == 10 && !algaeIntake) {
-            // stop();
-            isIntaking = false;
-        }
-
-        if (algaeIntake && algaeClock == 20) {
-            // spinAt(0.6);
-        }
-
-        if (algaeClock == 27) {
-            algaeClock = 0;
-            if (!overriding && algaeIntake) {
-                // stop();
+            if (clock > intakeStopThreshold) {
+                stop();
+                clock = 0;
+                currentState = State.LOADED;
             }
         }
 
-        // if (algaeIntake && clock == 12) {
-        // intake();
-        // }
-        // if (algaeIntake && clock == 25) {
-        // stop();
-        // clock = 0;
-        // }
+        if (outtakeStartTimer) {
+            clock++;
+
+            if (clock > outtakeStopThreshold) {
+                stop();
+                clock = 0;
+                currentState = State.EMPTY;
+            }
+        }
+
+        if (currentState == State.INTAKING) {
+            if (sensor.getDistance().getValueAsDouble() <= distanceThreshold) {
+                intakeStartTimer = true;
+            }
+        }
+        else if (currentState == State.OUTTAKING) {
+            if (sensor.getDistance().getValueAsDouble() > distanceThreshold) {
+                outtakeStartTimer = true;
+            }
+        }
+        else if (isGamepiecePresent()) {
+            currentState = State.LOADED;
+        }
+        else {
+            currentState = State.EMPTY;
+        }
     }
 }

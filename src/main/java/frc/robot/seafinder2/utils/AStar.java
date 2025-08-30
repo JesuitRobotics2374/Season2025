@@ -171,7 +171,7 @@ public class AStar implements Pathfinder {
                                   // longer new
 
         if (waypoints.size() < 2) {
-            return null; // i spent 3 fucking hours on this, but for some reason we can end up with a
+            return null; // i spent 3 hours on this, but for some reason we can end up with a
                          // path of size 1. this is a workaround for that. a path with size 1 is the
                          // equivalent of a single point, so we would already be flagging as ended
                          // anyways. I guess java daemons don't like me
@@ -255,7 +255,7 @@ public class AStar implements Pathfinder {
                     }
                 }
             } catch (Exception e) {
-                requestLock.writeLock().lock(); // if something goes wrong, we can assume that the thread is fucked and
+                requestLock.writeLock().lock(); // if something goes wrong, we can assume that the thread is goofed and
                                                 // we need to reset
                 requestReset = true;
                 requestLock.writeLock().unlock();
@@ -290,7 +290,7 @@ public class AStar implements Pathfinder {
 
             newPathAvailable = true; // we have a new path, and we can always set this back to false if we need to
                                      // (done above)
-        } else if (doMajor) { // and this is when he knew: he fucked up
+        } else if (doMajor) { // and this is when he knew: he messed up
             if (eps > 1.0) { // reminder that eps is the greedyness variable. we only need to actually do a
                              // major recalculation if we've seen enough of the field, otherwise it's the
                              // equivalent of starting from scratch
@@ -367,7 +367,7 @@ public class AStar implements Pathfinder {
             Translation2d realStartPos,
             Translation2d realGoalPos,
             Set<GridPosition> obstacles) {
-        if (path.isEmpty()) { // if the path is empty, we don't need to do anything. this should never fucking
+        if (path.isEmpty()) { // if the path is empty, we don't need to do anything. this should never
                               // happen! :D (honestly we should probably kill the thread if this happens)
             return new ArrayList<>();
         }
@@ -392,7 +392,7 @@ public class AStar implements Pathfinder {
             fieldPosPath.add(gridPosToTranslation2d(pos));
         }
 
-        if (fieldPosPath.size() < 2) { // this is what i was talking about earlier. WHAT THE FUCK? this is a hacky fix
+        if (fieldPosPath.size() < 2) { // this is what i was talking about earlier. WHAT THE FRIDGE? this is a hacky fix
                                        // and should be removed later.
             return new ArrayList<>();
         }
