@@ -33,9 +33,14 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     private boolean currentlyMovingDown = false;
     private boolean zeroingElevator = false;
+    private State currentState = State.UNKNOWN;
 
     private boolean hasReachedLimit = false;
 
+    private final double defaultSetpointMoveSpeed = 0.1;
+    private final double defaultRaiseSpeed = 0.1;
+    private final double defaultLowerSpeed = 0.1;
+   
     private int elevatorCycleOnStart = 2;
 
     public ElevatorSubsystem() {
@@ -76,19 +81,143 @@ public class ElevatorSubsystem extends SubsystemBase {
         double absPosition = shaftEncoder.getAbsolutePosition().getValueAsDouble() + elevatorCycleOnStart;
 
         ShuffleboardTab tab = Shuffleboard.getTab("Test");
-        tab.addDouble("ABS STARTING", () -> {return absPosition;});
-        tab.addDouble("ELE CURRENT", () -> {return elevatorMotor1.getPosition().getValueAsDouble();});
+        tab.addDouble("ABS STARTING", () -> {
+            return absPosition;
+        });
+        tab.addDouble("ELE CURRENT", () -> {
+            return elevatorMotor1.getPosition().getValueAsDouble();
+        });
 
         // shaftEncoder.setPosition(0);
         elevatorMotor1.setPosition(absPosition * Constants.ELEVATOR_RATIO);
     }
 
-    public void doEstimatedZero() {
-        double absPosition = shaftEncoder.getAbsolutePosition().getValueAsDouble() + elevatorCycleOnStart;
-        elevatorMotor1.setPosition(absPosition * Constants.ELEVATOR_RATIO);
+    public enum State {
+        MOVING_UP,
+        MOVING_DOWN,
+        ZEROES,
+        UNKNOWN
     }
 
-    public void setElevatorZero() {
+    public enum Height {
+        TROUGH,
+        BRANCH_L2,
+        BRANCH_L3,
+        BRANCH_L4,
+    }
+
+    public SequentialCommandGroup zeroPosition() {
+        SequentialCommandGroup group = new SequentialCommandGroup();
+        Command c = new InstantCommand(() -> zeroElevator());
+        group.addCommands(c);
+
+        return group;
+    }
+
+    public SequentialCommandGroup incrementUp(double amount) {
+        SequentialCommandGroup group = new SequentialCommandGroup();
+        Command c = new InstantCommand(() -> raise(amount));
+        group.addCommands(c);
+
+        return group;
+    }
+
+    public SequentialCommandGroup incrementDown(double amount) {
+        SequentialCommandGroup group = new SequentialCommandGroup();
+        Command c = new InstantCommand(() -> lower(amount));
+        group.addCommands(c);
+
+        return group;
+    }
+
+    public SequentialCommandGroup continuousUpStart(double mps) { // With non-parameter equivalent //TODO: THIS DOESNT WORK, IDK HOW TO DO UP
+        if (true) return null;
+        SequentialCommandGroup group = new SequentialCommandGroup();
+        Command c = new InstantCommand(() -> zeroElevator());
+        group.addCommands(c);
+
+        return group;
+    }
+
+    public SequentialCommandGroup continuousUpStart() {
+        return continuousUpStart(defaultRaiseSpeed);
+    }                 
+
+    public SequentialCommandGroup continuousDownStart(double mps) { // With non-parameter equivalent TODO: HOW IMPLEMENT THE PARAM
+        SequentialCommandGroup group = new SequentialCommandGroup();
+        Command c = new InstantCommand(() -> lowerToLimit());
+        group.addCommands(c);
+
+        return group;
+    } 
+
+    public SequentialCommandGroup continuousDownStart() {
+        return continuousDownStart(defaultLowerSpeed);                         
+    }
+
+    public SequentialCommandGroup moveToSetpoint(Height height, double mps) { // With non-parameter (speed) equivalent TODO: HOW TO IMPLEMENT THE PARAM
+        SequentialCommandGroup group = new SequentialCommandGroup();
+        Command c = null;
+
+        switch(height) {
+            case TROUGH:
+                c = new InstantCommand(() -> elevatorGoToDouble(12));
+            case BRANCH_L2:
+                c = new InstantCommand(() -> elevatorGoToDouble(0));
+            case BRANCH_L3:
+                c = new InstantCommand(() -> elevatorGoToDouble(37.76));
+            case BRANCH_L4:
+                c = new InstantCommand(() -> elevatorGoToDouble(97));
+        }
+
+        if (c == null) {
+            return null;
+        }
+
+        group.addCommands(c);
+        return group;
+    } 
+
+    public SequentialCommandGroup moveToSetpoint(Height height) {
+        return moveToSetpoint(height, defaultSetpointMoveSpeed);
+    }
+
+    public SequentialCommandGroup haltAll() {
+        SequentialCommandGroup group = new SequentialCommandGroup();
+        Command c = new InstantCommand(() -> stopElevator());
+        group.addCommands(c);
+
+        return group;
+    }
+
+    public double mechanismHeight() {
+        return getElevatorPosition();
+    }
+
+    public double mechanismSpeed() { //TODO: MAKE THIS WORK WHEN SPEED PARAMS WORK
+        return 0;
+    }
+
+    public State mechanismStatus() { // MOVING_UP, MOVING_DOWN, ZEROED, UNKNOWN
+        return currentState;
+    } 
+
+    public double getDefaultRaiseSpeed() { // Reference to private
+        return defaultRaiseSpeed;
+    }
+
+    public double getDefaultLowerSpeed() { // Reference to private
+        return defaultLowerSpeed;
+    }
+
+
+
+
+
+
+
+
+    private void setElevatorZero() {
         shaftEncoder.setPosition(0.0);
         elevatorMotor1.setPosition(0.0);
 
@@ -96,11 +225,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotor1.setControl(m_request);
     }
 
-    public void zeroElevator() { // Actual code is in perodic
+    private void zeroElevator() { // Actual code is in perodic
         zeroingElevator = true;
     }
 
-    public void stopElevator() {
+    private void stopElevator() {
         double elevatorPosition = elevatorMotor1.getPosition().getValueAsDouble();
 
         MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorPosition);
@@ -111,7 +240,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         currentlyMovingDown = false;
     }
 
-    public void elevatorGoToDouble(double pos) {
+    private void elevatorGoToDouble(double pos) {
         if (pos < elevatorMotor1.getPosition().getValueAsDouble()) {
             currentlyMovingDown = true;
         } else {
@@ -121,49 +250,51 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
     }
 
-    public void lower() {
+    private void lower() {
         if (hasReachedLimit) {
             System.out.println("Cancelled elevator move down: at bottom!");
             return;
         }
-       // if (!limitSwitch.get()) {
-            currentlyMovingDown = true;
-            MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - Constants.ELEVATOR_MOVE_AMOUNT);
-            elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
-       // }
+        // if (!limitSwitch.get()) {
+        currentlyMovingDown = true;
+        MotionMagicVoltage m_request = new MotionMagicVoltage(
+                elevatorMotor1.getPosition().getValueAsDouble() - Constants.ELEVATOR_MOVE_AMOUNT);
+        elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+        // }
     }
 
-    public void lowerToLimit() {
+    private void lowerToLimit() {
         // if (!limitSwitch.get()) {
-             currentlyMovingDown = true;
-             while (currentlyMovingDown) {
-                MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - Constants.ELEVATOR_MOVE_AMOUNT);
-                elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
-                if (!limitSwitch.get() ) {
-                    setElevatorZero();
-                    currentlyMovingDown = false;
-                }
-
-             }
+        currentlyMovingDown = true;
+        while (currentlyMovingDown) {
+            MotionMagicVoltage m_request = new MotionMagicVoltage(
+                    elevatorMotor1.getPosition().getValueAsDouble() - Constants.ELEVATOR_MOVE_AMOUNT);
+            elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+            if (!limitSwitch.get()) {
+                setElevatorZero();
+                currentlyMovingDown = false;
+            }
+        }
 
         // }
-     }
+    }
 
-    public void lower(double amount) {
+    private void lower(double amount) {
         if (hasReachedLimit) {
             System.out.println("Cancelled elevator move down: at bottom!");
             return;
         }
-      //  if (!limitSwitch.get()) {
-            currentlyMovingDown = true;
-            MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - amount);
-            elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
-      //  }
+        // if (!limitSwitch.get()) {
+        currentlyMovingDown = true;
+        MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - amount);
+        elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+        // }
     }
 
-    public void raise() {
+    private void raise() {
         currentlyMovingDown = false;
-        MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() + Constants.ELEVATOR_MOVE_AMOUNT);
+        MotionMagicVoltage m_request = new MotionMagicVoltage(
+                elevatorMotor1.getPosition().getValueAsDouble() + Constants.ELEVATOR_MOVE_AMOUNT);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
 
         // Since the new request is based on the current position, there is not stacking
@@ -171,7 +302,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         // The delta essentiallly is the speed of the lower
     }
 
-    public void raise(double amount) {
+    private void raise(double amount) {
         currentlyMovingDown = false;
         MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() + amount);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
@@ -181,7 +312,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         // The delta essentiallly is the speed of the lower
     }
 
-    public double getElevatorPosition() {
+    private double getElevatorPosition() {
         return elevatorMotor1.getPosition().getValueAsDouble();
     }
 
@@ -204,7 +335,8 @@ public class ElevatorSubsystem extends SubsystemBase {
             }
         }
 
-        // elevatorMotor1.getSupplyCurrent().getValueAsDouble() > 0.8 // But from T4 to Min elevator uses 0.8 amps
+        // elevatorMotor1.getSupplyCurrent().getValueAsDouble() > 0.8 // But from T4 to
+        // Min elevator uses 0.8 amps
         if (currentlyMovingDown && !limitSwitch.get() && !hasReachedLimit) { // limit is reversed
             setElevatorZero();
             hasReachedLimit = true;
@@ -214,7 +346,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         if (hasReachedLimit && limitSwitch.get()) {
             hasReachedLimit = false;
         }
-        
+
     }
 
     public void changeBy(double d) {
@@ -227,8 +359,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         group.addCommands(c);
 
         return group;
-    
-
     }
 
 }

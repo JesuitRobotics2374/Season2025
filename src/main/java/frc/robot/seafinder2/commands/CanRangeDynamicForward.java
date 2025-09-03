@@ -20,8 +20,6 @@ public class CanRangeDynamicForward extends Command {
         // addRequirements(drivetrain);
     }
 
-//im so cool trust -juli
-
     @Override
     public void initialize(){
         System.out.println("CanRangeDynamicForward Initialized");

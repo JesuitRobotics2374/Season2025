@@ -10,16 +10,9 @@ import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.pathfinding.Pathfinding;
-
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.seafinder2.SF2Constants;
-import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
 import frc.robot.seafinder2.utils.Apriltags;
 import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.seafinder2.utils.Target.Landmark;
@@ -62,8 +55,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
-        m_core.getArmSubsystem().stopArm();
-        m_core.getElevatorSubsystem().stopElevator();
+        CommandScheduler.getInstance().schedule(m_core.getElevatorSubsystem().haltAll());
 
         System.out.println("Auto-Iit");
         m_core.getDrivetrain().seedRobotAuto();
@@ -77,9 +69,7 @@ public class Robot extends TimedRobot {
             }
         }
 
-        m_core.getElevatorSubsystem().doEstimatedZero();
-
-        Command raiseElevator = new ElevatorCommand(m_core.getElevatorSubsystem(), 1, false);
+        CommandScheduler.getInstance().schedule(m_core.getElevatorSubsystem().incrementUp(1)); //This number may need to change
 
         // First Auto
         m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.LEFT), true);
@@ -136,8 +126,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousExit() {
         m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
-        m_core.getArmSubsystem().stopArm();
-        m_core.getElevatorSubsystem().stopElevator();
+        CommandScheduler.getInstance().schedule(m_core.getElevatorSubsystem().haltAll());
     }
 
     @Override
@@ -165,8 +154,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopExit() {
         m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
-        m_core.getArmSubsystem().stopArm();
-        m_core.getElevatorSubsystem().stopElevator();
+        CommandScheduler.getInstance().schedule(m_core.getElevatorSubsystem().haltAll());
     }
 
     @Override
