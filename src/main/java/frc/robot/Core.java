@@ -189,34 +189,34 @@ public class Core {
 
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
         
-        driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T2))); // RESET POSE
-        driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T3))); // RESET POSE
+        // driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T2))); // RESET POSE
+        // driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T3))); // RESET POSE
         
-        driveController.povLeft().onTrue(new InstantCommand(() -> {isTurbo = !isTurbo;}));
+        //driveController.povLeft().onTrue(new InstantCommand(() -> {isTurbo = !isTurbo;}));
         
         TagRelativePose testingTagRelativePose = new TagRelativePose(17, 0.52
         , 0.15, 0.0); // idk what units this is in, negative x is right
         // right & y is front back
        
-        driveController.x().onTrue(new TestCommand(drivetrain));
+        //driveController.x().onTrue(new TestCommand(drivetrain));
 
         driveController.leftBumper().whileTrue(elevatorSubsystem.incrementUp(1));
         driveController.rightBumper().whileTrue(elevatorSubsystem.incrementDown(1));
 
        
-        operatorController.a().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_MIN)));
-        ParallelCommandGroup pq = new ParallelCommandGroup(elevatorSubsystem.GoTo(112));
+        //operatorController.a().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_MIN)));
+        //ParallelCommandGroup pq = new ParallelCommandGroup(elevatorSubsystem.GoTo(112));
 
-        ParallelCommandGroup pq2 = new ParallelCommandGroup(elevatorSubsystem.GoTo(65));
+        //ParallelCommandGroup pq2 = new ParallelCommandGroup(elevatorSubsystem.GoTo(65));
 
-        SequentialCommandGroup sq = new SequentialCommandGroup(pq, new ExactAlign(drivetrain, testingTagRelativePose), pq2);
+        //SequentialCommandGroup sq = new SequentialCommandGroup(pq, new ExactAlign(drivetrain, testingTagRelativePose), pq2);
 
-        driveController.y().onTrue(sq);
+        //driveController.y().onTrue(sq);
 
-        operatorController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T1)));
-        operatorController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T2)));
-        operatorController.povUp().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T3)));
-        operatorController.povRight().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T4)));
+        // operatorController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T1)));
+        // operatorController.povLeft().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T2)));
+        // operatorController.povUp().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T3)));
+        // operatorController.povRight().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T4)));
     }
 
     public void forwardAlign() {

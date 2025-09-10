@@ -106,9 +106,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         BRANCH_L4,
     }
 
+    // This function implements the public API of zeroPosition to set the current encoder's position to 0 (new 0 ref point)
     public SequentialCommandGroup zeroPosition() {
         SequentialCommandGroup group = new SequentialCommandGroup();
-        Command c = new InstantCommand(() -> zeroElevator());
+        Command c = new InstantCommand(() -> setElevatorZero());
         group.addCommands(c);
 
         return group;
