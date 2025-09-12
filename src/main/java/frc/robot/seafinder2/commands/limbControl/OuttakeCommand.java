@@ -15,12 +15,12 @@ public class OuttakeCommand extends Command {
     @Override
     public void initialize() {
         System.out.println("OUTTAKE COMMAND START");
-        this.manipulatorSubsystem.outtake(speed);
+        this.manipulatorSubsystem.spinAt(-speed);
     }
 
     @Override
     public void end(boolean interrupted) {
         System.out.println("OUTTAKE COMMAND END");
-        this.manipulatorSubsystem.stopOuttake();
+        this.manipulatorSubsystem.stop();
     }
 }

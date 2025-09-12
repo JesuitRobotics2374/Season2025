@@ -5,20 +5,15 @@ import com.ctre.phoenix6.hardware.core.CoreCANrange;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ManipulatorSubsystem;
 
-public class NewOuttake extends Command {
+public class EjectCommand extends Command {
 
     private ManipulatorSubsystem manipulatorSubsystem;
-    private CoreCANrange sensor;
     private int clock;
 
-    private double speed;
-
     boolean done = false;
-    
-    public NewOuttake(ManipulatorSubsystem manipulatorSubsystem, double speed) {
+
+    public EjectCommand(ManipulatorSubsystem manipulatorSubsystem) {
         this.manipulatorSubsystem = manipulatorSubsystem;
-        this.sensor = manipulatorSubsystem.sensor;
-        this.speed = speed;
     }
 
     @Override
@@ -34,16 +29,19 @@ public class NewOuttake extends Command {
     @Override
     public void execute() {
 
-        manipulatorSubsystem.setOverride(true);
-        manipulatorSubsystem.spinAt(-speed);
+        manipulatorSubsystem.outtake();
+
+        clock++;
+
+        if (clock == 20) {
+            manipulatorSubsystem.stop();
+            done = true;
+        }
 
     }
 
     @Override
     public void end(boolean interrupted) {
-        manipulatorSubsystem.stop();
-        manipulatorSubsystem.setOverride(false);
-        done = true;
         System.out.println("Intake Command Ended");
     }
 

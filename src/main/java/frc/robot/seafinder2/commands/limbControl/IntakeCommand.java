@@ -37,13 +37,9 @@ public class IntakeCommand extends Command {
         boolean withinRange = sensor.getDistance().getValueAsDouble() <= 0.06
                 && sensor.getIsDetected().getValueAsDouble() == 1.0;
 
-        if (withinRange) {
-            clock++;
-        } else {
-            clock = 0;
-        }
+        clock++;
 
-        if (withinRange) {
+        if (clock == 20) {
             manipulatorSubsystem.stop();
             manipulatorSubsystem.setOverride(false);
             done = true;
