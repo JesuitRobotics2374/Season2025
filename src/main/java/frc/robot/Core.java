@@ -224,10 +224,10 @@ public class Core {
             
         driveController.povLeft().onTrue(new InstantCommand(() -> {isTurbo = !isTurbo;}));
         
-        TagRelativePose testingTagRelativePose = new TagRelativePose(17, 0.315
-        , 0.5, 0.0); // idk what units this is in, negative x is right
+        TagRelativePose testingTagRelativePose = new TagRelativePose(17, 5
+        , 0.0, 0.0); // idk what units this is in, negative x is right
         // right & y is front back
-        //driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
+        driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
 
         //driveController.x().onTrue(new TestCommand(drivetrain));
 
