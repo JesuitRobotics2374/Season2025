@@ -434,17 +434,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getForwardRangeLeft() {
         StatusSignal<Distance> d = robotRangeLeft.getDistance();
-        // return (robotRangeLeft.getIsDetected().getValueAsDouble()==1) ?
-        // d.getValueAsDouble() : Double.MAX_VALUE;
-        return Math.min(d.getValueAsDouble(), 1.5);
+        return (robotRangeLeft.getIsDetected().getValueAsDouble()==1) ?
+        d.getValueAsDouble() : Double.MAX_VALUE;
+        // return Math.min(d.getValueAsDouble(), 1.5);
     }
 
     public double getForwardRangeRight() {
         // StatusSignal<Distance> d = robotRangeRight.getDistance();
         StatusSignal<Distance> d = robotRangeRight.getDistance();
-        // return (robotRangeRight.getIsDetected().getValueAsDouble()==1) ?
-        // d.getValueAsDouble() : Double.MAX_VALUE;
-        return Math.min(d.getValueAsDouble(), 1.5);
+        return (robotRangeRight.getIsDetected().getValueAsDouble()==1) ?
+        d.getValueAsDouble() : Double.MAX_VALUE;
+        // return Math.min(d.getValueAsDouble(), 1.5);
+    }
+
+    public double getForwardRangeCombined() {
+        return Math.min(getForwardRangeLeft(), getForwardRangeRight());
     }
 
     public boolean isCANRangeInThreshold() {
