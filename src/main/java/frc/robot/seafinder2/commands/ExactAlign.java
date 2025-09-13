@@ -28,13 +28,13 @@ public class ExactAlign extends Command {
     private final PIDController yawController;
 
     // Rate limiters for smoother motion
-    private final SlewRateLimiter xRateLimiter = new SlewRateLimiter(8.0);
-    private final SlewRateLimiter yRateLimiter = new SlewRateLimiter(8.0);
-    private final SlewRateLimiter yawRateLimiter = new SlewRateLimiter(10.0);
+    private final SlewRateLimiter xRateLimiter = new SlewRateLimiter(1.0);
+    private final SlewRateLimiter yRateLimiter = new SlewRateLimiter(1.5);
+    private final SlewRateLimiter yawRateLimiter = new SlewRateLimiter(100.0);
 
     // Position tolerance thresholds
-    private static final double X_TOLERANCE = 0.15; // meters
-    private static final double Y_TOLERANCE = 0.15; // meters
+    private static final double X_TOLERANCE = 0.03; // meters
+    private static final double Y_TOLERANCE = 0.03; // meters
     private static final double YAW_TOLERANCE = 3 * Math.PI / 180; // radians
 
     // Maximum output valuess
@@ -91,7 +91,7 @@ public class ExactAlign extends Command {
         xController.setTolerance(X_TOLERANCE);
 
         // Y PID coefficients
-        yController = new PIDController(3, 0.0, 2.3);
+        yController = new PIDController(10, 2, 2.3);
         yController.setTolerance(Y_TOLERANCE);
 
         // Yaw PID coefficients
