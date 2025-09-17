@@ -29,7 +29,7 @@ public class EjectCommand extends Command {
     @Override
     public void execute() {
 
-        manipulatorSubsystem.outtake();
+        manipulatorSubsystem.feed();
 
         clock++;
 

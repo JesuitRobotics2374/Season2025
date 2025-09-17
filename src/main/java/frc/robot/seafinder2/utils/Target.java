@@ -10,9 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Core;
 import frc.robot.seafinder2.SF2Constants;
 import frc.robot.seafinder2.commands.StaticBackCommand;
-import frc.robot.seafinder2.commands.retracts.RetractL2;
-import frc.robot.seafinder2.commands.retracts.RetractL3;
-import frc.robot.seafinder2.commands.retracts.RetractL4;
 
 public class Target {
 
@@ -123,22 +120,12 @@ public class Target {
         double arm;
         double wrist;
 
-        public Setpoint(double elevator, double arm, double wrist) {
+        public Setpoint(double elevator) {
             this.elevator = elevator;
-            this.arm = arm;
-            this.wrist = wrist;
         }
 
         public double getElevator() {
             return elevator;
-        }
-
-        public double getArm() {
-            return arm;
-        }
-
-        public double getWrist() {
-            return wrist;
         }
 
     }
@@ -184,6 +171,92 @@ public class Target {
 
     public boolean isComputed() {
         return tagRelativePose != null;
+    }
+
+    public void cycleLocationRight() {
+        if (location == null) {return;}
+        switch (location.landmark) {
+            case REEF_FRONT:
+                location.landmark = Landmark.REEF_FRONT_RIGHT;
+                break;
+            case REEF_FRONT_RIGHT:
+                location.landmark = Landmark.REEF_BACK_RIGHT;
+                break;
+            case REEF_BACK_RIGHT:
+                location.landmark = Landmark.REEF_BACK;
+                break;
+            case REEF_BACK:
+                location.landmark = Landmark.REEF_BACK_LEFT;
+                break;
+            case REEF_BACK_LEFT:
+                location.landmark = Landmark.REEF_FRONT_LEFT;
+                break;
+            case REEF_FRONT_LEFT:
+                location.landmark = Landmark.REEF_FRONT;
+                break;
+            case STATION_LEFT:
+                location.landmark = Landmark.STATION_RIGHT;
+                break;
+            case STATION_RIGHT:
+                location.landmark = Landmark.PROCESSOR;
+                break;
+            case PROCESSOR:
+                location.landmark = Landmark.BARGE_LEFT;
+                break;
+            case BARGE_LEFT:
+                location.landmark = Landmark.BARGE_RIGHT;
+                break;
+            case BARGE_RIGHT:
+                location.landmark = Landmark.STATION_LEFT;
+                break;
+        }
+        if (isValid()) {
+            compute();
+        }
+        System.out.println("Location: " + location);
+    }
+
+    public void cycleLocationLeft() {
+        if (location == null) {return;}
+        switch (location.landmark) {
+            case REEF_FRONT:
+                location.landmark = Landmark.REEF_FRONT_LEFT;
+                break;
+            case REEF_FRONT_RIGHT:
+                location.landmark = Landmark.REEF_FRONT;
+                break;
+            case REEF_BACK_RIGHT:
+                location.landmark = Landmark.REEF_FRONT_RIGHT;
+                break;
+            case REEF_BACK:
+                location.landmark = Landmark.REEF_BACK_RIGHT;
+                break;
+            case REEF_BACK_LEFT:
+                location.landmark = Landmark.REEF_BACK;
+                break;
+            case REEF_FRONT_LEFT:
+                location.landmark = Landmark.REEF_BACK_LEFT;
+                break;
+            case STATION_LEFT:
+                location.landmark = Landmark.BARGE_RIGHT;
+                break;
+            case STATION_RIGHT:
+                location.landmark = Landmark.STATION_LEFT;
+                break;
+            case PROCESSOR:
+                location.landmark = Landmark.STATION_RIGHT;
+                break;
+            case BARGE_LEFT:
+                location.landmark = Landmark.PROCESSOR;
+                break;
+            case BARGE_RIGHT:
+                location.landmark = Landmark.BARGE_LEFT;
+                break;
+        }
+        if (isValid()) {
+            compute();
+        }
+        System.out.println("Location: " + location);
     }
 
     public Location getLocation() {
@@ -276,44 +349,41 @@ public class Target {
 
         System.out.println("ISREEF: " + this.location.isReef);
         if (this.location.isReef) {
+            retractCommand = (new StaticBackCommand(core.getDrivetrain(), -0.4, -1)).withTimeout(1.5);
             switch (this.height) {
                 case TROUGH:
                     setpoint = SF2Constants.SETPOINT_REEF_T1;
-                    retractCommand = (new StaticBackCommand(core.getDrivetrain(), -0.4, -1)).withTimeout(1.5);
                     isTrough = true;
                     break;
                 case BRANCH_L2:
                     setpoint = SF2Constants.SETPOINT_REEF_T2;
-                    retractCommand = new RetractL2(core);
                     break;
                 case BRANCH_L3:
                     setpoint = SF2Constants.SETPOINT_REEF_T3;
-                    retractCommand = new RetractL3(core);
                     break;
                 case BRANCH_L4:
                     setpoint = SF2Constants.SETPOINT_REEF_T4;
-                    retractCommand = new RetractL4(core);
                     break;
             }
             switch (this.location.side) {
                 
                 case LEFT:
-                    y = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
-                    x = SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET;
+                    x = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
+                    y = SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET;
                     break;
                 case RIGHT:
-                    y = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
-                    x = SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET;
+                    x = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
+                    y = SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET;
                     break;
                 case CENTER:
-                    y = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
-                    x = (SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET
+                    x = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING;
+                    y = (SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET
                             + SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET) / 2;
                     break;
             }
             if (isTrough) {
-                y = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING + (isTrough ? -0.25 : 0);
-                x = (SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET
+                x = SF2Constants.SEAFINDER2_REEF_FRONT_PADDING + (isTrough ? -0.25 : 0);
+                y = (SF2Constants.SEAFINDER2_REEF_LEFT_BRANCH_OFFSET
                             + SF2Constants.SEAFINDER2_REEF_RIGHT_BRANCH_OFFSET) / 2;
             }
         } else {

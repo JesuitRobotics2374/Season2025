@@ -29,8 +29,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.seafinder2.PathfinderSubsystem;
 import frc.robot.seafinder2.interfaces.PanelSubsystem;
 import frc.robot.seafinder2.utils.Target;
+import frc.robot.seafinder2.utils.Target.Landmark;
+import frc.robot.seafinder2.utils.Target.Side;
 import frc.robot.seafinder2.utils.Target.TagRelativePose;
-import frc.robot.subsystems.ArmSubsystem;
 // import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
@@ -38,11 +39,10 @@ import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.seafinder2.SF2Constants;
 import frc.robot.seafinder2.commands.ExactAlign;
+import frc.robot.seafinder2.commands.ScoreCommand;
 import frc.robot.seafinder2.commands.TestCommand;
 import frc.robot.seafinder2.commands.limbControl.EjectCommand;
 import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
-import frc.robot.seafinder2.commands.limbControl.IntakeCommand;
-import frc.robot.seafinder2.commands.retracts.RetractL4;
 
 public class Core {
 
@@ -74,7 +74,6 @@ public class Core {
 
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     public final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
-    public final ArmSubsystem armSubsystem = new ArmSubsystem();
     // public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     public final PathfinderSubsystem pathfinderSubsystem = new PathfinderSubsystem(this);
@@ -89,13 +88,17 @@ public class Core {
 
     private Command pathfindingCommand;
 
-    private String queuedRetractAction;
+    private Target target;
 
     public Core() {
         registerAutoCommands();
         // autoChooser = AutoBuilder.buildAutoChooser();
         configureBindings();
         configureShuffleBoard();
+
+        target = new Target(this);
+        target.setLocation(new Target.Location(Landmark.REEF_BACK_LEFT, Side.RIGHT));
+        target.setHeight(Target.Height.BRANCH_L4); // This is a structural requirement, but we don't use it here.
 
         // drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI /
         // 180))));
@@ -128,12 +131,6 @@ public class Core {
     //     armSubsystem.armGoTo(setpoint.getArm());
     //     armSubsystem.wristGoTo(setpoint.getWrist());
     // }
-
-    public void moveToSetpoint(Target.Setpoint setpoint) {
-        elevatorSubsystem.elevatorGoToDouble(setpoint.getElevator());
-        armSubsystem.armGoTo(setpoint.getArm());
-        armSubsystem.wristGoTo(setpoint.getWrist());
-    }
     
     public void moveElevatorOnly(double val) {
         elevatorSubsystem.elevatorGoToDouble(val);
@@ -217,7 +214,6 @@ public class Core {
         //driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T2))); // RESET POSE
         //driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T3))); // RESET POSE
 
-        operatorController.start().onTrue(new RetractL4(this));
         // // driveController.x().onTrue(armSubsystem.runOnce(() -> {
             // // armSubsystem.setZero();
             // // }));
@@ -225,9 +221,15 @@ public class Core {
             
         driveController.povLeft().onTrue(new InstantCommand(() -> {isTurbo = !isTurbo;}));
 
-        TagRelativePose testingTagRelativePose = new TagRelativePose(21, 0.0 // 0.67
-        , 0.142, 0.0); // x - f/b     y = l/r
-        driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
+        // TagRelativePose testingTagRelativePose = new TagRelativePose(21, 0.0 // 0.67
+        // , 0.142, 0.0); // x - f/b     y = l/r
+        // driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
+
+        driveController.y().onTrue(new ExactAlign(drivetrain, target.getTagRelativePose()));
+        driveController.x().onTrue(new InstantCommand(() -> System.out.println(target.getTagRelativePose())));
+
+        driveController.b().onTrue(new InstantCommand(() -> target.cycleLocationRight()));
+        driveController.a().onTrue(new InstantCommand(() -> target.cycleLocationLeft()));
 
         //driveController.x().onTrue(new TestCommand(drivetrain));
 
@@ -258,15 +260,15 @@ public class Core {
 
 
 
-        operatorController.a().onTrue(new InstantCommand(() -> manipulatorSubsystem.debugIntake()));
+        operatorController.a().onTrue(new InstantCommand(() -> manipulatorSubsystem.reverse()));
         operatorController.b().onTrue(new EjectCommand(manipulatorSubsystem));
         operatorController.x().onTrue(new InstantCommand(() -> manipulatorSubsystem.stop()));
 
-        operatorController.y().onTrue(new SequentialCommandGroup(
-            new ElevatorCommand(elevatorSubsystem, SF2Constants.SETPOINT_REEF_T4.getElevator(), true),
-            new EjectCommand(manipulatorSubsystem),
-            new ElevatorCommand(elevatorSubsystem, 5, true)
-        ));
+        // operatorController.y().onTrue(new SequentialCommandGroup(
+        //     new ElevatorCommand(elevatorSubsystem, SF2Constants.SETPOINT_REEF_T4.getElevator(), true),
+        //     new EjectCommand(manipulatorSubsystem),
+        //     new ElevatorCommand(elevatorSubsystem, SF2Constants.SETPOINT_MIN.getElevator(), true)
+        // ));
 
 
 
@@ -288,9 +290,13 @@ public class Core {
         // pathfinderSubsystem.queueAlign(Height.BRANCH_L3)));
 
         // operatorController.povDown().onTrue(new InstantCommand(() -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T1)));
-        operatorController.povLeft().onTrue(new InstantCommand(() -> moveElevatorOnly(SF2Constants.SETPOINT_REEF_T2.getElevator())));
-        operatorController.povUp().onTrue(new InstantCommand(() -> moveElevatorOnly(SF2Constants.SETPOINT_REEF_T3.getElevator())));
-        operatorController.povRight().onTrue(new InstantCommand(() -> moveElevatorOnly(SF2Constants.SETPOINT_REEF_T4.getElevator())));
+        // operatorController.povLeft().onTrue(new InstantCommand(() -> moveElevatorOnly(SF2Constants.SETPOINT_REEF_T2.getElevator())));
+        // operatorController.povUp().onTrue(new InstantCommand(() -> moveElevatorOnly(SF2Constants.SETPOINT_REEF_T3.getElevator())));
+        // operatorController.povRight().onTrue(new InstantCommand(() -> moveElevatorOnly(SF2Constants.SETPOINT_REEF_T4.getElevator())));
+
+        operatorController.povLeft().onTrue(new ScoreCommand(SF2Constants.SETPOINT_REEF_T2, elevatorSubsystem, manipulatorSubsystem));
+        operatorController.povUp().onTrue(new ScoreCommand(SF2Constants.SETPOINT_REEF_T3, elevatorSubsystem, manipulatorSubsystem));
+        operatorController.povRight().onTrue(new ScoreCommand(SF2Constants.SETPOINT_REEF_T4, elevatorSubsystem, manipulatorSubsystem));
 
         //public SequentialCommandGroup GoTo(double setpoint) {
 
@@ -314,10 +320,6 @@ public class Core {
 
     public ManipulatorSubsystem getManipulatorSubsystem() {
         return manipulatorSubsystem;
-    }
-
-    public ArmSubsystem getArmSubsystem() {
-        return armSubsystem;
     }
 
     public ElevatorSubsystem getElevatorSubsystem() {
@@ -401,25 +403,7 @@ public class Core {
     int clock = 0;
 
     public void corePeriodic() {
-        clock++;
-        if (clock > 10) {
-
-            //System.out.println("curr height = " + currentElevatorPosition);
-
-            // llp2 =
-            // LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[1].name);
-            // System.out.println("LL-R-X: " + llp2.getX() + " Y: " + llp2.getY() + " R1: "
-            // + llp2.getRotation().getX() + " R2: " + llp2.getRotation().getY() + " R3: " +
-            // llp2.getRotation().getZ());
-
-            // llp =
-            // LimelightHelpers.getBotPose3d_TargetSpace(Constants.LIMELIGHTS_ON_BOARD[0].name);
-            // System.out.println("LL-L-X: " + llp.getX() + " Y: " + llp.getY() + " R1: " +
-            // llp.getRotation().getX() + " R2: " + llp.getRotation().getY() + " R3: " +
-            // llp.getRotation().getZ());
-
-            clock = 0;
-        }
+        
         // If either of our analog sticks are moved, we want to disable the auto
         if (driveController.getLeftX() != 0 || driveController.getLeftY() != 0) {
             pathfinderSubsystem.stopAll();
@@ -427,27 +411,6 @@ public class Core {
                 autoCommandGroup.cancel();
             }
         }
-
-        if (manipulatorSubsystem.overriding == true && operatorController.getLeftY() == 0) {
-            return;
-        }
-
-        // manipulatorSubsystem.spinAt(Math.min(operatorController.getLeftY() * 100, 1));
-
-        // manipulatorSubsystem.overriding = false;
-        // if (pathfinderSubsystem.intakeCommand != null) {
-        //     pathfinderSubsystem.intakeCommand.cancel();
-        // }
-
-        // if ((operatorController.getLeftY() < 0)) {
-        //     if (operatorController.x().getAsBoolean()) {
-        //         manipulatorSubsystem.spinAt(operatorController.getLeftY());
-        //     } else {
-        //         manipulatorSubsystem.spinAt(operatorController.getLeftY() / 4);
-        //     }
-        // } else {
-        //     manipulatorSubsystem.spinAt(operatorController.getLeftY());
-        // }
 
         currentElevatorPosition = elevatorSubsystem.getElevatorPosition();
     }

@@ -62,7 +62,6 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
-        m_core.getArmSubsystem().stopArm();
         m_core.getElevatorSubsystem().stopElevator();
 
         System.out.println("Auto-Iit");
@@ -136,7 +135,6 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousExit() {
         m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
-        m_core.getArmSubsystem().stopArm();
         m_core.getElevatorSubsystem().stopElevator();
     }
 
@@ -165,7 +163,6 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopExit() {
         m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
-        m_core.getArmSubsystem().stopArm();
         m_core.getElevatorSubsystem().stopElevator();
     }
 

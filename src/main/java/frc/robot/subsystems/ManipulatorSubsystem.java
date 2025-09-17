@@ -8,25 +8,24 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ManipulatorSubsystem extends SubsystemBase {
 
-    public CoreCANrange sensor;
-    public TalonFX control;
-    // public SparkMax eject;
+    public enum FeedState {
+        EMPTY, LOADING, LOADED
+    }
 
-    // private boolean isHolding = false;
+    private CoreCANrange sensor;
+    private TalonFX control;
 
-    // boolean algaeIntake = false;
+    private boolean movingReverse = false;
+    private boolean feeding = false;
 
-    private boolean isIntaking = false;
-    public boolean isOuttaking = false;
-
-    public boolean overriding = false;
-    public boolean allowMaxOuttake = false;
+    private FeedState state = FeedState.EMPTY;
 
     public ManipulatorSubsystem() {
 
@@ -43,18 +42,12 @@ public class ManipulatorSubsystem extends SubsystemBase {
         control.setNeutralMode(NeutralModeValue.Brake);
     }
 
-    public void intake() {
-
-        control.set(1.0);
-    }
-
-    public void debugIntake() {
+    public void reverse() {
         control.set(0.2);
     }
 
-    public void outtake() {
+    public void feed() {
         control.set(-1.0);
-
     }
 
     public void spinAt(double speed) {
@@ -65,12 +58,60 @@ public class ManipulatorSubsystem extends SubsystemBase {
         control.stopMotor();
     }
 
-    public boolean getIsIntaking() {
-        return isIntaking;
+    public boolean isFeeding() {
+        return feeding;
     }
 
-    public void setOverride(boolean x) {
-        overriding = x;
+    public boolean isReversing() {
+        return movingReverse;
+    }
+
+    public boolean isPieceDetected() {
+        return sensor.getDistance().getValueAsDouble() < 0.01;
+    }
+
+    public Command load() {
+        if (state != FeedState.EMPTY) {
+            return new InstantCommand();
+        }
+        return new FunctionalCommand(
+            // On Init:
+            null,
+            // Every frame:
+            () -> this.feed(),
+            // When we stop:
+            interrupted -> this.stop(),
+            // End the command when:
+            () -> this.isPieceLoaded(),
+            // Require this subsystem
+            this
+        );
+    }
+
+    private void updateState() {
+        switch (state) {
+            case EMPTY:
+                if (isPieceDetected()) {
+                    setState(FeedState.LOADING);
+                }
+                break;
+            case LOADING:
+                if (!isPieceDetected()) {
+                    setState(FeedState.LOADED);
+                }
+                break;
+            case LOADED:
+                break;
+        }
+    }
+
+    private boolean isPieceLoaded() {
+        updateState();
+        return state == FeedState.LOADED;
+    }
+
+    private void setState(FeedState newState) {
+        state = newState;
     }
 
     @Override
