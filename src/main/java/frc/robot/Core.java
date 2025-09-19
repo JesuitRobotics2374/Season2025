@@ -98,7 +98,7 @@ public class Core {
     public Core() {
 
         target = new Target(this);
-        target.setLocation(new Target.Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT));
+        target.setLocation(new Target.Location(Landmark.REEF_BACK, Side.RIGHT));
         target.setHeight(Target.Height.BRANCH_L4); // This is a structural requirement, but we don't use it here.
 
         registerAutoCommands();

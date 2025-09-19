@@ -505,6 +505,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public Command getPathfinderCommand(AprilTagFieldLayout atf, Target target) {
+        if (atf == null) {
+            System.out.println("FIELD MAP NOT READY");
+            return new InstantCommand(() -> {});
+        }
         Optional<Pose3d> tagTargetPre = atf.getTagPose(target.getTag());
         if (!tagTargetPre.isPresent()) {
             throw new IllegalArgumentException("Tag " + target.getTag() + " not found in field layout");
@@ -515,6 +519,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             System.out.println("TARGET IS NULL");
             return null;
         }
+
+        System.out.println("------ TAG TARGET: " + target.getTag());
 
         // PATHFIND - Both
         Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
