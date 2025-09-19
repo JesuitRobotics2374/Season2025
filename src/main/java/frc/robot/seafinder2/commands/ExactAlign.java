@@ -153,7 +153,7 @@ public class ExactAlign extends Command {
             }
 
             // Maintain last movement but slowly reduce it
-            if (framesWithoutTarget > MAX_FRAMES_BEFORE_REDUCE) {
+            if (framesWithoutTarget > MAX_FRAMES_BEFORE_REDUCE && recentPoses.size() != 0) {
                 double xRate = driveRequest.VelocityX;
                 double yRate = driveRequest.VelocityY;
                 double rRate = driveRequest.RotationalRate;

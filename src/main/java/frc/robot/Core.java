@@ -14,6 +14,9 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.util.Units;
@@ -90,15 +93,20 @@ public class Core {
 
     private Target target;
 
+    public AprilTagFieldLayout atf;
+
     public Core() {
+
+        target = new Target(this);
+        target.setLocation(new Target.Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT));
+        target.setHeight(Target.Height.BRANCH_L4); // This is a structural requirement, but we don't use it here.
+
         registerAutoCommands();
         // autoChooser = AutoBuilder.buildAutoChooser();
         configureBindings();
         configureShuffleBoard();
 
-        target = new Target(this);
-        target.setLocation(new Target.Location(Landmark.REEF_BACK_LEFT, Side.RIGHT));
-        target.setHeight(Target.Height.BRANCH_L4); // This is a structural requirement, but we don't use it here.
+        atf = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
         // drivetrain.setRobotPose(new Pose2d(7.5, 1.5, new Rotation2d(180 * (Math.PI /
         // 180))));
@@ -211,6 +219,8 @@ public class Core {
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
         //driveController.start().onTrue(armSubsystem.runOnce(() -> armSubsystem.zeroArm()));
 
+        driveController.start().onTrue(drivetrain.getPathfinderCommand(atf, target));
+
         //driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T2))); // RESET POSE
         //driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T3))); // RESET POSE
 
@@ -219,14 +229,19 @@ public class Core {
             // // }));
             // driveController.x().onTrue(drivetrain.runOnce(() -> moveToSetpoint(Constants.SETPOINT_PROCESSOR)));
             
-        driveController.povLeft().onTrue(new InstantCommand(() -> {isTurbo = !isTurbo;}));
+        // driveController.povLeft().onTrue(new InstantCommand(() -> {isTurbo = !isTurbo;}));
 
         // TagRelativePose testingTagRelativePose = new TagRelativePose(21, 0.0 // 0.67
         // , 0.142, 0.0); // x - f/b     y = l/r
         // driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
 
         driveController.y().onTrue(new ExactAlign(drivetrain, target.getTagRelativePose()));
-        driveController.x().onTrue(new InstantCommand(() -> System.out.println(target.getTagRelativePose())));
+        // driveController.x().onTrue(new InstantCommand(() -> System.out.println(target.getTagRelativePose())));
+
+        driveController.x().onTrue(new SequentialCommandGroup(
+            new ExactAlign(drivetrain, target.getTagRelativePose()),
+            new ScoreCommand(target.getSetpoint(), elevatorSubsystem, manipulatorSubsystem)
+        ));
 
         driveController.b().onTrue(new InstantCommand(() -> target.cycleLocationRight()));
         driveController.a().onTrue(new InstantCommand(() -> target.cycleLocationLeft()));
@@ -260,9 +275,11 @@ public class Core {
 
 
 
-        operatorController.a().onTrue(new InstantCommand(() -> manipulatorSubsystem.reverse()));
-        operatorController.b().onTrue(new EjectCommand(manipulatorSubsystem));
-        operatorController.x().onTrue(new InstantCommand(() -> manipulatorSubsystem.stop()));
+        // operatorController.a().onTrue(new InstantCommand(() -> manipulatorSubsystem.reverse()));
+        // operatorController.b().onTrue(new EjectCommand(manipulatorSubsystem));
+        // operatorController.x().onTrue(new InstantCommand(() -> manipulatorSubsystem.stop()));
+
+        operatorController.y().onTrue(manipulatorSubsystem.load());
 
         // operatorController.y().onTrue(new SequentialCommandGroup(
         //     new ElevatorCommand(elevatorSubsystem, SF2Constants.SETPOINT_REEF_T4.getElevator(), true),

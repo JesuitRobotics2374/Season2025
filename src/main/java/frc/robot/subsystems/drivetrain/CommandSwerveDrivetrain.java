@@ -3,6 +3,7 @@ package frc.robot.subsystems.drivetrain;
 import static edu.wpi.first.units.Units.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.photonvision.EstimatedRobotPose;
@@ -19,7 +20,9 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.PoseEstimator;
@@ -27,6 +30,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
@@ -40,10 +44,14 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.seafinder2.SF2Constants;
+import frc.robot.seafinder2.commands.StopDrivetrain;
+import frc.robot.seafinder2.utils.Target;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.TunerConstants.TunerSwerveDrivetrain;
 
@@ -494,6 +502,65 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         } else {
             resetRotation(new Rotation2d(Math.PI));
         }
+    }
+
+    public Command getPathfinderCommand(AprilTagFieldLayout atf, Target target) {
+        Optional<Pose3d> tagTargetPre = atf.getTagPose(target.getTag());
+        if (!tagTargetPre.isPresent()) {
+            throw new IllegalArgumentException("Tag " + target.getTag() + " not found in field layout");
+            // return new InstantCommand(() -> {});
+        }
+        Pose3d tagTarget = tagTargetPre.get();
+        if (tagTarget == null) {
+            System.out.println("TARGET IS NULL");
+            return null;
+        }
+
+        // PATHFIND - Both
+        Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
+
+       //double hpExtraPadding = target.isReef() ? 0 : -1.5;  This seems to leave it too far back, reducing
+        double padding = target.isReef() ? SF2Constants.SEAFINDER2_ASTAR_PADDING : SF2Constants.SEAFINDER2_ASTAR_PADDING_HP;
+
+        // Pose3d pathfindTarget3d = new Pose3d(
+        //         tagTarget.getX() + SF2Constants.SEAFINDER2_ASTAR_PADDING * Math.cos(tagRotation.getZ())
+        //                 + Math.sin(tagRotation.getZ()) + Constants.FIELD_X_MIDPOINT,
+        //         tagTarget.getY() + SF2Constants.SEAFINDER2_ASTAR_PADDING * Math.sin(tagRotation.getZ())
+        //                 - Math.cos(tagRotation.getZ()) + Constants.FIELD_Y_MIDPOINT,
+        //         tagTarget.getZ(),
+        //         tagRotation);
+
+        double fieldX = tagTarget.getX() + padding * Math.cos(tagRotation.getZ()) + Constants.FIELD_X_MIDPOINT;
+
+        double fieldY = tagTarget.getY() + padding * Math.sin(tagRotation.getZ()) + Constants.FIELD_Y_MIDPOINT;
+
+
+        Pose3d pathfindTarget3d = new Pose3d(
+            fieldX,
+            fieldY,
+            tagTarget.getZ(),
+            tagRotation
+        );
+
+        Pose2d pathfindTarget = pathfindTarget3d.toPose2d();
+
+        PathConstraints constraints = new PathConstraints(SF2Constants.SEAFINDER2_MAX_VELOCITY,
+                SF2Constants.SEAFINDER2_MAX_ACCELERATION, SF2Constants.SEAFINDER2_MAX_ROTATIONAL_VELOCITY,
+                SF2Constants.SEAFINDER2_MAX_ROTATIONAL_ACCELERATION);
+
+        System.out.println(pathfindTarget);
+        this.setLabel(pathfindTarget, "pathfind_target");
+
+        Command pathfindCommand = AutoBuilder.pathfindToPose(
+                pathfindTarget,
+                constraints,
+                0);
+        Command stopDrivetrainCommand = new StopDrivetrain(this);
+
+        return new SequentialCommandGroup(
+            pathfindCommand,
+            stopDrivetrainCommand
+        );
     }
 
 }

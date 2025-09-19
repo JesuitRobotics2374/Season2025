@@ -42,6 +42,7 @@ public class EjectCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        manipulatorSubsystem.clearLoaded();
         System.out.println("Intake Command Ended");
     }
 

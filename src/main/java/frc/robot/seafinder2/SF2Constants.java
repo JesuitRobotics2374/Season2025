@@ -22,14 +22,14 @@ public class SF2Constants {
     public static final double WRIST_MIN_POSITION = 0.0;
     public static final double WRIST_MAX_POSITION = 0.25;
 
-    public static final Setpoint SETPOINT_MIN = new Setpoint(5);
+    public static final Setpoint SETPOINT_MIN = new Setpoint(1);
     public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(0.00);
     public static final Setpoint SETPOINT_PROCESSOR = new Setpoint(33.27);
     public static final Setpoint SETPOINT_BARGE = new Setpoint(128.1);
     public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(12);
     public static final Setpoint SETPOINT_REEF_T2 = new Setpoint(43.238);
     public static final Setpoint SETPOINT_REEF_T3 = new Setpoint(87.3);
-    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(143.78);
+    public static final Setpoint SETPOINT_REEF_T4 = new Setpoint(143.00);
     public static final Setpoint SETPOINT_ALGAE_T2 = new Setpoint(74.5);
     public static final Setpoint SETPOINT_ALGAE_T3 = new Setpoint(110.76);
     public static final Setpoint SETPOINT_MAX = new Setpoint(125);

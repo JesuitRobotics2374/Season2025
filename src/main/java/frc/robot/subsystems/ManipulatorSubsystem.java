@@ -50,6 +50,10 @@ public class ManipulatorSubsystem extends SubsystemBase {
         control.set(-1.0);
     }
 
+    public void preFeed() {
+        control.set(-0.2);
+    }
+
     public void spinAt(double speed) {
         control.set(speed);
     }
@@ -67,7 +71,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
     }
 
     public boolean isPieceDetected() {
-        return sensor.getDistance().getValueAsDouble() < 0.01;
+        return sensor.getIsDetected().getValue();
     }
 
     public Command load() {
@@ -76,9 +80,9 @@ public class ManipulatorSubsystem extends SubsystemBase {
         }
         return new FunctionalCommand(
             // On Init:
-            null,
+            () -> {},
             // Every frame:
-            () -> this.feed(),
+            () -> this.preFeed(),
             // When we stop:
             interrupted -> this.stop(),
             // End the command when:
@@ -106,7 +110,6 @@ public class ManipulatorSubsystem extends SubsystemBase {
     }
 
     private boolean isPieceLoaded() {
-        updateState();
         return state == FeedState.LOADED;
     }
 
@@ -114,9 +117,24 @@ public class ManipulatorSubsystem extends SubsystemBase {
         state = newState;
     }
 
+    public void clearLoaded() {
+        if (state != FeedState.LOADED) {
+            System.out.println("WARN: STATE WAS NOT LOADED");
+        }
+        state = FeedState.EMPTY;
+    }
+
+    private int clock = 0;
+
     @Override
     public void periodic() {
+        updateState();
 
-        
+        clock++;
+        if (clock == 50) {
+            clock = 0;
+            System.out.println(state);
+            System.out.println("detect: " + sensor.getIsDetected().getValue());
+        }
     }
 }
