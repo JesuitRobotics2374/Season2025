@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.seafinder2.SF2Constants;
 import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
+import frc.robot.seafinder2.utils.Apriltags;
 import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.seafinder2.utils.Target.Landmark;
 import frc.robot.seafinder2.utils.Target.Location;
@@ -32,6 +33,7 @@ public class Robot extends TimedRobot {
 
     public Robot() {
         m_core = new Core();
+        Apriltags.loadField();
 
         m_core.getDrivetrain().seedRobotAuto();
 

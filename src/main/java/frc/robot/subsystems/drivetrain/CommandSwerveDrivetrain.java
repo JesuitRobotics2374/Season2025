@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.photonvision.EstimatedRobotPose;
+import org.photonvision.PhotonPoseEstimator;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignal;
@@ -354,11 +355,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             // LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose);
 
             List<EstimatedRobotPose> estimatedRobotPoses = VisionSubsystem.getGlobalFieldPoses();
+            
 
             for (EstimatedRobotPose estimatedRobotPose : estimatedRobotPoses) {
                 if (estimatedRobotPose != null) {
-                    // field.getObject("Vision" + displayCounter).setPose(fp.pose);
                     alignToVision(estimatedRobotPose, false);
+                    field.getObject("Vision1").setPose(getEstimator());
+                }
+                else {
+                  //  System.out.println("Estimated pose NULL");
                 }
             }
         }

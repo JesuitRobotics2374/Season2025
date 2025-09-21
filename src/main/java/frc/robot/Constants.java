@@ -40,7 +40,8 @@ public class Constants {
     public static final double WRIST_RATIO = 64;
 
     // Pathfinding
-    public static final double PATHFINDING_MAX_VELOCITY = 3.5;
+    //public static final double PATHFINDING_MAX_VELOCITY = 3.5;
+    public static final double PATHFINDING_MAX_VELOCITY = .5;
     public static final double PATHFINDING_MAX_ACCELERATION = 1;
     public static final double PATHFINDING_MAX_ROTATIONAL_VELOCITY = Units.degreesToRadians(540);
     public static final double PATHFINDING_MAX_ROTATIONAL_ACCELERATION = Units.degreesToRadians(720);

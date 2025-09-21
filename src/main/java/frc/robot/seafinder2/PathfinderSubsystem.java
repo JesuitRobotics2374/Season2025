@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Core;
-// import frc.robot.seafinder2.utils.Apriltags;
+import frc.robot.seafinder2.utils.Apriltags;
 import frc.robot.seafinder2.commands.CanRangeDynamicForward;
 import frc.robot.seafinder2.commands.ExactAlign;
 import frc.robot.seafinder2.commands.FieldAlign;
@@ -104,7 +104,7 @@ public class PathfinderSubsystem {
         }
 
         // LOWER - Both
-        Command lowerRobot = new InstantCommand(() -> core.moveToSetpoint(SF2Constants.SETPOINT_MIN));
+       // Command lowerRobot = new InstantCommand(() -> core.moveToSetpoint(SF2Constants.SETPOINT_MIN));
 
         // PATHFIND - Both
         Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
@@ -230,14 +230,11 @@ public class PathfinderSubsystem {
             Command hpFieldAlign = new FieldAlign(drivetrain, target.getTag(), fieldX, fieldY, tagRotation.getZ());
 
             // Command intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
-            Command bothHP = new ParallelCommandGroup(
-                // pathfindCommand.until(() -> drivetrain.robotNearHP()),
-                new SequentialCommandGroup(new InstantCommand(() -> {System.out.println("ABDD START");}), pathfindCommand, (new InstantCommand(() -> {System.out.println("ABDD START");}))),
-               // alignComponentsHP
-            );
+            Command bothHP = new SequentialCommandGroup(new InstantCommand(() -> {System.out.println("ABDD START");}), pathfindCommand, (new InstantCommand(() -> {System.out.println("ABDD START");})));
+
 
             Command canForward = new CanRangeDynamicForward(drivetrain);
-            intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
+           // intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
 
             Command staticBack = new StaticBack(drivetrain).withTimeout(0.2);
 
@@ -250,22 +247,23 @@ public class PathfinderSubsystem {
                     stopDrivetrainCommand,
                     // alignComponentsHP,
                     canForward,
-                    intakeCommand,
+             //       intakeCommand,
                     staticBack
                     // wristToScoringPosCommand 
                     // retractComponents
             );
             // autoSequence.schedule();
             } else {
+                System.out.println("Teleop to Human Station");
                 runningCommand = new SequentialCommandGroup(
                     bothHP,
                     // hpFieldAlign.until(() -> drivetrain.robotNearHP()),
-                    stopDrivetrainCommand,
+                    stopDrivetrainCommand
                     // fieldAlign,
                     // alignComponentsHP,
-                    canForward,
-                    intakeCommand,
-                    staticBack
+                 //   canForward,
+                  //  intakeCommand,
+                   // staticBack
                     // wristToScoringPosCommand 
                     // retractComponents
             );

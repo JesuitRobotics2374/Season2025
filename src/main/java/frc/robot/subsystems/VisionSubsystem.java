@@ -144,8 +144,16 @@ public class VisionSubsystem {
 
         List<EstimatedRobotPose> poses = new ArrayList<>();
 
+        ;
+
         for (int i = 0; i < numberOfCams; i++) {
             EstimatedRobotPose pose = getGlobalFieldPoseForDrivetrain(cameras[i], poseEstimators[i]);
+/* 
+            if (pose != null) {
+                System.out.println("Camera " + i + " sees tags! " + pose.estimatedPose);
+            } else {
+                System.out.println("Camera " + i + " sees no tags.");
+            } */
     
             poses.add(pose);
         }

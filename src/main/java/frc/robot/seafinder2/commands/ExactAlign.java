@@ -38,7 +38,7 @@ public class ExactAlign extends Command {
     private static final double YAW_TOLERANCE = 3 * Math.PI / 180; // radians
 
     // Maximum output valuess
-    private static final double MAX_LINEAR_SPEED = 3.4;
+    private static final double MAX_LINEAR_SPEED = 2.4;
     private static final double MAX_ANGULAR_SPEED = 0.5;
 
     private static final double X_SPEED_MODIFIER = 1;
@@ -252,7 +252,7 @@ public class ExactAlign extends Command {
         }
 
         // Update state for isFinished
-        if ((xTollerenace || drivetrain.getForwardRangeCombined() < 0.33) && yTollerenace && thetaTollerenace) {
+        if ((xTollerenace || (drivetrain.getForwardRangeCombined() < 0.33)) && yTollerenace && thetaTollerenace) {
             framesAtTarget++;
         } else {
             framesAtTarget = 0;
