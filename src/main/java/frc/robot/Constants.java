@@ -81,7 +81,7 @@ public class Constants {
     public static final double SETPOINT_ELEVATOR_OFFSET = 0;
 
     // public static final Setpoint SETPOINT_MIN = new Setpoint(5, 22.4, WRIST_MIN_POSITION, "none");
-    // public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(34.55, 15.3, WRIST_MAX_POSITION, "none");
+   // public static final Setpoint SETPOINT_HP_INTAKE = new Setpoint(0.0);
     // public static final Setpoint SETPOINT_PROCESSOR = new Setpoint(33.27, 3.4, WRIST_MAX_POSITION, "none");
     // public static final Setpoint SETPOINT_BARGE = new Setpoint(128.1, 23.8, WRIST_MAX_POSITION, "none");
     // public static final Setpoint SETPOINT_REEF_T1 = new Setpoint(27.63, 4.5, WRIST_MAX_POSITION, "t1");

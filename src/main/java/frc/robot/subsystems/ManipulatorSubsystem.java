@@ -130,11 +130,11 @@ public class ManipulatorSubsystem extends SubsystemBase {
     public void periodic() {
         updateState();
 
-        clock++;
+/*         clock++;
         if (clock == 50) {
             clock = 0;
             System.out.println(state);
             System.out.println("detect: " + sensor.getIsDetected().getValue());
-        }
+        } */
     }
 }

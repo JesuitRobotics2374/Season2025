@@ -29,10 +29,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.seafinder2.PathfinderSubsystem;
 import frc.robot.seafinder2.interfaces.PanelSubsystem;
 import frc.robot.seafinder2.utils.Target;
 import frc.robot.seafinder2.utils.Target.Landmark;
+import frc.robot.seafinder2.utils.Target.Location;
 import frc.robot.seafinder2.utils.Target.Side;
 import frc.robot.seafinder2.utils.Target.TagRelativePose;
 // import frc.robot.subsystems.ClimberSubsystem;
@@ -243,6 +245,8 @@ public class Core {
             new ScoreCommand(target.getSetpoint(), elevatorSubsystem, manipulatorSubsystem)
         ));
 
+        operatorController.b().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT))));
+
         driveController.b().onTrue(new InstantCommand(() -> target.cycleLocationRight()));
         driveController.a().onTrue(new InstantCommand(() -> target.cycleLocationLeft()));
 
@@ -314,6 +318,8 @@ public class Core {
         operatorController.povLeft().onTrue(new ScoreCommand(SF2Constants.SETPOINT_REEF_T2, elevatorSubsystem, manipulatorSubsystem));
         operatorController.povUp().onTrue(new ScoreCommand(SF2Constants.SETPOINT_REEF_T3, elevatorSubsystem, manipulatorSubsystem));
         operatorController.povRight().onTrue(new ScoreCommand(SF2Constants.SETPOINT_REEF_T4, elevatorSubsystem, manipulatorSubsystem));
+
+     
 
         //public SequentialCommandGroup GoTo(double setpoint) {
 

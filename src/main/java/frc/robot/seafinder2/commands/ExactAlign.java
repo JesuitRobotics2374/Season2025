@@ -109,6 +109,7 @@ public class ExactAlign extends Command {
         finishedOverride = false;
 
         System.out.println("EXACTALIGN STARTED");
+        System.out.println("Tag ID: " + tagId);
 
         // Reset controllers and rate limiters
         xController.reset();
