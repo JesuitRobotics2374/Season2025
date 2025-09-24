@@ -284,6 +284,7 @@ public class Core {
         // operatorController.x().onTrue(new InstantCommand(() -> manipulatorSubsystem.stop()));
 
         operatorController.y().onTrue(manipulatorSubsystem.load());
+        operatorController.x().onTrue(manipulatorSubsystem.eject());
 
         // operatorController.y().onTrue(new SequentialCommandGroup(
         //     new ElevatorCommand(elevatorSubsystem, SF2Constants.SETPOINT_REEF_T4.getElevator(), true),

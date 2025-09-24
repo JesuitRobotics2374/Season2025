@@ -230,7 +230,11 @@ public class PathfinderSubsystem {
             Command hpFieldAlign = new FieldAlign(drivetrain, target.getTag(), fieldX, fieldY, tagRotation.getZ());
 
             // Command intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
-            Command bothHP = new SequentialCommandGroup(new InstantCommand(() -> {System.out.println("ABDD START");}), pathfindCommand, (new InstantCommand(() -> {System.out.println("ABDD START");})));
+            Command bothHP = new SequentialCommandGroup(
+                new InstantCommand(() -> {System.out.println("ABDD START");}), 
+                pathfindCommand,
+                hpFieldAlign
+                );
 
 
             Command canForward = new CanRangeDynamicForward(drivetrain);

@@ -27,6 +27,8 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
     private FeedState state = FeedState.EMPTY;
 
+    private int controlledEjectionClock = 0;
+
     public ManipulatorSubsystem() {
 
         // this.eject = new SparkMax(33, MotorType.kBrushless);
@@ -87,6 +89,29 @@ public class ManipulatorSubsystem extends SubsystemBase {
             interrupted -> this.stop(),
             // End the command when:
             () -> this.isPieceLoaded(),
+            // Require this subsystem
+            this
+        );
+    }
+
+    public Command eject() {
+        return new FunctionalCommand(
+            // On Init:
+            () -> {
+                controlledEjectionClock = 0;
+            },
+            // Every frame:
+            () -> {
+                this.preFeed();
+                controlledEjectionClock++;
+            },
+            // When we stop:
+            interrupted -> {
+                this.stop();
+                setState(FeedState.EMPTY);
+            },
+            // End the command when:
+            () -> (controlledEjectionClock>=50),
             // Require this subsystem
             this
         );

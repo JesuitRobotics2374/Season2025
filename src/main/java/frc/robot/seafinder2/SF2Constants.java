@@ -35,5 +35,6 @@ public class SF2Constants {
     public static final Setpoint SETPOINT_MAX = new Setpoint(125);
 
     public static final double CAN_RANGE_FORWARD_DISTANCE = 0.51;
+    public static final double CAN_RANGE_STATION_DISTANCE = 0.2;
     
 }

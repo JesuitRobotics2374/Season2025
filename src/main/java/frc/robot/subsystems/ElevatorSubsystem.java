@@ -81,6 +81,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         // shaftEncoder.setPosition(0);
         elevatorMotor1.setPosition(absPosition * Constants.ELEVATOR_RATIO);
+
+        setElevatorZero();
     }
 
     public void doEstimatedZero() {
@@ -126,7 +128,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             System.out.println("Cancelled elevator move down: at bottom!");
             return;
         }
-       // if (!limitSwitch.get()) {
+       // if (!switchAtLimit()) {
             currentlyMovingDown = true;
             MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - Constants.ELEVATOR_MOVE_AMOUNT);
             elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
@@ -134,12 +136,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void lowerToLimit() {
-        // if (!limitSwitch.get()) {
+        // if (!switchAtLimit()) {
              currentlyMovingDown = true;
              while (currentlyMovingDown) {
                 MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - Constants.ELEVATOR_MOVE_AMOUNT);
                 elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
-                if (!limitSwitch.get() ) {
+                if (switchAtLimit() ) {
                     setElevatorZero();
                     currentlyMovingDown = false;
                 }
@@ -154,7 +156,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             System.out.println("Cancelled elevator move down: at bottom!");
             return;
         }
-      //  if (!limitSwitch.get()) {
+      //  if (!switchAtLimit()) {
             currentlyMovingDown = true;
             MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() - amount);
             elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
@@ -185,6 +187,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         return elevatorMotor1.getPosition().getValueAsDouble();
     }
 
+    public boolean switchAtLimit() {
+        return !limitSwitch.get();
+    }
+
     @Override
     public void periodic() {
         // Robot tilting
@@ -196,7 +202,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         if (zeroingElevator) {
             System.out.println("Zeroing Elevator");
-            if (limitSwitch.get()) {
+            if (!switchAtLimit()) {
                 zeroingElevator = false;
                 setElevatorZero();
             } else {
@@ -205,13 +211,13 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
 
         // elevatorMotor1.getSupplyCurrent().getValueAsDouble() > 0.8 // But from T4 to Min elevator uses 0.8 amps
-        if (currentlyMovingDown && !limitSwitch.get() && !hasReachedLimit) { // limit is reversed
+        if (currentlyMovingDown && switchAtLimit() && !hasReachedLimit) {
             setElevatorZero();
             hasReachedLimit = true;
             currentlyMovingDown = false;
         }
 
-        if (hasReachedLimit && limitSwitch.get()) {
+        if (hasReachedLimit && !switchAtLimit()) {
             hasReachedLimit = false;
         }
         

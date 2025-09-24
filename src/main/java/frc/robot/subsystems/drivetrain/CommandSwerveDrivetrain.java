@@ -84,6 +84,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public CoreCANrange robotRangeRight = new CoreCANrange(18, "FastFD");
     public CoreCANrange robotRangeLeft = new CoreCANrange(19, "FastFD");
 
+    public CoreCANrange robotRangeBack = new CoreCANrange(69, "FastFD");
+
     private final SwerveRequest.ApplyRobotSpeeds autoRequest = new SwerveRequest.ApplyRobotSpeeds();
 
     /*
@@ -462,6 +464,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getForwardRangeCombined() {
         return Math.min(getForwardRangeLeft(), getForwardRangeRight());
+    }
+
+    public double getBackRange() {
+        StatusSignal<Distance> d = robotRangeBack.getDistance();
+        return (robotRangeBack.getIsDetected().getValueAsDouble()==1) ?
+        d.getValueAsDouble() : Double.MAX_VALUE;
+        // return Math.min(d.getValueAsDouble(), 1.5);
     }
 
     public boolean isCANRangeInThreshold() {
