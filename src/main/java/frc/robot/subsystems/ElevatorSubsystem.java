@@ -124,7 +124,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void lower() {
-        if (hasReachedLimit) {
+        if (switchAtLimit()) {
             System.out.println("Cancelled elevator move down: at bottom!");
             return;
         }

@@ -84,7 +84,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public CoreCANrange robotRangeRight = new CoreCANrange(18, "FastFD");
     public CoreCANrange robotRangeLeft = new CoreCANrange(19, "FastFD");
 
-    public CoreCANrange robotRangeBack = new CoreCANrange(69, "FastFD");
+    public CoreCANrange robotRangeBack = new CoreCANrange(17, "FastFD");
 
     private final SwerveRequest.ApplyRobotSpeeds autoRequest = new SwerveRequest.ApplyRobotSpeeds();
 

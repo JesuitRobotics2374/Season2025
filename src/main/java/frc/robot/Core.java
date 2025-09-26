@@ -43,6 +43,7 @@ import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.seafinder2.SF2Constants;
+import frc.robot.seafinder2.commands.CanRangeStation;
 import frc.robot.seafinder2.commands.ExactAlign;
 import frc.robot.seafinder2.commands.ScoreCommand;
 import frc.robot.seafinder2.commands.TestCommand;
@@ -93,15 +94,21 @@ public class Core {
 
     private Command pathfindingCommand;
 
-    private Target target;
+    private Target target1;
+    private Target target2;
+
 
     public AprilTagFieldLayout atf;
 
     public Core() {
 
-        target = new Target(this);
-        target.setLocation(new Target.Location(Landmark.REEF_BACK, Side.RIGHT));
-        target.setHeight(Target.Height.BRANCH_L4); // This is a structural requirement, but we don't use it here.
+        target1 = new Target(this);
+        target1.setLocation(new Target.Location(Landmark.REEF_BACK, Side.RIGHT));
+        target1.setHeight(Target.Height.BRANCH_L4); // This is a structural requirement, but we don't use it here.
+
+        target2 = new Target(this);
+        target2.setLocation(new Target.Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT));
+        target2.setHeight(Target.Height.BRANCH_L4); // This is a structural requirement, but we don't use it here.
 
         registerAutoCommands();
         // autoChooser = AutoBuilder.buildAutoChooser();
@@ -221,7 +228,7 @@ public class Core {
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
         //driveController.start().onTrue(armSubsystem.runOnce(() -> armSubsystem.zeroArm()));
 
-        driveController.start().onTrue(drivetrain.getPathfinderCommand(atf, target));
+        driveController.start().onTrue(drivetrain.getPathfinderCommand(atf, target1));
 
         //driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T2))); // RESET POSE
         //driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T3))); // RESET POSE
@@ -237,18 +244,24 @@ public class Core {
         // , 0.142, 0.0); // x - f/b     y = l/r
         // driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
 
-        driveController.y().onTrue(new ExactAlign(drivetrain, target.getTagRelativePose()));
+        driveController.y().onTrue(new ExactAlign(drivetrain, target1.getTagRelativePose()));
+        driveController.x().onTrue(new ExactAlign(drivetrain, target2.getTagRelativePose()));
         // driveController.x().onTrue(new InstantCommand(() -> System.out.println(target.getTagRelativePose())));
 
-        driveController.x().onTrue(new SequentialCommandGroup(
-            new ExactAlign(drivetrain, target.getTagRelativePose()),
-            new ScoreCommand(target.getSetpoint(), elevatorSubsystem, manipulatorSubsystem)
-        ));
+        // driveController.x().onTrue(new SequentialCommandGroup(
+        //     new ExactAlign(drivetrain, target1.getTagRelativePose()),
+        //     new ScoreCommand(target1.getSetpoint(), elevatorSubsystem, manipulatorSubsystem)
+        // ));
+
+
+        driveController.povUp().onTrue(new CanRangeStation(drivetrain));
 
         operatorController.b().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT))));
 
-        driveController.b().onTrue(new InstantCommand(() -> target.cycleLocationRight()));
-        driveController.a().onTrue(new InstantCommand(() -> target.cycleLocationLeft()));
+
+
+        driveController.b().onTrue(new InstantCommand(() -> target1.cycleLocationRight()));
+        driveController.a().onTrue(new InstantCommand(() -> target1.cycleLocationLeft()));
 
         //driveController.x().onTrue(new TestCommand(drivetrain));
 
@@ -270,6 +283,8 @@ public class Core {
 
         driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
         driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
+        driveController.povDown().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.setElevatorZero()));
+        driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lowerToLimit()));
 
         //operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
         //operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));

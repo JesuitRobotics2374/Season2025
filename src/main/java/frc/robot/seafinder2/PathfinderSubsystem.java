@@ -1,6 +1,8 @@
 
 package frc.robot.seafinder2;
 
+import static edu.wpi.first.units.Units.Rotation;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 
@@ -108,6 +110,11 @@ public class PathfinderSubsystem {
 
         // PATHFIND - Both
         Rotation3d tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
+        // if (!target.getLocation().isReef()) {
+        //     tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, 0));
+        // } else {
+        //     tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
+        // }
 
        //double hpExtraPadding = target.isReef() ? 0 : -1.5;  This seems to leave it too far back, reducing
         double padding = target.isReef() ? SF2Constants.SEAFINDER2_ASTAR_PADDING : SF2Constants.SEAFINDER2_ASTAR_PADDING_HP;
@@ -227,7 +234,7 @@ public class PathfinderSubsystem {
         } else { // Human Station
             System.out.println("RUNNING HUMAN STATION SEQUENCE");
 
-            Command hpFieldAlign = new FieldAlign(drivetrain, target.getTag(), fieldX, fieldY, tagRotation.getZ());
+            Command hpFieldAlign = new FieldAlign(drivetrain, target.getTag(), fieldX, fieldY, (tagRotation.getZ() + Math.PI) % (2 * Math.PI));
 
             // Command intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
             Command bothHP = new SequentialCommandGroup(
