@@ -188,11 +188,15 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public boolean switchAtLimit() {
+      //  boolean li = limitSwitch.get();
+       // System.out.println("switchAtLimit() = " + li);
         return !limitSwitch.get();
+        //return false;
     }
 
     @Override
     public void periodic() {
+
         // Robot tilting
         if (pidgey.getRotation3d().getMeasureX().abs(Degrees) > Constants.MAX_TIP_ANGLE
                 || pidgey.getRotation3d().getMeasureY().abs(Degrees) > Constants.MAX_TIP_ANGLE) {

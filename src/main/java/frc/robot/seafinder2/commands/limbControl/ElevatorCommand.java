@@ -30,11 +30,26 @@ public class ElevatorCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        if (Math.abs(elevatorSubsystem.elevatorMotor1.getPosition().getValueAsDouble() - position) < ((isPosition) ? 0.3 : 13.00)) { // Magic number sorrryyyy - ask kevin ig
+       //  if (Math.abs(elevatorSubsystem.elevatorMotor1.getPosition().getValueAsDouble() - position) < ((isPosition) ? 0.3 : 13.00)) { // Magic number sorrryyyy - ask kevin ig
+
+        double current_position = elevatorSubsystem.elevatorMotor1.getPosition().getValueAsDouble();
+        double diff = current_position - position;
+
+        System.out.println("Elevator Command diff = " + diff + " target " + position);
+
+         if (position == 1.0 && diff < 0.3) {   //NW  If the postiton was negative it would result in a number between 0.3 an 1  usually 0.9  this would cause the command to never finisj
+            return true;
+        } 
+
+        diff = Math.abs(diff);
+       
+        if (diff < (isPosition ? 0.3 : 13.00) ) { // Magic number sorrryyyy - ask kevin ig    
+            System.out.println("Elevator Command exit  diff = " + diff);
             return true;
         } else {
             clock++;
             if (clock >= 15) {
+                System.out.println("ELEVATOR COMMAND: Position: " + elevatorSubsystem.elevatorMotor1.getPosition().getValueAsDouble() + " target " + position);
                 System.out.println("ELEVATOR COMMAND ERROR: " + Math.abs(elevatorSubsystem.elevatorMotor1.getPosition().getValueAsDouble() - position));
                 clock = 0;
             }

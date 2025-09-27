@@ -234,7 +234,7 @@ public class PathfinderSubsystem {
         } else { // Human Station
             System.out.println("RUNNING HUMAN STATION SEQUENCE");
 
-            Command hpFieldAlign = new FieldAlign(drivetrain, target.getTag(), fieldX, fieldY, (tagRotation.getZ() + Math.PI) % (2 * Math.PI));
+            Command hpFieldAlign = new FieldAlign(drivetrain, target.getTag(), fieldX, fieldY, (tagRotation.getZ() + (Math.PI - .08)) % (2 * Math.PI));
 
             // Command intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
             Command bothHP = new SequentialCommandGroup(

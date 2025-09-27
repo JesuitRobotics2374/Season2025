@@ -107,7 +107,7 @@ public class Core {
         target1.setHeight(Target.Height.BRANCH_L4); // This is a structural requirement, but we don't use it here.
 
         target2 = new Target(this);
-        target2.setLocation(new Target.Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT));
+        target2.setLocation(new Target.Location(Landmark.REEF_FRONT_RIGHT, Side.LEFT));
         target2.setHeight(Target.Height.BRANCH_L4); // This is a structural requirement, but we don't use it here.
 
         registerAutoCommands();
@@ -244,8 +244,8 @@ public class Core {
         // , 0.142, 0.0); // x - f/b     y = l/r
         // driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
 
-        driveController.y().onTrue(new ExactAlign(drivetrain, target1.getTagRelativePose()));
-        driveController.x().onTrue(new ExactAlign(drivetrain, target2.getTagRelativePose()));
+        driveController.x().onTrue(new ExactAlign(drivetrain, target1.getTagRelativePose()));
+        driveController.y().onTrue(new ExactAlign(drivetrain, target2.getTagRelativePose()));
         // driveController.x().onTrue(new InstantCommand(() -> System.out.println(target.getTagRelativePose())));
 
         // driveController.x().onTrue(new SequentialCommandGroup(
