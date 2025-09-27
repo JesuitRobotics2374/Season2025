@@ -309,6 +309,9 @@ public class Target {
                 break;
             case REEF_FRONT_RIGHT:
                 tagId = isRed ? 8 : 17;
+                this.location.isReef = true;
+                this.height = Height.BRANCH_L4;
+                this.location.side = Side.RIGHT;
                 break;
             case REEF_BACK_RIGHT:
                 tagId = isRed ? 9 : 22;

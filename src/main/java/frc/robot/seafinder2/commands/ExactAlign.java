@@ -42,7 +42,7 @@ public class ExactAlign extends Command {
     private static final double MAX_ANGULAR_SPEED = 0.5;
 
     private static final double X_SPEED_MODIFIER = 1;
-    private static final double Y_SPEED_MODIFIER = 0.75;
+    private static final double Y_SPEED_MODIFIER = 1;
     private static final double THETA_SPEED_MODIFIER = 0.75;
 
     // Minimum output to overcome static friction
@@ -94,7 +94,7 @@ public class ExactAlign extends Command {
         xController.setTolerance(X_TOLERANCE);
 
         // Y PID coefficients
-        yController = new PIDController(3, 0.6, 2);
+        yController = new PIDController(4, 0.3, 1.5);
         yController.setTolerance(Y_TOLERANCE);
 
         // Yaw PID coefficients

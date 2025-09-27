@@ -79,6 +79,7 @@ public class PathfinderSubsystem {
 
     // Queue a reef location; done by clicking a button on the panel
     public void queueAlign(Height height) {
+        System.out.println("Quefind height button");
         target.setHeight(height);
         if (target.isComputed()) {
             executeSequence(target);
@@ -197,9 +198,9 @@ public class PathfinderSubsystem {
                         // lowerRobot,
                         pathfindCommand,
                         stopDrivetrainCommand,
-                        exactAlign,
+                        exactAlign
                        // troughOuttake, // Wait for elevator to stop moving/shaking
-                        retractComponents
+                      //  retractComponents
                 );
                 }
                 // autoSequence.schedule();
@@ -220,9 +221,9 @@ public class PathfinderSubsystem {
                         // lowerRobot,
                         pathfindCommand,                
                         stopDrivetrainCommand,
-                        exactAlign,
+                        exactAlign
                        // troughOuttake, // Wait for elevator to stop moving/shaking
-                        retractComponents
+                       // retractComponents
                 );
                 }
                 runningCommand.schedule();

@@ -247,6 +247,7 @@ public class Core {
         driveController.x().onTrue(new ExactAlign(drivetrain, target1.getTagRelativePose()));
         driveController.a().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT))));
         driveController.b().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT))));
+       // driveController.b().onTrue(drivetrain.runOnce( () -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T4))
         driveController.y().onTrue(new ExactAlign(drivetrain, target2.getTagRelativePose()));
         // driveController.x().onTrue(new InstantCommand(() -> System.out.println(target.getTagRelativePose())));
 
