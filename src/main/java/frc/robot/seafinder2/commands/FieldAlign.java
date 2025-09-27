@@ -157,10 +157,10 @@ public class FieldAlign extends Command {
                 .withRotationalRate(dtheta)
         );
 
-        if (clock >= 20) {
+/*         if (clock >= 20) {
             System.out.println("EXACT ALIGN VALUES: " + error_x + " " + error_y + " " + error_yaw);
             System.out.println("EXACT ALIGN VALUES: " + xTollerenace + " " + yTollerenace + " " + thetaTollerenace);
-        }
+        } */
                 
         // Update state for isFinished
         if (xTollerenace && yTollerenace && thetaTollerenace) {

@@ -107,7 +107,7 @@ public class Core {
         target1.setHeight(Target.Height.BRANCH_L4); // This is a structural requirement, but we don't use it here.
 
         target2 = new Target(this);
-        target2.setLocation(new Target.Location(Landmark.REEF_FRONT_RIGHT, Side.LEFT));
+        target2.setLocation(new Target.Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT));
         target2.setHeight(Target.Height.BRANCH_L4); // This is a structural requirement, but we don't use it here.
 
         registerAutoCommands();
@@ -245,6 +245,8 @@ public class Core {
         // driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
 
         driveController.x().onTrue(new ExactAlign(drivetrain, target1.getTagRelativePose()));
+        driveController.a().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT))));
+        driveController.b().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT))));
         driveController.y().onTrue(new ExactAlign(drivetrain, target2.getTagRelativePose()));
         // driveController.x().onTrue(new InstantCommand(() -> System.out.println(target.getTagRelativePose())));
 
@@ -256,12 +258,12 @@ public class Core {
 
         driveController.povUp().onTrue(new CanRangeStation(drivetrain));
 
-        operatorController.b().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT))));
+        
+     
 
 
-
-        driveController.b().onTrue(new InstantCommand(() -> target1.cycleLocationRight()));
-        driveController.a().onTrue(new InstantCommand(() -> target1.cycleLocationLeft()));
+      //  driveController.b().onTrue(new InstantCommand(() -> target1.cycleLocationRight()));
+      //  driveController.a().onTrue(new InstantCommand(() -> target1.cycleLocationLeft()));
 
         //driveController.x().onTrue(new TestCommand(drivetrain));
 

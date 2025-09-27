@@ -238,7 +238,7 @@ public class ExactAlign extends Command {
         boolean yTollerenace = Math.abs(error_y) < Y_TOLERANCE;
         boolean thetaTollerenace = Math.abs(error_yaw) + (0.5 * Math.PI / 180) < YAW_TOLERANCE;
 
-        if (xTollerenace || drivetrain.getForwardRangeCombined() < 0.33)
+        if (xTollerenace || drivetrain.getForwardRangeCombined() < 0.35)
             dx = 0;
         if (yTollerenace)
             dy = 0;
@@ -252,7 +252,7 @@ public class ExactAlign extends Command {
         }
 
         // Update state for isFinished
-        if ((xTollerenace || (drivetrain.getForwardRangeCombined() < 0.33)) && yTollerenace && thetaTollerenace) {
+        if ((xTollerenace || (drivetrain.getForwardRangeCombined() < 0.34)) && yTollerenace && thetaTollerenace) {
             framesAtTarget++;
         } else {
             framesAtTarget = 0;
