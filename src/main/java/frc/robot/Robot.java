@@ -19,8 +19,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.seafinder2.SF2Constants;
+import frc.robot.seafinder2.commands.ExactAlign;
 import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
 import frc.robot.seafinder2.utils.Apriltags;
+import frc.robot.seafinder2.utils.Target;
 import frc.robot.seafinder2.utils.Target.Height;
 import frc.robot.seafinder2.utils.Target.Landmark;
 import frc.robot.seafinder2.utils.Target.Location;
@@ -31,7 +33,13 @@ public class Robot extends TimedRobot {
 
     private final Core m_core;
 
+    private Target target1;
+    private Target target2;
+
     public Robot() {
+
+
+
         m_core = new Core();
         Apriltags.loadField();
 
@@ -40,6 +48,17 @@ public class Robot extends TimedRobot {
         PathfindingCommand.warmupCommand().schedule();
 
         VisionSubsystem.initializeVisionSubsystem();
+
+
+        target1 = new Target(m_core);
+        target1.setLocation(new Target.Location(Landmark.REEF_BACK, Side.RIGHT));
+        target1.setHeight(Target.Height.BRANCH_L4); // This is a structural requirement, but we don't use it here.
+
+        target2 = new Target(m_core);
+        target2.setLocation(new Target.Location(Landmark.REEF_FRONT_RIGHT, Side.RIGHT));
+        target2.setHeight(Target.Height.BRANCH_L4); // This is a structural requirement, but we don't use it here.
+
+
     }
 
     @Override
@@ -61,12 +80,13 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
-        m_core.getElevatorSubsystem().stopElevator();
+      ///  m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
+       // m_core.getElevatorSubsystem().stopElevator();
+       m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Coast); 
 
         System.out.println("Auto-Iit");
-        m_core.getDrivetrain().seedRobotAuto();
-
+      //  m_core.getDrivetrain().seedRobotAuto();
+/* 
         List<EstimatedRobotPose> estimatedRobotPoses = VisionSubsystem.getGlobalFieldPoses();
 
         for (EstimatedRobotPose estimatedRobotPose : estimatedRobotPoses) {
@@ -74,18 +94,19 @@ public class Robot extends TimedRobot {
                 // field.getObject("Vision" + displayCounter).setPose(fp.pose);
                 m_core.getDrivetrain().alignToVision(estimatedRobotPose, false);
             }
-        }
+        } */
 
-        m_core.getElevatorSubsystem().doEstimatedZero();
+      //  m_core.getElevatorSubsystem().doEstimatedZero();
 
-        Command raiseElevator = new ElevatorCommand(m_core.getElevatorSubsystem(), 1, false);
+       // Command raiseElevator = new ElevatorCommand(m_core.getElevatorSubsystem(), 1, false);
 
         // First Auto
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.LEFT), true);
-        m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
+       // m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.RIGHT), true);
+       // m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
 
+          Command a1 = (new ExactAlign(m_core.getDrivetrain(), target1.getTagRelativePose()));
         // Human Station
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT));
+        //m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT));
 
         // Second Auto L1
         // m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT,
@@ -93,11 +114,12 @@ public class Robot extends TimedRobot {
         // m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
 
         // Second Auto L4
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.LEFT), false);
-        m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
+      //  m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.LEFT), false);
+      //  m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
 
         // all command should be in pathfinder auto sequence now
-        m_core.autoCommandGroup = new SequentialCommandGroup(m_core.getPathfinderSubsystem().autoSequence);
+        //m_core.autoCommandGroup = new SequentialCommandGroup(m_core.getPathfinderSubsystem().autoSequence);
+        m_core.autoCommandGroup.addCommands(a1);
         m_core.autoCommandGroup.schedule();
 
         System.out.println("Auto schedule complete");
