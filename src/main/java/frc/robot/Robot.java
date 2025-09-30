@@ -19,7 +19,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.seafinder2.SF2Constants;
+import frc.robot.seafinder2.commands.CanRangeStation;
 import frc.robot.seafinder2.commands.ExactAlign;
+import frc.robot.seafinder2.commands.ScoreCommand;
 import frc.robot.seafinder2.commands.limbControl.ElevatorCommand;
 import frc.robot.seafinder2.utils.Apriltags;
 import frc.robot.seafinder2.utils.Target;
@@ -101,53 +103,32 @@ public class Robot extends TimedRobot {
        // Command raiseElevator = new ElevatorCommand(m_core.getElevatorSubsystem(), 1, false);
 
         // First Auto
-       // m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK_RIGHT, Side.RIGHT), true);
-       // m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK, Side.RIGHT), true);
+        m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
+        // score first auto
+        Command a2 = (new ScoreCommand(SF2Constants.SETPOINT_REEF_T4, m_core.elevatorSubsystem, m_core.manipulatorSubsystem));
+         m_core.pathfinderSubsystem.autoSequence.addCommands(a2);
 
-          Command a1 = (new ExactAlign(m_core.getDrivetrain(), target1.getTagRelativePose()));
+
+         
         // Human Station
-        //m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT));
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT)); 
+        m_core.pathfinderSubsystem.autoSequence.addCommands(new CanRangeStation(m_core.getDrivetrain()));
+        m_core.pathfinderSubsystem.autoSequence.addCommands(m_core.getManipulatorSubsystem().load());
+     
 
-        // Second Auto L1
-        // m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT,
-        // Side.LEFT), false);
-        // m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
+        //Second piece
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT));
 
-        // Second Auto L4
-      //  m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT, Side.LEFT), false);
-      //  m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
+        Command a3 = (new ScoreCommand(SF2Constants.SETPOINT_REEF_T4, m_core.elevatorSubsystem, m_core.manipulatorSubsystem));
+        m_core.pathfinderSubsystem.autoSequence.addCommands(a3);
 
-        // all command should be in pathfinder auto sequence now
-        //m_core.autoCommandGroup = new SequentialCommandGroup(m_core.getPathfinderSubsystem().autoSequence);
-        m_core.autoCommandGroup.addCommands(a1);
-        m_core.autoCommandGroup.schedule();
+
+        m_core.getPathfinderSubsystem().autoSequence.schedule();
 
         System.out.println("Auto schedule complete");
 
-        // Command waitcmd = new WaitCommand(5);
-
-        // Command scheduleAutoInit2 = new InstantCommand(() ->
-        // m_core.getPathfinderSubsystem().autoSequence.schedule());
-
-        // m_core.autoCommandGroup = new SequentialCommandGroup(seedForAuto,
-        // snapToLimelight, raiseElevator, autoLocation, autoHeight, scheduleAutoInit,
-        // hp, scheduleAutoInit2);
-
-        // while (!m_core.autoCommandGroup.isFinished());
-
-        // InitRaiseArm moveArm = new InitRaiseArm(m_core.getArmSubsystem());
-        // ZeroElevator zeroElevator = new ZeroElevator(m_core.getElevatorSubsystem());
-
-        // SequentialCommandGroup commandGroup = new SequentialCommandGroup(moveArm,
-        // zeroElevator, pathfinder)
-
-        // m_core.getPathfinderSubsystem().clearSequence();
-        // int[][] path = m_core.getNavInterfaceSubsystem().loadPathData();
-        // System.out.println("Path loaded: " + path.length);
-        // InstantCommand pathfinder = new InstantCommand(() ->
-        // m_core.getPathfinderSubsystem().executePath(path));
-
-        // Command moveForward = new TimedForward(m_core.getDrivetrain(), 1.5);
+    
     }
 
     @Override

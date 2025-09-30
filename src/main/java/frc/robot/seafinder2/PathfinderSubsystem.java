@@ -189,9 +189,9 @@ public class PathfinderSubsystem {
                     autoSequence.addCommands(
                         // lowerRobot,
                         //alignBoth,
-                        exactAlign,
+                        exactAlign
                       //  troughOuttake, // Wait for elevator to stop moving/shaking
-                        retractComponents
+                      //  retractComponents
                     );
                 } else {
                     autoSequence.addCommands(
@@ -256,12 +256,12 @@ public class PathfinderSubsystem {
                 autoSequence.addCommands(
                     bothHP,
                     //hpFieldAlign.until(() -> drivetrain.robotNearHP()),
-                    hpFieldAlign,
-                    stopDrivetrainCommand,
+                    //hpFieldAlign,
+                    stopDrivetrainCommand
                     // alignComponentsHP,
-                    canForward,
+                   // canForward,
              //       intakeCommand,
-                    staticBack
+                  //  staticBack
                     // wristToScoringPosCommand 
                     // retractComponents
             );
