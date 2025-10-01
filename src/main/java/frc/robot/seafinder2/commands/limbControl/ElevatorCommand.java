@@ -2,14 +2,17 @@ package frc.robot.seafinder2.commands.limbControl;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.ManipulatorSubsystem;
 
 public class ElevatorCommand extends Command {
     private ElevatorSubsystem elevatorSubsystem;
+    private ManipulatorSubsystem manipulatorSubsystem;
     private double position;
     private boolean isPosition;
 
-    public ElevatorCommand(ElevatorSubsystem elevatorSubsystem, double value, boolean isPosition) {
+    public ElevatorCommand(ElevatorSubsystem elevatorSubsystem, ManipulatorSubsystem manipulatorSubsystem, double value, boolean isPosition) {
         this.elevatorSubsystem = elevatorSubsystem;
+        this.manipulatorSubsystem = manipulatorSubsystem;
         this.isPosition = isPosition;
 
         if (this.isPosition) {
@@ -23,7 +26,7 @@ public class ElevatorCommand extends Command {
 
     @Override
     public void initialize() {
-        elevatorSubsystem.elevatorGoToDouble(position);
+        elevatorSubsystem.elevatorGoToDouble(manipulatorSubsystem, position);
     }
 
     private int clock = 0;

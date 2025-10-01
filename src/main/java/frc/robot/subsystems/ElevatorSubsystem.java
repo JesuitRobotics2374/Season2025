@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.ManipulatorSubsystem.FeedState;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -113,7 +114,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         currentlyMovingDown = false;
     }
 
-    public void elevatorGoToDouble(double pos) {
+    public void elevatorGoToDouble(ManipulatorSubsystem manipulatorSubsystem, double pos) {
+        if (manipulatorSubsystem.getState() != FeedState.LOADED) return;
         if (pos < elevatorMotor1.getPosition().getValueAsDouble()) {
             currentlyMovingDown = true;
         } else {
@@ -163,7 +165,8 @@ public class ElevatorSubsystem extends SubsystemBase {
       //  }
     }
 
-    public void raise() {
+    public void raise(ManipulatorSubsystem manipulatorSubsystem) {
+        if (manipulatorSubsystem.getState() != FeedState.LOADED) return;
         currentlyMovingDown = false;
         MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() + Constants.ELEVATOR_MOVE_AMOUNT);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
@@ -173,7 +176,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         // The delta essentiallly is the speed of the lower
     }
 
-    public void raise(double amount) {
+    public void raise(ManipulatorSubsystem manipulatorSubsystem, double amount) {
+        if (manipulatorSubsystem.getState() != FeedState.LOADED) return;
         currentlyMovingDown = false;
         MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() + amount);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
@@ -227,13 +231,13 @@ public class ElevatorSubsystem extends SubsystemBase {
         
     }
 
-    public void changeBy(double d) {
-        elevatorGoToDouble(d + elevatorMotor1.getPosition().getValueAsDouble());
+    public void changeBy(ManipulatorSubsystem manipulatorSubsystem, double d) {
+        elevatorGoToDouble(manipulatorSubsystem, d + elevatorMotor1.getPosition().getValueAsDouble());
     }
 
-    public SequentialCommandGroup GoTo(double setpoint) {
+    public SequentialCommandGroup GoTo(ManipulatorSubsystem manipulatorSubsystem, double setpoint) {
         SequentialCommandGroup group = new SequentialCommandGroup();
-        Command c = new InstantCommand(() -> this.elevatorGoToDouble(setpoint));
+        Command c = new InstantCommand(() -> this.elevatorGoToDouble(manipulatorSubsystem, setpoint));
         group.addCommands(c);
 
         return group;

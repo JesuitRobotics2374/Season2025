@@ -87,7 +87,7 @@ public class Robot extends TimedRobot {
        m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Coast); 
 
         System.out.println("Auto-Iit");
-      //  m_core.getDrivetrain().seedRobotAuto();
+       m_core.getDrivetrain().seedRobotAuto();
 /* 
         List<EstimatedRobotPose> estimatedRobotPoses = VisionSubsystem.getGlobalFieldPoses();
 
@@ -103,7 +103,7 @@ public class Robot extends TimedRobot {
        // Command raiseElevator = new ElevatorCommand(m_core.getElevatorSubsystem(), 1, false);
 
         // First Auto
-        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK, Side.RIGHT), true);
+        m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK, Side.LEFT), true);
         m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
         // score first auto
         Command a2 = (new ScoreCommand(SF2Constants.SETPOINT_REEF_T4, m_core.elevatorSubsystem, m_core.manipulatorSubsystem));
@@ -143,7 +143,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Coast); // TODO: REMOVE
+        m_core.getDrivetrain().configNeutralMode(NeutralModeValue.Brake);
         m_core.getManipulatorSubsystem().stop();
         // System.out.println("Teleop-Iit");
         // InstantCommand raiseElevator = new InstantCommand(() ->

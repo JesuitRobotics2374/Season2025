@@ -150,7 +150,7 @@ public class Core {
     // }
     
     public void moveElevatorOnly(double val) {
-        elevatorSubsystem.elevatorGoToDouble(val);
+        elevatorSubsystem.elevatorGoToDouble(manipulatorSubsystem, val);
     }
 
 
@@ -226,9 +226,31 @@ public class Core {
                         .withRotationalRate(-driveController.getRightX() * MaxAngularRate * getAxisMovementScale())));
 
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // RESET POSE
+
+        driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
+        driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise(manipulatorSubsystem)));
+
+        /////////////////////////////////////////////////////////
+        
+        operatorController.y().onTrue(manipulatorSubsystem.load());
+
+        // operatorController.povLeft().onTrue(new ScoreCommand(SF2Constants.SETPOINT_REEF_T2, elevatorSubsystem, manipulatorSubsystem));
+        // operatorController.povUp().onTrue(new ScoreCommand(SF2Constants.SETPOINT_REEF_T3, elevatorSubsystem, manipulatorSubsystem));
+        // operatorController.povRight().onTrue(new ScoreCommand(SF2Constants.SETPOINT_REEF_T4, elevatorSubsystem, manipulatorSubsystem));
+
+        operatorController.povLeft().onTrue(new ElevatorCommand(elevatorSubsystem, manipulatorSubsystem, SF2Constants.SETPOINT_REEF_T2.getElevator(), true));
+        operatorController.povUp().onTrue(new ElevatorCommand(elevatorSubsystem, manipulatorSubsystem, SF2Constants.SETPOINT_REEF_T3.getElevator(), true));
+        operatorController.povRight().onTrue(new ElevatorCommand(elevatorSubsystem, manipulatorSubsystem, SF2Constants.SETPOINT_REEF_T4.getElevator(), true));
+
+        operatorController.b().onTrue(new EjectCommand(manipulatorSubsystem));
+        operatorController.x().onTrue(manipulatorSubsystem.eject());
+
+        operatorController.a().onTrue(new ElevatorCommand(elevatorSubsystem, manipulatorSubsystem, SF2Constants.SETPOINT_MIN.getElevator(), true));
+
+
         //driveController.start().onTrue(armSubsystem.runOnce(() -> armSubsystem.zeroArm()));
 
-        driveController.start().onTrue(drivetrain.getPathfinderCommand(atf, target1));
+        // driveController.start().onTrue(drivetrain.getPathfinderCommand(atf, target1));
 
         //driveController.a().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T2))); // RESET POSE
         //driveController.b().onTrue(drivetrain.runOnce(() -> moveToSetpoint(SF2Constants.SETPOINT_ALGAE_T3))); // RESET POSE
@@ -244,11 +266,11 @@ public class Core {
         // , 0.142, 0.0); // x - f/b     y = l/r
         // driveController.y().onTrue(new ExactAlign(drivetrain, testingTagRelativePose));
 
-        driveController.x().onTrue(new ExactAlign(drivetrain, target1.getTagRelativePose()));
-        driveController.a().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT))));
-        driveController.b().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT))));
-       // driveController.b().onTrue(drivetrain.runOnce( () -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T4))
-        driveController.y().onTrue(new ExactAlign(drivetrain, target2.getTagRelativePose()));
+    //     driveController.x().onTrue(new ExactAlign(drivetrain, target1.getTagRelativePose()));
+    //     driveController.a().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.STATION_RIGHT))));
+    //     driveController.b().onTrue(new InstantCommand(() -> pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT))));
+    //    driveController.b().onTrue(drivetrain.runOnce( () -> moveToSetpoint(SF2Constants.SETPOINT_REEF_T4))
+    //     driveController.y().onTrue(new ExactAlign(drivetrain, target2.getTagRelativePose()));
         // driveController.x().onTrue(new InstantCommand(() -> System.out.println(target.getTagRelativePose())));
 
         // driveController.x().onTrue(new SequentialCommandGroup(
@@ -257,7 +279,7 @@ public class Core {
         // ));
 
 
-        driveController.povUp().onTrue(new CanRangeStation(drivetrain));
+        // driveController.povUp().onTrue(new CanRangeStation(drivetrain));
 
         
      
@@ -284,10 +306,8 @@ public class Core {
         // driveController.povUp().onTrue(climberSubsystem.runOnce(() ->
         // climberSubsystem.speed(-0.5)));
 
-        driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
-        driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise()));
-        driveController.povDown().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.setElevatorZero()));
-        driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lowerToLimit()));
+        // driveController.povDown().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.setElevatorZero()));
+        // driveController.povLeft().onTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lowerToLimit()));
 
         //operatorController.rightBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armUp()));
         //operatorController.leftBumper().onTrue(armSubsystem.runOnce(() -> armSubsystem.armDown()));
@@ -301,8 +321,7 @@ public class Core {
         // operatorController.b().onTrue(new EjectCommand(manipulatorSubsystem));
         // operatorController.x().onTrue(new InstantCommand(() -> manipulatorSubsystem.stop()));
 
-        operatorController.y().onTrue(manipulatorSubsystem.load());
-        operatorController.x().onTrue(manipulatorSubsystem.eject());
+        // operatorController.x().onTrue(manipulatorSubsystem.eject());
 
         // operatorController.y().onTrue(new SequentialCommandGroup(
         //     new ElevatorCommand(elevatorSubsystem, SF2Constants.SETPOINT_REEF_T4.getElevator(), true),
@@ -333,10 +352,6 @@ public class Core {
         // operatorController.povLeft().onTrue(new InstantCommand(() -> moveElevatorOnly(SF2Constants.SETPOINT_REEF_T2.getElevator())));
         // operatorController.povUp().onTrue(new InstantCommand(() -> moveElevatorOnly(SF2Constants.SETPOINT_REEF_T3.getElevator())));
         // operatorController.povRight().onTrue(new InstantCommand(() -> moveElevatorOnly(SF2Constants.SETPOINT_REEF_T4.getElevator())));
-
-        operatorController.povLeft().onTrue(new ScoreCommand(SF2Constants.SETPOINT_REEF_T2, elevatorSubsystem, manipulatorSubsystem));
-        operatorController.povUp().onTrue(new ScoreCommand(SF2Constants.SETPOINT_REEF_T3, elevatorSubsystem, manipulatorSubsystem));
-        operatorController.povRight().onTrue(new ScoreCommand(SF2Constants.SETPOINT_REEF_T4, elevatorSubsystem, manipulatorSubsystem));
 
      
 

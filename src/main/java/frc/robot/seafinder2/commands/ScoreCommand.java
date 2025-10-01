@@ -19,9 +19,9 @@ public class ScoreCommand extends SequentialCommandGroup {
     addRequirements(elevatorSubsystem,manipulatorSubsystem);
 
     addCommands(
-        new ElevatorCommand(elevatorSubsystem, setpoint.getElevator(), true),
+        new ElevatorCommand(elevatorSubsystem, manipulatorSubsystem, setpoint.getElevator(), true),
             new EjectCommand(manipulatorSubsystem),
-            new ElevatorCommand(elevatorSubsystem, SF2Constants.SETPOINT_MIN.getElevator(), true)
+            new ElevatorCommand(elevatorSubsystem, manipulatorSubsystem, SF2Constants.SETPOINT_MIN.getElevator(), true)
     );
   }
 

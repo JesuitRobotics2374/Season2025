@@ -142,6 +142,10 @@ public class ManipulatorSubsystem extends SubsystemBase {
         state = newState;
     }
 
+    public FeedState getState() {
+        return state;
+    }
+
     public void clearLoaded() {
         if (state != FeedState.LOADED) {
             System.out.println("WARN: STATE WAS NOT LOADED");
