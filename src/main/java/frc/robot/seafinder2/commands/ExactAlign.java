@@ -94,7 +94,7 @@ public class ExactAlign extends Command {
         xController.setTolerance(X_TOLERANCE);
 
         // Y PID coefficients
-        yController = new PIDController(3, 0.3, 1.5);
+        yController = new PIDController(3.5, 0.3, 1.5);
         yController.setTolerance(Y_TOLERANCE);
 
         // Yaw PID coefficients

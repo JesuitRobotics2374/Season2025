@@ -115,7 +115,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void elevatorGoToDouble(ManipulatorSubsystem manipulatorSubsystem, double pos) {
-        if (manipulatorSubsystem.getState() != FeedState.LOADED) return;
+        // if (manipulatorSubsystem.getState() != FeedState.LOADED) return;
         if (pos < elevatorMotor1.getPosition().getValueAsDouble()) {
             currentlyMovingDown = true;
         } else {
@@ -166,7 +166,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void raise(ManipulatorSubsystem manipulatorSubsystem) {
-        if (manipulatorSubsystem.getState() != FeedState.LOADED) return;
+        // if (manipulatorSubsystem.getState() != FeedState.LOADED) return;
         currentlyMovingDown = false;
         MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() + Constants.ELEVATOR_MOVE_AMOUNT);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));
@@ -177,7 +177,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void raise(ManipulatorSubsystem manipulatorSubsystem, double amount) {
-        if (manipulatorSubsystem.getState() != FeedState.LOADED) return;
+        // if (manipulatorSubsystem.getState() != FeedState.LOADED) return;
         currentlyMovingDown = false;
         MotionMagicVoltage m_request = new MotionMagicVoltage(elevatorMotor1.getPosition().getValueAsDouble() + amount);
         elevatorMotor1.setControl(m_request.withEnableFOC(true).withOverrideBrakeDurNeutral(true));

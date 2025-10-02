@@ -112,11 +112,11 @@ public class PathfinderSubsystem {
 
         Rotation3d tagRotation;
         // PATHFIND - Both
-        if (!target.isReef()) {
-            tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, 0));
-        } else {
+        // if (!target.isReef()) {
+        //     tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, 0));
+        // } else {
             tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, Math.PI));
-        }
+        // }
         // if (!target.getLocation().isReef()) {
         // tagRotation = tagTarget.getRotation().plus(new Rotation3d(0, 0, 0));
         // } else {
@@ -262,7 +262,7 @@ public class PathfinderSubsystem {
 
             // Command intakeCommand = new IntakeCommand(core.getManipulatorSubsystem());
             Command bothHP = new SequentialCommandGroup(
-                    // new InstantCommand(() -> {System.out.println("ABDD START");}),
+                    new InstantCommand(() -> {System.out.println("ABDD START");}),
                     pathfindCommand,
                     hpFieldAlign);
 

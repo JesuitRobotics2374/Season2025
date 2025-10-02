@@ -32,7 +32,7 @@ public class CanRangeStation extends Command {
         distance = drivetrain.getBackRange();
 
         if (distance > SF2Constants.CAN_RANGE_STATION_DISTANCE) {
-            drivetrain.setControl(driveRequest.withVelocityX(-0.5));
+            drivetrain.setControl(driveRequest.withVelocityX(-1.5));
         }
     }
 

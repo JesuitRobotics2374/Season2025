@@ -104,7 +104,7 @@ public class Robot extends TimedRobot {
 
         // First Auto
         m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_BACK, Side.LEFT), true);
-        m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L4);
+        m_core.pathfinderSubsystem.queueAlign(Height.BRANCH_L3);
         // score first auto
         Command a2 = (new ScoreCommand(SF2Constants.SETPOINT_REEF_T4, m_core.elevatorSubsystem, m_core.manipulatorSubsystem));
          m_core.pathfinderSubsystem.autoSequence.addCommands(a2);
@@ -120,7 +120,7 @@ public class Robot extends TimedRobot {
         //Second piece
         m_core.pathfinderSubsystem.queueFind(new Location(Landmark.REEF_FRONT_RIGHT));
 
-        Command a3 = (new ScoreCommand(SF2Constants.SETPOINT_REEF_T4, m_core.elevatorSubsystem, m_core.manipulatorSubsystem));
+        Command a3 = (new ScoreCommand(SF2Constants.SETPOINT_REEF_T3, m_core.elevatorSubsystem, m_core.manipulatorSubsystem));
         m_core.pathfinderSubsystem.autoSequence.addCommands(a3);
 
 
