@@ -56,6 +56,10 @@ public class ManipulatorSubsystem extends SubsystemBase {
         control.set(-0.2);
     }
 
+    public void forceEjectFast() {
+        control.set(-1);
+    }
+
     public void spinAt(double speed) {
         control.set(speed);
     }
@@ -102,7 +106,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
             },
             // Every frame:
             () -> {
-                this.preFeed();
+                this.forceEjectFast();
                 controlledEjectionClock++;
             },
             // When we stop:
@@ -111,7 +115,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
                 setState(FeedState.EMPTY);
             },
             // End the command when:
-            () -> (controlledEjectionClock>=50),
+            () -> (controlledEjectionClock>=20),
             // Require this subsystem
             this
         );
