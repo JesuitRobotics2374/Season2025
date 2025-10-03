@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
@@ -29,6 +30,8 @@ public class VisionSubsystem {
     private static CameraType[] cameraTypes = new CameraType[numberOfCams];
 
     private static PhotonPoseEstimator[] poseEstimators = new PhotonPoseEstimator[numberOfCams];
+    private static PhotonPoseEstimator[] poseEstimatorsForNearest = new PhotonPoseEstimator[numberOfCams];
+
     private static Transform3d[] cameraToBotRelativePoses = { //REALLY USEFUL DOCS FOR COORDINATE SYSTEMS: https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
             new Transform3d(0.281, -0.176,  0.265, new Rotation3d(0, 0, 0)),
             new Transform3d(0.281, 0.176,  0.265, new Rotation3d(0, 0, 0))
@@ -60,6 +63,14 @@ public class VisionSubsystem {
             cameras[i] = c;
             poseEstimators[i] = e;
             cameraTypes[i] = t;
+
+            PhotonPoseEstimator eNear = new PhotonPoseEstimator(
+                fieldLayout, 
+                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                cameraToBotRelativePoses[i]
+            );
+
+            poseEstimatorsForNearest[i] = eNear;
         }
     }
 
@@ -251,6 +262,117 @@ public class VisionSubsystem {
 
         return null;
     }
+
+    private static int getNearestTag(PhotonCamera camera) {
+        if (!canSeeTag(camera)) {
+            return -1;
+        }
+
+        PhotonPipelineResult result = camera.getLatestResult();
+
+        if (result != null && result.hasTargets()) {
+            List<PhotonTrackedTarget> targets = result.targets;
+
+            if (targets.size() == 0) {
+                return -1;
+            }
+
+            int relevantTag = result.getBestTarget().fiducialId;
+
+            return relevantTag;
+
+        }
+
+        return -1;
+    }
+
+    // public static Pose3d getNearestTagRelativeToBot() {
+    //     ArrayList<Pose3d> poses = new ArrayList<>();
+    //     HashMap<Integer, ArrayList<Pose3d>> map = new HashMap<>();
+
+    //     for (int i = 0; i < numberOfCams; i++) {
+    //         if (cameraTypes[i] != CameraType.APRIL_TAG) {
+    //             poses.add(null);
+    //             continue;
+    //         }
+
+    //         ArrayList<PhotonTrackedTarget> trackedTargets = getNearestTagsRelativeToBot(cameras[i]);
+
+    //         if (trackedTargets == null) {
+    //             continue;
+    //         }
+
+    //         for (PhotonTrackedTarget target : trackedTargets) {
+    //             if (target == null) {
+    //                 continue;
+    //             }
+
+    //             int tagID = target.getFiducialId();
+
+    //             Transform3d transform3d = target.getBestCameraToTarget().plus(cameraToBotRelativePoses[i]);
+
+    //             Translation3d translation3d = transform3d.getTranslation();
+    //             Rotation3d rotation3d = transform3d.getRotation();
+
+    //             Pose3d pose = new Pose3d(translation3d, rotation3d);
+
+    //             if (map.containsKey(tagID)) {
+    //                 ArrayList<Pose3d> currentMapPoses = map.get(tagID);
+    //                 currentMapPoses.add(pose);
+
+    //                 map.put(tagID, currentMapPoses);
+    //             }
+    //             else {
+    //                 ArrayList<Pose3d> newMapPose = new ArrayList<>();
+    //                 newMapPose.add(pose);
+
+    //                 map.put(tagID, newMapPose);
+    //             }
+    //         }
+    //     }
+
+    //     if (map.isEmpty()) {
+    //         return null;
+    //     }
+
+    //     Pose3d least = null;
+
+    //     for (int i = 0; i < 32; i++) {
+    //         if (!map.containsKey(i)) {
+    //             continue;
+    //         }
+
+
+    //     }
+
+    //     return poses;
+    // }
+
+    // private static ArrayList<PhotonTrackedTarget> getNearestTagsRelativeToBot(PhotonCamera camera) {
+    //     if (!canSeeTag(camera)) {
+    //         return null;
+    //     }
+
+    //     ArrayList<PhotonTrackedTarget> targetsArray = new ArrayList<>();
+
+    //     PhotonPipelineResult result = camera.getLatestResult();
+
+    //     if (result != null && result.hasTargets()) {
+    //         List<PhotonTrackedTarget> targets = result.targets;
+
+    //         if (targets.size() == 0) {
+    //             return null;
+    //         }
+
+    //         for (PhotonTrackedTarget target : targets) {
+    //                 targetsArray.add(target);
+    //         }
+
+    //         return targetsArray;
+    //     }
+
+    //     return null;
+    // }
 
     /**
      * 
