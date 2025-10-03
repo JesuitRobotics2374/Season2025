@@ -84,7 +84,7 @@ public class Core {
 
     public final PathfinderSubsystem pathfinderSubsystem = new PathfinderSubsystem(this);
 
-    public final PanelSubsystem panelSubsystem = new PanelSubsystem(pathfinderSubsystem);
+    // public final PanelSubsystem panelSubsystem = new PanelSubsystem(pathfinderSubsystem);
 
     public SequentialCommandGroup autoCommandGroup;
 
@@ -229,6 +229,9 @@ public class Core {
 
         driveController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
         driveController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise(manipulatorSubsystem)));
+
+        operatorController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
+        operatorController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise(manipulatorSubsystem)));
 
         /////////////////////////////////////////////////////////
         
