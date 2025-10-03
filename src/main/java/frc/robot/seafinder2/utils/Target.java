@@ -25,6 +25,7 @@ public class Target {
         PROCESSOR,
         BARGE_LEFT,
         BARGE_RIGHT,
+        USE_TAG, // Use provided tag instead
     }
 
     public enum Side {
@@ -43,6 +44,7 @@ public class Target {
     public static class Location {
         Landmark landmark;
         Side side;
+        int forceTag;
         boolean isReef;
 
         public Location(Landmark landmark, Side side) {
@@ -54,6 +56,13 @@ public class Target {
         public Location(Landmark landmark) {
             this.landmark = landmark;
             isReef = false;
+        }
+
+        public Location(int forceTag, Side side) {
+            this.landmark = Landmark.USE_TAG;
+            this.side = side;
+            this.forceTag = forceTag;
+            isReef = true;
         }
 
         public Landmark getLandmark() {
@@ -304,6 +313,9 @@ public class Target {
         double yaw = 0;
 
         switch (this.location.landmark) {
+            case USE_TAG:
+                tagId = this.location.forceTag;
+                break;
             case REEF_FRONT:
                 tagId = isRed ? 7 : 18;
                 break;

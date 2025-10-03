@@ -40,6 +40,7 @@ import frc.robot.seafinder2.utils.Target.TagRelativePose;
 // import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 import frc.robot.seafinder2.SF2Constants;
@@ -99,6 +100,8 @@ public class Core {
 
 
     public AprilTagFieldLayout atf;
+
+    private TagRelativePose assistiveEAPose;
 
     public Core() {
 
@@ -232,6 +235,26 @@ public class Core {
 
         operatorController.leftBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.lower()));
         operatorController.rightBumper().whileTrue(elevatorSubsystem.runOnce(() -> elevatorSubsystem.raise(manipulatorSubsystem)));
+
+        driveController.a().onTrue(new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    int nearestTag = VisionSubsystem.getNearestTag();
+                    Target nearestTarget = new Target(this);
+                    nearestTarget.setLocation(new Target.Location(nearestTag, Side.LEFT)); // Use forceTag constructor
+                    nearestTarget.setHeight(Target.Height.BRANCH_L4); // Not used here but required
+                    assistiveEAPose = nearestTarget.getTagRelativePose();
+                }),
+                new ExactAlign(drivetrain, assistiveEAPose)));
+
+        driveController.b().onTrue(new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    int nearestTag = VisionSubsystem.getNearestTag();
+                    Target nearestTarget = new Target(this);
+                    nearestTarget.setLocation(new Target.Location(nearestTag, Side.RIGHT)); // Use forceTag constructor
+                    nearestTarget.setHeight(Target.Height.BRANCH_L4); // Not used here but required
+                    assistiveEAPose = nearestTarget.getTagRelativePose();
+                }),
+                new ExactAlign(drivetrain, assistiveEAPose)));
 
         /////////////////////////////////////////////////////////
         

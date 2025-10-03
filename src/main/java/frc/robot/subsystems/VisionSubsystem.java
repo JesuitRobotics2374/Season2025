@@ -263,12 +263,12 @@ public class VisionSubsystem {
         return null;
     }
 
-    private static int getNearestTag(PhotonCamera camera) {
-        if (!canSeeTag(camera)) {
+    public static int getNearestTag() {
+        if (!canSeeTag(cameras[0])) {
             return -1;
         }
 
-        PhotonPipelineResult result = camera.getLatestResult();
+        PhotonPipelineResult result = cameras[0].getLatestResult();
 
         if (result != null && result.hasTargets()) {
             List<PhotonTrackedTarget> targets = result.targets;
